@@ -1,0 +1,31 @@
+[
+    {
+        "category": "Cameras",
+        "items": [
+            "Sony A7RV",
+            "Ricoh GR IIIx"
+        ]
+    },
+    {
+        "category": "Lenses",
+        "items": [
+            "Sony 24-70mm f/2.8 GM II",
+            "Sony 35mm f/1.4 GM"
+        ]
+    },
+    {
+        "category": "Lighting & Accessories",
+        "items": [
+            "Profoto B10X",
+            "Peak Design Travel Tripod"
+        ]
+    },
+    {
+        "category": "Software",
+        "items": [
+            "Lightroom Classic",
+            "Photoshop",
+            "Capture One"
+        ]
+    }
+]
