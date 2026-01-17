@@ -17,6 +17,37 @@ async function getProjects(): Promise<Project[]> {
     }
 }
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const { slug } = await params;
+    const projects = await getProjects();
+    const project = projects.find((p) => p.slug === slug);
+
+    if (!project) {
+        return {
+            title: "Project Not Found",
+        };
+    }
+
+    return {
+        title: `${project.title} | RCV.Media`,
+        description: project.description.substring(0, 160) + "...",
+        openGraph: {
+            title: project.title,
+            description: project.description.substring(0, 160),
+            images: [
+                {
+                    url: project.coverImage,
+                    width: 1200,
+                    height: 630,
+                    alt: project.title,
+                },
+            ],
+        },
+    };
+}
+
 export async function generateStaticParams() {
     const projects = await getProjects();
     return projects.map((project) => ({

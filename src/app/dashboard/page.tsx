@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { MagneticButton } from "@/components/ui/magnetic-button"
 import { Lock, BarChart3, Image as ImageIcon, Plus, Users, Globe, ArrowUp, Settings, Layout, ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ImageUploader } from "@/components/ui/image-uploader"
 
 // Analytics removed - connect real provider
 const ANALYTICS_DATA: any[] = []; // Empty for now
@@ -291,9 +292,21 @@ function ContentView() {
                             />
                         </div>
 
-                        <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center text-muted-foreground hover:bg-secondary/20 transition-colors cursor-pointer gap-2">
-                            <Plus size={24} />
-                            <span className="text-sm">Cover Image (URL only for now)</span>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold uppercase text-muted-foreground">Cover Image</label>
+                            <ImageUploader
+                                value={newProject.coverImage || ""}
+                                onChange={(url) => setNewProject({ ...newProject, coverImage: url as string })}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold uppercase text-muted-foreground">Gallery Images</label>
+                            <ImageUploader
+                                value={newProject.galleryImages || []}
+                                onChange={(urls) => setNewProject({ ...newProject, galleryImages: urls as string[] })}
+                                multiple
+                            />
                         </div>
 
                         <MagneticButton
@@ -416,9 +429,12 @@ function ProfileEditor({ onManageGear, onManageTimeline }: { onManageGear: () =>
                         />
                     </div>
 
-                    <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center text-muted-foreground hover:bg-secondary/20 transition-colors cursor-pointer gap-2">
-                        <ImageIcon size={24} />
-                        <span className="text-sm">Change Portrait (Enter URL in JSON for now)</span>
+                    <div className="space-y-2">
+                        <label className="text-xs font-semibold uppercase text-muted-foreground">Portrait Image</label>
+                        <ImageUploader
+                            value={formData.portrait}
+                            onChange={(url) => setFormData({ ...formData, portrait: url as string })}
+                        />
                     </div>
 
                     <MagneticButton
