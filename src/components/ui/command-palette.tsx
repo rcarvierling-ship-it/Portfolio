@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { Command } from "cmdk"
 import { motion, AnimatePresence } from "framer-motion"
 import { Search, FileText, Home, User, Mail, Briefcase } from "lucide-react"
-import { projects } from "@/data/projects"
 import { useTheme } from "next-themes"
 
 export function CommandPalette() {
@@ -74,17 +73,6 @@ export function CommandPalette() {
                                 </Command.Item>
                             </Command.Group>
 
-                            <Command.Group heading="Projects">
-                                {projects.map((project) => (
-                                    <Command.Item
-                                        key={project.slug}
-                                        onSelect={() => runCommand(() => router.push(`/work/${project.slug}`))}
-                                        className="flex items-center gap-2 px-2 py-2 text-sm rounded-md cursor-pointer hover:bg-secondary aria-selected:bg-secondary"
-                                    >
-                                        <Briefcase size={14} /> {project.title}
-                                    </Command.Item>
-                                ))}
-                            </Command.Group>
 
                             <Command.Group heading="Theme">
                                 <Command.Item onSelect={() => runCommand(() => setTheme("light"))} className="flex items-center gap-2 px-2 py-2 text-sm rounded-md cursor-pointer hover:bg-secondary aria-selected:bg-secondary">
