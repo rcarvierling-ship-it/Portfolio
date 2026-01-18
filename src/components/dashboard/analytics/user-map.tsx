@@ -102,7 +102,7 @@ export function UserMap({ data }: UserMapProps) {
                                 <Marker
                                     key={i}
                                     coordinates={[loc.lng, loc.lat]}
-                                    onClick={(e) => {
+                                    onClick={(e: React.MouseEvent) => {
                                         e.stopPropagation();
                                         setSelectedLocation(key);
                                     }}
