@@ -60,9 +60,17 @@ function AnalyticsSection() {
     const [stats, setStats] = useState({ totalViews: 0 });
 
     useEffect(() => {
-        fetch('/api/analytics').then(r => r.json()).then(d => {
-            setStats({ totalViews: d.totalViews });
-        });
+        fetch('/api/analytics')
+            .then(r => {
+                if (!r.ok) throw new Error("Fetch failed");
+                return r.json();
+            })
+            .then(d => {
+                if (d && typeof d.totalViews === 'number') {
+                    setStats({ totalViews: d.totalViews });
+                }
+            })
+            .catch(() => setStats({ totalViews: 0 }));
     }, []);
 
     // Calculate Active Visitors (Last 5 mins)
@@ -72,13 +80,7 @@ function AnalyticsSection() {
         // Improvement: POST to /api/analytics/recent on load. 
         // For this task, let's just calculate based on "live" incoming data for now, 
         // or fetch full log. Let's fetch full log for "Active Visitors" accuracy.
-
-        fetch('/api/analytics').then(r => r.json()).then(() => {
-            // We need raw events for active visitors. 
-            // Let's assume the API returns processed stats or we add an endpoint.
-            // For now, let's simulate active visitors or use incoming stream.
-            // "Live" means reacting to stream.
-        });
+        // (Skipping extra fetch to avoid load, relying on stream + initial cache if implemented)
 
         const calcActive = () => {
             const now = Date.now();

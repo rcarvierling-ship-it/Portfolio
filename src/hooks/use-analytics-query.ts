@@ -52,15 +52,20 @@ export function useAnalyticsQuery() {
         // Initial fetch of full log for robust stats
         // We do this only once if cache is empty
         if (eventCache.length === 0) {
-            fetch('/api/analytics/events') // We need an endpoint for raw events if we want client-side processing
-                .then(r => r.json())
+            fetch('/api/analytics/events')
+                .then(r => {
+                    if (!r.ok) throw new Error('Failed to fetch');
+                    return r.json();
+                })
                 .then(data => {
                     if (Array.isArray(data)) {
                         eventCache = data.reverse(); // Newest first
                         setEvents(eventCache);
                     }
                 })
-                .catch(() => { });
+                .catch(() => {
+                    // Ignore errors (e.g. adblocker)
+                });
         }
 
         connect();
