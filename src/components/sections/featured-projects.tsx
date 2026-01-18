@@ -3,7 +3,7 @@ import * as Motion from "framer-motion/client"
 import { getProjects } from "@/lib/cms"
 
 export async function FeaturedProjects() {
-    const all = getProjects(false); // Only published
+    const all = await getProjects(false); // Only published
     const featured = all.filter(p => p.featured).slice(0, 2);
 
     if (featured.length === 0) return null;
