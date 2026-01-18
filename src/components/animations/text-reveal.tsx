@@ -10,6 +10,7 @@ interface TextRevealProps {
 }
 
 export function TextReveal({ text, className, delay = 0 }: TextRevealProps) {
+    if (!text) return null;
     const words = text.split(" ");
 
     const container = {
