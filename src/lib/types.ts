@@ -106,10 +106,21 @@ export interface Project extends BaseEntity {
 }
 
 // Legacy types support (mapped or deprecated)
+// Mapped types for specific page content structure
 export interface AboutData {
     headline: string;
     bio: string[];
     portrait: string;
+    // Gear and timeline are usually separate blocks or arrays, but can be part of data for now
+    gear?: Gear[];
+    timeline?: TimelineItem[];
+}
+
+export interface ContactData {
+    title: string;
+    description: string;
+    email: string;
+    instagram: string;
 }
 
 export interface Gear {
