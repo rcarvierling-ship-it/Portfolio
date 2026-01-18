@@ -7,6 +7,7 @@ import { SimpleBarChart, MetricCard } from "./charts"
 import { Loader2 } from "lucide-react"
 import { ChartSkeleton } from "./skeleton"
 import { HeatmapViz } from "./heatmap-viz"
+import { UserMap } from "./user-map"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function AnalyticsOverview() {
@@ -71,28 +72,35 @@ export function AnalyticsOverview() {
                 </div>
             </div>
 
-            <div className="p-6 rounded-xl border border-border bg-card">
-                <h3 className="font-bold mb-4">Traffic Over Time</h3>
-                <AnimatePresence mode="wait">
-                    {isLoading ? (
-                        <motion.div
-                            key="skeleton"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                        >
-                            <ChartSkeleton />
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="chart"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                        >
-                            <SimpleBarChart data={chartData} />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+            {/* Map Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="p-6 rounded-xl border border-border bg-card">
+                    <h3 className="font-bold mb-4">Traffic Over Time</h3>
+                    <AnimatePresence mode="wait">
+                        {isLoading ? (
+                            <motion.div
+                                key="skeleton"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                            >
+                                <ChartSkeleton />
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="chart"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                            >
+                                <SimpleBarChart data={chartData} />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                <div className="h-[400px]">
+                    <UserMap data={filteredEvents} />
+                </div>
             </div>
         </div>
     )

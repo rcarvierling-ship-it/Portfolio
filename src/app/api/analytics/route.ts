@@ -11,10 +11,29 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Invalid event data' }, { status: 400 });
         }
 
+        const headersList = await request.headers;
+
+        // Extract geolocation from Vercel headers
+        const country = headersList.get('x-vercel-ip-country') || undefined;
+        const city = headersList.get('x-vercel-ip-city') || undefined;
+        const region = headersList.get('x-vercel-ip-region') || undefined;
+        const lat = headersList.get('x-vercel-ip-latitude') || undefined;
+        const lng = headersList.get('x-vercel-ip-longitude') || undefined;
+
         const event: AnalyticsEvent = {
             id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
             timestamp: new Date().toISOString(),
-            ...body
+            ...body,
+            data: {
+                ...(body.data || {}),
+                geo: {
+                    country,
+                    city,
+                    region,
+                    lat,
+                    lng
+                }
+            }
         };
 
         const success = await trackAnalyticsEvent(event);

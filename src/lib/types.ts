@@ -127,6 +127,13 @@ export interface AnalyticsEvent {
         depth?: number;  // For scroll (25, 50, 75, 100)
         referrer?: string;
         device?: 'mobile' | 'desktop' | 'tablet';
+        geo?: {
+            country?: string;
+            city?: string;
+            lat?: string;
+            lng?: string;
+            region?: string;
+        };
         [key: string]: any;
     };
 }
