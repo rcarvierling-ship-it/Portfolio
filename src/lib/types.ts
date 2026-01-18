@@ -54,6 +54,8 @@ export interface ContentBlock {
 export interface Page extends BaseEntity {
     slug: string; // e.g. 'home', 'about'
     title: string;
+    description?: string; // SEO
+    content?: any; // Structured data (e.g. AboutData)
     blocks: ContentBlock[];
 }
 

@@ -1,49 +1,50 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 
-const DATA_FILE = path.join(process.cwd(), 'src/data/about.json');
-
-function readData() {
-    try {
-        const fileContent = fs.readFileSync(DATA_FILE, 'utf-8');
-        return JSON.parse(fileContent);
-    } catch (error) {
-        console.error("Error reading about data:", error);
-        return null;
-    }
-}
-
-function writeData(data: any) {
-    try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-        return true;
-    } catch (error) {
-        console.error("Error writing about data:", error);
-        return false;
-    }
-}
+import { type NextRequest, NextResponse } from 'next/server';
+import { getPage, savePage } from '@/lib/cms';
+import { Page } from '@/lib/types';
+import { auth } from '@/auth';
 
 export async function GET() {
-    const data = readData();
-    if (!data) return NextResponse.json({ error: 'Failed to load data' }, { status: 500 });
-    return NextResponse.json(data);
+    // 1. Get 'about' page
+    const page = await getPage('about');
+    // 2. Return content or defaults
+    const defaults = { headline: "", bio: [], portrait: "" };
+    if (!page) return NextResponse.json(defaults);
+    return NextResponse.json({ ...defaults, ...(page.content || {}) });
 }
 
-import { auth } from "@/auth"
-
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
     const session = await auth();
-    if (!session || session.user?.email !== process.env.ADMIN_EMAIL) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const data = await req.json();
+    let page = await getPage('about');
+
+    if (!page) {
+        // Create if missing
+        page = {
+            id: 'about',
+            slug: 'about',
+            title: 'About',
+            status: 'published',
+            version: 1,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            blocks: [],
+            content: {}
+        } as Page;
     }
 
-    try {
-        const body = await request.json();
-        const success = writeData(body);
-        if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
-        return NextResponse.json({ success: true, data: body });
-    } catch (error) {
-        return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
-    }
+    // Merge only profile fields (headline, bio, portrait) to avoid overwriting gear/timeline
+    // Actually the POST body is exactly the profile data based on AboutTab
+    page.content = {
+        ...page.content,
+        headline: data.headline,
+        bio: data.bio,
+        portrait: data.portrait
+    };
+    page.version++;
+
+    await savePage(page, session.user?.email || 'admin');
+    return NextResponse.json({ success: true });
 }

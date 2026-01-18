@@ -2,12 +2,14 @@
 
 import { useAnalyticsQuery } from "@/hooks/use-analytics-query"
 import { ExternalLink } from "lucide-react"
+import { HeatmapViz } from "./heatmap-viz";
 
 export function AnalyticsProjects() {
     const { events } = useAnalyticsQuery();
 
     // Group by Path (ignoring query params)
-    const projectStats: Record<string, { views: number, clicks: number, conversions: number }> = {};
+    type ProjectStat = { views: number, clicks: number, conversions: number, scrollDepths: Record<number, number> };
+    const projectStats: Record<string, ProjectStat> = {};
 
     events.forEach(e => {
         let path = e.path.split('?')[0];
@@ -17,12 +19,17 @@ export function AnalyticsProjects() {
         const slug = path.replace('/work/', '');
         if (!slug) return;
 
-        if (!projectStats[slug]) projectStats[slug] = { views: 0, clicks: 0, conversions: 0 };
+        if (!projectStats[slug]) projectStats[slug] = { views: 0, clicks: 0, conversions: 0, scrollDepths: { 25: 0, 50: 0, 75: 0, 100: 0 } };
 
         if (e.type === 'pageview') projectStats[slug].views++;
         if (e.type === 'click') projectStats[slug].clicks++;
         if (e.type === 'click' && (e.data?.label === 'Contact' || e.data?.target?.includes('mailto'))) {
             projectStats[slug].conversions++;
+        }
+        if (e.type === 'scroll' && e.data?.depth) {
+            const depth = e.data.depth;
+            // @ts-ignore
+            projectStats[slug].scrollDepths[depth] = (projectStats[slug].scrollDepths[depth] || 0) + 1;
         }
     });
 
@@ -55,6 +62,7 @@ export function AnalyticsProjects() {
                         <tr>
                             <th className="p-4">Project</th>
                             <th className="p-4 text-right">Views</th>
+                            <th className="p-4 w-48">Scroll Heatmap</th>
                             <th className="p-4 text-right">Interactions (Clicks)</th>
                             <th className="p-4 text-right">Conversion Est.</th>
                             <th className="p-4 text-right">Explore</th>
@@ -62,21 +70,29 @@ export function AnalyticsProjects() {
                     </thead>
                     <tbody className="divide-y divide-border">
                         {rows.length === 0 ? (
-                            <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No project data yet.</td></tr>
+                            <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No project data yet.</td></tr>
                         ) : (
-                            rows.map(row => (
-                                <tr key={row.slug} className="hover:bg-secondary/20">
-                                    <td className="p-4 font-medium capitalize">{row.slug.replace('-', ' ')}</td>
-                                    <td className="p-4 text-right">{row.views}</td>
-                                    <td className="p-4 text-right text-muted-foreground">{row.clicks}</td>
-                                    <td className="p-4 text-right font-mono">{row.conversions}</td>
-                                    <td className="p-4 text-right">
-                                        <a href={`/work/${row.slug}`} target="_blank" className="inline-flex items-center justify-center p-2 hover:bg-secondary rounded">
-                                            <ExternalLink size={14} />
-                                        </a>
-                                    </td>
-                                </tr>
-                            ))
+                            rows.map(row => {
+                                const heatmapData = [25, 50, 75, 100].map(d => ({ depth: d, count: row.scrollDepths[d] || 0 }));
+                                // Normalize by total unique sessions for this slug? Or total pageviews?
+                                // Total views is a decent proxy for total potential scrollers.
+                                return (
+                                    <tr key={row.slug} className="hover:bg-secondary/20">
+                                        <td className="p-4 font-medium capitalize">{row.slug.replace('-', ' ')}</td>
+                                        <td className="p-4 text-right">{row.views}</td>
+                                        <td className="p-4">
+                                            <HeatmapViz data={heatmapData} total={row.views} />
+                                        </td>
+                                        <td className="p-4 text-right text-muted-foreground">{row.clicks}</td>
+                                        <td className="p-4 text-right font-mono">{row.conversions}</td>
+                                        <td className="p-4 text-right">
+                                            <a href={`/work/${row.slug}`} target="_blank" className="inline-flex items-center justify-center p-2 hover:bg-secondary rounded">
+                                                <ExternalLink size={14} />
+                                            </a>
+                                        </td>
+                                    </tr>
+                                )
+                            })
                         )}
                     </tbody>
                 </table>

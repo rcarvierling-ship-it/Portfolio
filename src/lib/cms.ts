@@ -197,6 +197,7 @@ export const getPages = async (includeDrafts = false): Promise<Page[]> => {
             ...row,
             createdAt: (row as any).created_at,
             updatedAt: (row as any).updated_at,
+            content: typeof (row as any).content === 'string' ? JSON.parse((row as any).content) : (row as any).content || {},
             blocks: typeof (row as any).blocks === 'string' ? JSON.parse((row as any).blocks) : (row as any).blocks || []
         })) as unknown as Page[];
     } catch (e) {
@@ -213,6 +214,7 @@ export const getPage = async (slug: string): Promise<Page | undefined> => {
             ...row,
             createdAt: row.created_at,
             updatedAt: row.updated_at,
+            content: typeof row.content === 'string' ? JSON.parse(row.content) : row.content || {},
             blocks: typeof row.blocks === 'string' ? JSON.parse(row.blocks) : row.blocks || []
         } as Page;
     } catch (e) {
@@ -223,14 +225,17 @@ export const getPage = async (slug: string): Promise<Page | undefined> => {
 export const savePage = async (page: Page, user: string): Promise<boolean> => {
     try {
         await sql`
-            INSERT INTO pages (id, slug, title, blocks, status, version, created_at, updated_at)
+            INSERT INTO pages (id, slug, title, description, content, blocks, status, version, created_at, updated_at)
             VALUES (
-                ${page.id}, ${page.slug}, ${page.title}, ${JSON.stringify(page.blocks)}, 
+                ${page.id}, ${page.slug}, ${page.title}, ${page.description || ''}, 
+                ${JSON.stringify(page.content || {})}, ${JSON.stringify(page.blocks || [])}, 
                 ${page.status}, ${page.version}, ${page.createdAt}, ${new Date().toISOString()}
             )
             ON CONFLICT (id) DO UPDATE SET
                 slug = EXCLUDED.slug,
                 title = EXCLUDED.title,
+                description = EXCLUDED.description,
+                content = EXCLUDED.content,
                 blocks = EXCLUDED.blocks,
                 status = EXCLUDED.status,
                 updated_at = EXCLUDED.updated_at

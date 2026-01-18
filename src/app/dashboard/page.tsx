@@ -80,6 +80,7 @@ function DashboardPage() {
         { id: "projects", label: "Projects" },
         { id: "photos", label: "Photos" },
         { id: "pages", label: "Pages" },
+        { id: "about", label: "About" },
         { id: "settings", label: "Settings" },
         { id: "security", label: "Security" },
     ];
