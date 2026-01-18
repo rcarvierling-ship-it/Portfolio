@@ -9,13 +9,35 @@ import { cn } from "@/lib/utils"
 export function ContactForm() {
     const [formState, setFormState] = useState<"idle" | "submitting" | "success">("idle");
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setFormState("submitting");
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setFormState("success");
+        const formData = new FormData(e.currentTarget);
+        const data = {
+            name: formData.get('name') as string,
+            email: formData.get('email') as string,
+            message: formData.get('message') as string,
+        };
+
+        try {
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error || 'Failed to send message');
+            }
+
+            setFormState("success");
+        } catch (error: any) {
+            console.error('Contact form error:', error);
+            alert(`Failed to send message: ${error.message}`);
+            setFormState("idle");
+        }
     };
 
     return (
@@ -53,6 +75,7 @@ export function ContactForm() {
                                 required
                                 type="text"
                                 id="name"
+                                name="name"
                                 className="px-4 py-3 rounded-lg bg-secondary/30 border border-border focus:ring-2 focus:ring-primary focus:outline-none transition-all"
                                 placeholder="John Doe"
                             />
@@ -64,6 +87,7 @@ export function ContactForm() {
                                 required
                                 type="email"
                                 id="email"
+                                name="email"
                                 className="px-4 py-3 rounded-lg bg-secondary/30 border border-border focus:ring-2 focus:ring-primary focus:outline-none transition-all"
                                 placeholder="john@example.com"
                             />
@@ -74,6 +98,7 @@ export function ContactForm() {
                             <textarea
                                 required
                                 id="message"
+                                name="message"
                                 rows={4}
                                 className="px-4 py-3 rounded-lg bg-secondary/30 border border-border focus:ring-2 focus:ring-primary focus:outline-none transition-all resize-none"
                                 placeholder="Tell me about your project..."

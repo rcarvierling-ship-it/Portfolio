@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Upload, X, Loader2, Image as ImageIcon } from 'lucide-react'
 import Image from 'next/image'
+import imageCompression from 'browser-image-compression'
 
 interface ImageUploaderProps {
     value: string | string[];
@@ -15,6 +16,8 @@ interface ImageUploaderProps {
 export function ImageUploader({ value, onChange, multiple = false, className = "" }: ImageUploaderProps) {
     const [uploading, setUploading] = useState(false);
 
+
+
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         if (acceptedFiles.length === 0) return;
 
@@ -22,7 +25,22 @@ export function ImageUploader({ value, onChange, multiple = false, className = "
         const newUrls: string[] = [];
 
         try {
-            for (const file of acceptedFiles) {
+            for (const originalFile of acceptedFiles) {
+                // Client-side compression to avoid 4.5MB Serverless Limit & 413 Errors
+                let file = originalFile;
+                try {
+                    const options = {
+                        maxSizeMB: 1, // Max 1MB
+                        maxWidthOrHeight: 1920, // Max 1920px
+                        useWebWorker: true
+                    };
+                    const compressedBlob = await imageCompression(originalFile, options);
+                    file = new File([compressedBlob], originalFile.name, { type: originalFile.type });
+                    console.log(`Compressed ${originalFile.size / 1024 / 1024}MB -> ${file.size / 1024 / 1024}MB`);
+                } catch (e) {
+                    console.warn("Compression failed, trying original:", e);
+                }
+
                 const formData = new FormData();
                 formData.append('file', file);
 

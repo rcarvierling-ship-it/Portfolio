@@ -78,7 +78,7 @@ function DashboardPage() {
         { id: "analytics-projects", label: "Perf" },
         { id: "analytics-sources", label: "Sources" },
         { id: "projects", label: "Work" },
-        // { id: "photos", label: "Photos" }, // Removed as per request
+        { id: "photos", label: "Photos" }, // Re-enabled as per request
         { id: "pages", label: "Pages" },
         { id: "about", label: "About" },
         { id: "settings", label: "Settings" },
