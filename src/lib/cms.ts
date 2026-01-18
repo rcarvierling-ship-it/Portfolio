@@ -1,38 +1,11 @@
-import fs from 'fs';
-import path from 'path';
+
+import { sql } from '@vercel/postgres';
 import {
-    Project, SiteSettings, Photo, Page, HistoryEntry, BaseEntity, AnalyticsEvent
+    Project, SiteSettings, Photo, Page, HistoryEntry, AnalyticsEvent
 } from '@/lib/types';
 
-const DATA_DIR = path.join(process.cwd(), 'src/data');
-
-// Helper to read JSON
-function readJson<T>(filename: string): T {
-    const filePath = path.join(DATA_DIR, filename);
-    try {
-        if (!fs.existsSync(filePath)) return [] as unknown as T;
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
-        return JSON.parse(fileContent);
-    } catch (error) {
-        console.error(`Error reading ${filename}:`, error);
-        return [] as unknown as T;
-    }
-}
-
-// Helper to write JSON
-function writeJson(filename: string, data: any): boolean {
-    const filePath = path.join(DATA_DIR, filename);
-    try {
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-        return true;
-    } catch (error) {
-        console.error(`Error writing ${filename}:`, error);
-        return false;
-    }
-}
-
 // --- History Logging ---
-function logHistory(
+async function logHistory(
     action: HistoryEntry['action'],
     entityType: HistoryEntry['entityType'],
     entityId: string,
@@ -40,146 +13,297 @@ function logHistory(
     changes?: string,
     snapshot?: any
 ) {
-    const history = readJson<HistoryEntry[]>('history.json') || [];
-    const entry: HistoryEntry = {
-        id: Date.now().toString(),
-        timestamp: new Date().toISOString(),
-        user,
-        action,
-        entityType,
-        entityId,
-        changes,
-        snapshot
-    };
-    history.unshift(entry); // Add to top
-    // Limit log size to 1000 entries
-    if (history.length > 1000) history.length = 1000;
-    writeJson('history.json', history);
-}
-
-// --- Generic CRUD Helpers ---
-function getAll<T extends BaseEntity>(filename: string, includeDrafts: boolean = false): T[] {
-    const items = readJson<T[]>(filename);
-    if (includeDrafts) return items;
-    return items.filter(item => item.status === 'published');
-}
-
-function getById<T extends BaseEntity>(filename: string, id: string): T | undefined {
-    const items = readJson<T[]>(filename);
-    return items.find(item => item.id === id);
-}
-
-function save<T extends BaseEntity>(
-    filename: string,
-    item: T,
-    entityType: HistoryEntry['entityType'],
-    user: string
-): boolean {
-    const items = readJson<T[]>(filename);
-    const index = items.findIndex(i => i.id === item.id);
-    let action: HistoryEntry['action'] = 'update';
-    let snapshot: any = null;
-
-    if (index >= 0) {
-        // Update
-        snapshot = items[index]; // Capture state BEFORE update
-        items[index] = { ...items[index], ...item, updatedAt: new Date().toISOString() };
-    } else {
-        // Create
-        action = 'create';
-        item.createdAt = new Date().toISOString();
-        item.updatedAt = new Date().toISOString();
-        item.version = 1;
-        items.unshift(item);
+    try {
+        const id = Date.now().toString();
+        const timestamp = new Date().toISOString();
+        await sql`
+            INSERT INTO audit_logs (id, timestamp, "user", action, target, details)
+            VALUES (${id}, ${timestamp}, ${user}, ${action}, ${entityType + ':' + entityId}, ${changes || JSON.stringify(snapshot || {})})
+        `;
+    } catch (e) {
+        console.error("Audit log error:", e);
     }
-
-    const success = writeJson(filename, items);
-    if (success) {
-        logHistory(action, entityType, item.id, user, undefined, snapshot);
-    }
-    return success;
 }
 
-function deleteItem<T extends BaseEntity>(
-    filename: string,
-    id: string,
-    entityType: HistoryEntry['entityType'],
-    user: string
-): boolean {
-    const items = readJson<T[]>(filename);
-    const newItems = items.filter(i => i.id !== id);
-    if (newItems.length === items.length) return false; // Not found
-
-    const success = writeJson(filename, newItems);
-    if (success) {
-        logHistory('delete', entityType, id, user);
+// --- PROJECTS ---
+export const getProjects = async (includeDrafts = false): Promise<Project[]> => {
+    try {
+        let result;
+        if (includeDrafts) {
+            result = await sql<Project>`SELECT * FROM projects ORDER BY "order" ASC, created_at DESC`;
+        } else {
+            result = await sql<Project>`SELECT * FROM projects WHERE status = 'published' ORDER BY "order" ASC, created_at DESC`;
+        }
+        return result.rows.map(row => {
+            const r = row as any;
+            return {
+                ...r,
+                createdAt: r.created_at,
+                updatedAt: r.updated_at,
+                // Ensure content is parsed if it came back as string (pg usually handles jsonb as object automatically, but valid check)
+                content: typeof r.content === 'string' ? JSON.parse(r.content) : r.content,
+                tags: r.tags || [],
+                tools: r.tools || [],
+                galleryImages: r.gallery_images || []
+            } as Project;
+        });
+    } catch (e) {
+        console.error("Get Projects Error:", e);
+        return [];
     }
-    return success;
-}
-
-// --- Specific Accessors ---
-
-// Helper to save all (bulk)
-function saveAll<T extends BaseEntity>(
-    filename: string,
-    items: T[],
-    entityType: HistoryEntry['entityType'],
-    user: string
-): boolean {
-    const success = writeJson(filename, items);
-    if (success) {
-        logHistory('update', entityType, 'bulk-reorder', user);
-    }
-    return success;
-}
-
-// PROJECTS
-export const fileProjects = 'projects.json';
-export const getProjects = (includeDrafts = false) => getAll<Project>(fileProjects, includeDrafts);
-export const getProject = (slug: string) => readJson<Project[]>(fileProjects).find(p => p.slug === slug);
-export const saveProject = (project: Project, user: string) => save(fileProjects, project, 'project', user);
-export const saveProjects = (projects: Project[], user: string) => saveAll(fileProjects, projects, 'project', user);
-export const deleteProject = (id: string, user: string) => deleteItem(fileProjects, id, 'project', user);
-
-// PHOTOS
-export const filePhotos = 'photos.json';
-export const getPhotos = (includeDrafts = false) => getAll<Photo>(filePhotos, includeDrafts);
-export const savePhoto = (photo: Photo, user: string) => save(filePhotos, photo, 'photo', user);
-export const savePhotos = (photos: Photo[], user: string) => saveAll(filePhotos, photos, 'photo', user);
-export const deletePhoto = (id: string, user: string) => deleteItem(filePhotos, id, 'photo', user);
-
-// PAGES
-export const filePages = 'pages.json';
-export const getPages = (includeDrafts = false) => getAll<Page>(filePages, includeDrafts);
-export const getPage = (slug: string) => readJson<Page[]>(filePages).find(p => p.slug === slug);
-export const savePage = (page: Page, user: string) => save(filePages, page, 'page', user);
-
-// SETTINGS
-export const fileSettings = 'settings.json';
-export const getSettings = (): SiteSettings => {
-    return readJson<SiteSettings>(fileSettings) || {} as SiteSettings;
-};
-export const saveSettings = (settings: SiteSettings, user: string) => {
-    // Settings is a single object, not array, so custom save logic needed or wrap in save
-    // But our save() expects array. Let's customize for settings.
-    const success = writeJson(fileSettings, {
-        ...settings,
-        updatedAt: new Date().toISOString()
-    });
-    if (success) logHistory('update', 'settings', 'global', user);
-    return success;
 };
 
-// HISTORY
-export const getHistory = () => readJson<HistoryEntry[]>('history.json');
-
-// ANALYTICS
-export const fileAnalytics = 'analytics_events.json';
-export const trackAnalyticsEvent = (event: AnalyticsEvent) => {
-    // Append-only log
-    const events = readJson<AnalyticsEvent[]>(fileAnalytics) || [];
-    events.push(event);
-    // Optional: Rotate/Archive logs if too large? For now keep it simple.
-    return writeJson(fileAnalytics, events);
+export const getProject = async (slug: string): Promise<Project | undefined> => {
+    try {
+        const { rows } = await sql<Project>`SELECT * FROM projects WHERE slug = ${slug} LIMIT 1`;
+        if (rows.length === 0) return undefined;
+        return rows[0];
+    } catch (e) {
+        console.error("Get Project Error:", e);
+        return undefined;
+    }
 };
-export const getAnalyticsEvents = () => readJson<AnalyticsEvent[]>(fileAnalytics);
+
+export const saveProject = async (project: Project, user: string): Promise<boolean> => {
+    try {
+        // Upsert
+        await sql`
+            INSERT INTO projects (id, slug, title, description, content, tags, tools, year, location, camera, lens, cover_image, gallery_images, featured, status, version, created_at, updated_at, "order")
+            VALUES (
+                ${project.id}, ${project.slug}, ${project.title}, ${project.description}, ${JSON.stringify(project.content || {})}, 
+                ${project.tags as any}, ${project.tools as any}, ${project.year}, ${project.location}, 
+                ${project.camera}, ${project.lens}, ${project.coverImage}, ${project.galleryImages as any}, 
+                ${project.featured}, ${project.status}, ${project.version}, ${project.createdAt}, ${new Date().toISOString()}, 
+                ${(project as any).order || 0}
+            )
+            ON CONFLICT (id) DO UPDATE SET
+                slug = EXCLUDED.slug,
+                title = EXCLUDED.title,
+                description = EXCLUDED.description,
+                content = EXCLUDED.content,
+                tags = EXCLUDED.tags,
+                tools = EXCLUDED.tools,
+                year = EXCLUDED.year,
+                location = EXCLUDED.location,
+                camera = EXCLUDED.camera,
+                lens = EXCLUDED.lens,
+                cover_image = EXCLUDED.cover_image,
+                gallery_images = EXCLUDED.gallery_images,
+                featured = EXCLUDED.featured,
+                status = EXCLUDED.status,
+                updated_at = EXCLUDED.updated_at,
+                "order" = EXCLUDED."order"
+        `;
+        await logHistory(project.version === 1 ? 'create' : 'update', 'project', project.id, user);
+        return true;
+    } catch (e) {
+        console.error("Save Project Error:", e);
+        return false;
+    }
+};
+
+export const saveProjects = async (projects: Project[], user: string): Promise<boolean> => {
+    // Handling bulk update mainly for reordering
+    try {
+        // Parallel updates? Or transaction? Transaction preferred.
+        // For simplicity with Vercel Postgres simple query, we loop.
+        for (const p of projects) {
+            await saveProject(p, user);
+        }
+        await logHistory('update', 'project', 'bulk-reorder', user);
+        return true;
+    } catch (e) {
+        console.error("Bulk Save Error:", e);
+        return false;
+    }
+};
+
+export const deleteProject = async (id: string, user: string): Promise<boolean> => {
+    try {
+        await sql`DELETE FROM projects WHERE id = ${id}`;
+        await logHistory('delete', 'project', id, user);
+        return true;
+    } catch (e) {
+        console.error("Delete Project Error:", e);
+        return false;
+    }
+};
+
+// --- PHOTOS ---
+export const getPhotos = async (includeDrafts = false): Promise<Photo[]> => {
+    try {
+        const { rows } = await sql<Photo>`SELECT * FROM photos ORDER BY created_at DESC`;
+        return rows;
+    } catch (e) {
+        return [];
+    }
+};
+
+export const savePhotos = async (photos: Photo[], user: string): Promise<boolean> => {
+    try {
+        for (const p of photos) {
+            await savePhoto(p, user);
+        }
+        await logHistory('update', 'photo', 'bulk-reorder', user);
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+
+export const savePhoto = async (photo: Photo, user: string): Promise<boolean> => {
+    try {
+        await sql`
+            INSERT INTO photos (id, url, alt_text, caption, width, height, blur_data_url, variants, tags, featured, status, created_at, updated_at)
+            VALUES (
+                ${photo.id}, ${photo.url}, ${photo.altText}, ${photo.caption}, ${photo.width}, ${photo.height}, 
+                ${photo.blurDataURL}, ${JSON.stringify(photo.variants)}, ${photo.tags as any}, ${photo.featured}, 
+                ${photo.status}, ${photo.createdAt}, ${new Date().toISOString()}
+            )
+            ON CONFLICT (id) DO UPDATE SET
+                alt_text = EXCLUDED.alt_text,
+                caption = EXCLUDED.caption,
+                tags = EXCLUDED.tags,
+                featured = EXCLUDED.featured,
+                updated_at = EXCLUDED.updated_at
+        `;
+        await logHistory('create', 'photo', photo.id, user);
+        return true;
+    } catch (e) {
+        console.error("Save Photo Error:", e);
+        return false;
+    }
+};
+
+export const deletePhoto = async (id: string, user: string): Promise<boolean> => {
+    try {
+        await sql`DELETE FROM photos WHERE id = ${id}`;
+        await logHistory('delete', 'photo', id, user);
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+// --- PAGES ---
+export const getPages = async (includeDrafts = false): Promise<Page[]> => {
+    try {
+        let result;
+        if (includeDrafts) {
+            result = await sql<Page>`SELECT * FROM pages ORDER BY created_at DESC`;
+        } else {
+            result = await sql<Page>`SELECT * FROM pages WHERE status = 'published' ORDER BY created_at DESC`;
+        }
+        return result.rows.map(row => ({
+            ...row,
+            createdAt: (row as any).created_at,
+            updatedAt: (row as any).updated_at,
+            blocks: typeof (row as any).blocks === 'string' ? JSON.parse((row as any).blocks) : (row as any).blocks || []
+        })) as unknown as Page[];
+    } catch (e) {
+        return [];
+    }
+};
+
+export const getPage = async (slug: string): Promise<Page | undefined> => {
+    try {
+        const { rows } = await sql<Page>`SELECT * FROM pages WHERE slug = ${slug} LIMIT 1`;
+        if (rows.length === 0) return undefined;
+        const row = rows[0] as any;
+        return {
+            ...row,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            blocks: typeof row.blocks === 'string' ? JSON.parse(row.blocks) : row.blocks || []
+        } as Page;
+    } catch (e) {
+        return undefined;
+    }
+};
+
+export const savePage = async (page: Page, user: string): Promise<boolean> => {
+    try {
+        await sql`
+            INSERT INTO pages (id, slug, title, blocks, status, version, created_at, updated_at)
+            VALUES (
+                ${page.id}, ${page.slug}, ${page.title}, ${JSON.stringify(page.blocks)}, 
+                ${page.status}, ${page.version}, ${page.createdAt}, ${new Date().toISOString()}
+            )
+            ON CONFLICT (id) DO UPDATE SET
+                slug = EXCLUDED.slug,
+                title = EXCLUDED.title,
+                blocks = EXCLUDED.blocks,
+                status = EXCLUDED.status,
+                updated_at = EXCLUDED.updated_at
+        `;
+        await logHistory(page.version === 1 ? 'create' : 'update', 'page', page.id, user);
+        return true;
+    } catch (e) {
+        console.error("Save Page Error:", e);
+        return false;
+    }
+};
+
+// --- SETTINGS ---
+export const getSettings = async (): Promise<SiteSettings> => {
+    try {
+        const { rows } = await sql`SELECT value FROM settings WHERE key = 'global' LIMIT 1`;
+        if (rows.length > 0) return rows[0].value as SiteSettings;
+        return {} as SiteSettings;
+    } catch (e) {
+        return {} as SiteSettings;
+    }
+};
+
+export const saveSettings = async (settings: SiteSettings, user: string): Promise<boolean> => {
+    try {
+        await sql`
+            INSERT INTO settings (key, value, updated_at)
+            VALUES ('global', ${JSON.stringify(settings)}, ${new Date().toISOString()})
+            ON CONFLICT (key) DO UPDATE SET
+                value = EXCLUDED.value,
+                updated_at = EXCLUDED.updated_at
+        `;
+        await logHistory('update', 'settings', 'global', user);
+        return true;
+    } catch (e) {
+        console.error("Save Settings Error:", e);
+        return false;
+    }
+};
+
+// --- HISTORY ---
+export const getHistory = async (): Promise<HistoryEntry[]> => {
+    try {
+        const { rows } = await sql<HistoryEntry>`SELECT * FROM audit_logs ORDER BY timestamp DESC LIMIT 100`;
+        return rows;
+    } catch (e) {
+        return [];
+    }
+};
+
+// --- ANALYTICS ---
+export const trackAnalyticsEvent = async (event: AnalyticsEvent) => {
+    try {
+        await sql`
+            INSERT INTO analytics_events (id, session_id, type, path, data, timestamp)
+            VALUES (
+                ${event.id}, ${event.sessionId}, ${event.type}, ${event.path}, 
+                ${JSON.stringify(event.data || {})}, ${event.timestamp}
+            )
+        `;
+        return true;
+    } catch (e) {
+        console.error("Analytics Error:", e);
+        return false;
+    }
+};
+
+export const getAnalyticsEvents = async (): Promise<AnalyticsEvent[]> => {
+    try {
+        const { rows } = await sql<AnalyticsEvent>`SELECT * FROM analytics_events ORDER BY timestamp DESC LIMIT 500`;
+        return rows;
+    } catch (e) {
+        return [];
+    }
+};
+

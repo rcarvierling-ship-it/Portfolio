@@ -62,6 +62,7 @@ export interface Project extends BaseEntity {
     slug: string;
     title: string;
     description: string;
+    content?: any; // Rich text or block content from CMS
     year: string;
     location: string;
     tags: string[];

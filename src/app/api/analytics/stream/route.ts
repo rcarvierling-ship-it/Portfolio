@@ -1,20 +1,5 @@
-
 import { NextResponse } from 'next/server';
-import { getAnalyticsEvents, fileAnalytics } from '@/lib/cms';
-import { AnalyticsEvent } from '@/lib/types';
-import fs from 'fs';
-import path from 'path';
-
-// Helper to get file mtime
-const getMtime = () => {
-    try {
-        const filePath = path.join(process.cwd(), 'src/data', fileAnalytics);
-        if (!fs.existsSync(filePath)) return 0;
-        return fs.statSync(filePath).mtimeMs;
-    } catch (e) {
-        return 0;
-    }
-};
+import { getAnalyticsEvents } from '@/lib/cms';
 
 export async function GET(request: Request) {
     const encoder = new TextEncoder();
@@ -22,34 +7,45 @@ export async function GET(request: Request) {
     // Create a streaming response
     const stream = new ReadableStream({
         async start(controller) {
-            let lastMtime = getMtime();
-            let initialEvents = getAnalyticsEvents();
-            let lastEventCount = initialEvents.length;
+            // Initial Fetch
+            // Note: In serverless, keeping a connection open and polling DB every second is expensive.
+            // But for this dashboard, it's acceptable for limited admin usage.
+            // Better: user manual refresh or SWR. But let's keep the stream for the "wow" factor if requested.
 
-            // Send initial connection message
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'connected', count: lastEventCount })}\n\n`));
+            let events = await getAnalyticsEvents();
+            // Since we can't easily subscribe to Postgres changes without specific Listen/Notify setup which Vercel doesn't fully expose via HTTP easily,
+            // we will poll the DB count/latest timestamp.
 
-            const interval = setInterval(() => {
-                const currentMtime = getMtime();
+            let lastId = events.length > 0 ? events[0].id : null; // Assuming DESC sort in getAnalyticsEvents
 
-                if (currentMtime > lastMtime) {
-                    // File changed
-                    const allEvents = getAnalyticsEvents();
-                    const newEvents = allEvents.slice(lastEventCount);
+            // Send initial data (full set? or just connected)
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'connected', events: events })}\n\n`));
 
-                    if (newEvents.length > 0) {
-                        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'update', events: newEvents })}\n\n`));
-                        lastEventCount = allEvents.length;
-                        lastMtime = currentMtime;
+            const interval = setInterval(async () => {
+                try {
+                    const latestEvents = await getAnalyticsEvents();
+                    if (latestEvents.length > 0) {
+                        const newLatestId = latestEvents[0].id;
+                        if (newLatestId !== lastId) {
+                            // Find all new events since lastId
+                            // Since list is sorted DESC, we take from top until we hit lastId
+                            const newItems = [];
+                            for (const e of latestEvents) {
+                                if (e.id === lastId) break;
+                                newItems.push(e);
+                            }
+
+                            if (newItems.length > 0) {
+                                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'update', events: newItems })}\n\n`));
+                                lastId = newLatestId;
+                            }
+                        }
                     }
+                } catch (e) {
+                    console.error("Stream poll error", e);
                 }
+            }, 5000); // Poll every 5s to be kinder to DB quota
 
-                // Keep-alive ping every 10s to prevent timeouts
-                // controller.enqueue(encoder.encode(': ping\n\n')); 
-
-            }, 1000); // Poll every 1s
-
-            // Cleanup on close
             request.signal.addEventListener('abort', () => {
                 clearInterval(interval);
                 controller.close();

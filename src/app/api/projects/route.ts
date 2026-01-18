@@ -34,7 +34,8 @@ export async function POST(request: Request) {
         const user = session.user?.email || "Admin";
 
         if (Array.isArray(body)) {
-            const success = saveProjects(body, user);
+            // Handle bulk update (reordering)
+            const success = await saveProjects(body, user as string);
             if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
 
             logAudit(user, 'update', 'Bulk Project Reorder');
@@ -45,11 +46,12 @@ export async function POST(request: Request) {
         }
 
         // Determine action type
-        const projects = getProjects(true);
+        // For an authenticated user in POST, we always want to fetch all projects (including drafts)
+        const projects = await getProjects(true); // `true` here is equivalent to `isAdmin` if defined as `!!session?.user`
         const existing = projects.find(p => p.id === body.id);
         const action = existing ? 'update' : 'create';
 
-        const success = saveProject(body, user);
+        const success = await saveProject(body, user as string);
         if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
 
         logAudit(user, action, `Project: ${body.title} (${body.id})`);

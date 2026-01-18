@@ -1,20 +1,9 @@
 import { MetadataRoute } from 'next'
-import fs from 'fs'
-import path from 'path'
-import { Project } from '@/lib/types'
-
-async function getProjects(): Promise<Project[]> {
-    const filePath = path.join(process.cwd(), 'src/data/projects.json');
-    try {
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
-        return JSON.parse(fileContent);
-    } catch (error) {
-        return [];
-    }
-}
+import { getProjects } from '@/lib/cms'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const projects = await getProjects();
+    // const pages = await getPages(); // getPages is not exported or used in sitemap currently, commenting out until Pages feature is fully implemented or imported correctly via CMS.
     const baseUrl = 'https://rcv-media.com';
 
     const projectUrls = projects.map((project) => ({

@@ -15,7 +15,7 @@ export default async function WorkPage(props: { searchParams: SearchParams }) {
         if (session) showDrafts = true;
     }
 
-    const projects = getProjects(showDrafts);
+    const projects = await getProjects(showDrafts);
     return <WorkClient projects={projects} />;
 }
 

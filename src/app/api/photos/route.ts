@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const isAdmin = !!session?.user;
 
     // Return all for admin (drafts included), only published for public
-    const data = getPhotos(isAdmin);
+    const data = await getPhotos(isAdmin);
     return NextResponse.json(data);
 }
 
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
         const user = session.user?.email || "Admin";
 
         if (Array.isArray(body)) {
-            const success = savePhotos(body, user);
+            const success = await savePhotos(body, user);
             if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
 
             revalidatePath('/work'); // In case photos are used in project grids/previews
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ success: true, data: body });
         }
 
-        const success = savePhoto(body, user);
+        const success = await savePhoto(body, user);
 
         if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
 

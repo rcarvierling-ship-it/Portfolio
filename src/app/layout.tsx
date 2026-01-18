@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 import { getSettings } from "@/lib/cms";
 
 export async function generateMetadata() {
-  const settings = getSettings();
+  const settings = await getSettings();
   const title = settings.seo?.defaultTitle || "RCV.Media | Reese Vierling";
   const description = settings.seo?.defaultDescription || "A highly interactive portfolio website showcasing a decade of visual excellence.";
   const ogImage = settings.seo?.ogImage || "/og-image.jpg";

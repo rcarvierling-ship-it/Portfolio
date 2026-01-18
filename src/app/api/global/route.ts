@@ -3,7 +3,7 @@ import { getSettings, saveSettings } from '@/lib/cms';
 import { auth } from "@/auth"
 
 export async function GET() {
-    const data = getSettings();
+    const data = await getSettings();
     return NextResponse.json(data);
 }
 
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         const body = await request.json();
         // user email from session might be null depending on provider, fallback to "Admin"
         const user = session.user?.email || "Admin";
-        const success = saveSettings(body, user);
+        const success = await saveSettings(body, user);
 
         if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
         return NextResponse.json({ success: true, data: body });

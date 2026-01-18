@@ -9,6 +9,6 @@ export async function GET(request: NextRequest) {
     }
 
     // History is strictly Admin-only
-    const data = getHistory();
+    const data = await getHistory();
     return NextResponse.json(data);
 }

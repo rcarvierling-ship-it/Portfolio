@@ -9,13 +9,17 @@ import { auth } from "@/auth";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const project = getProjectCMS(slug);
+    const project = await getProjectCMS(slug);
 
     if (!project) {
         return {
             title: "Project Not Found",
         };
     }
+
+    // ... metadata continue ...
+    // Note: I cannot replace non-contiguous blocks easily with replace.
+    // I will replace generateMetadata block first, then component body.
 
     return {
         title: `${project.title} | RCV.Media`,
@@ -36,10 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export async function generateStaticParams() {
-    const projects = getProjectsCMS(false); // Only generate static params for published? Or all?
-    // If we want drafts to be previewable, they might not be SSG'd if not in this list.
-    // Use published for static gen. Drafts can fallback to dynamic or just 404 if not generated?
-    // Actually, if we use dynamic rendering for drafts usage, we shouldn't rely on generateStaticParams for them.
+    const projects = await getProjectsCMS(false);
     return projects.map((project) => ({
         slug: project.slug,
     }));
@@ -66,13 +67,7 @@ export default async function ProjectPage({
     }
 
     // CMS fetch
-    // getProjectCMS reads from JSON. It returns undefined if not found.
-    // Note: getProjectCMS finds by slug in ALL projects currently? 
-    // Let's check src/lib/cms.ts implementation of getProject.
-    // It does `readJson... find(...)`. It reads whole file. So it finds drafts too.
-    // We need to enforce published check if not authorized.
-
-    const project = getProjectCMS(slug);
+    const project = await getProjectCMS(slug);
 
     if (!project) {
         notFound();

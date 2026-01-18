@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     const session = await auth();
     const isAdmin = !!session?.user;
 
-    const data = getPages(isAdmin);
+    const data = await getPages(isAdmin);
     return NextResponse.json(data);
 }
 
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Bulk update not supported' }, { status: 400 });
         }
 
-        const success = savePage(body, user);
+        const success = await savePage(body, user);
 
         if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
         return NextResponse.json({ success: true, data: body });
