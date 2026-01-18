@@ -1,17 +1,14 @@
-import { Hero } from "@/components/sections/hero";
-import { FeaturedProjects } from "@/components/sections/featured-projects";
-import { StatsSection } from "@/components/sections/stats-section";
-import { ServicesSection } from "@/components/sections/services-section";
-import { RecentPhotos } from "@/components/sections/recent-photos";
+import { getPage } from "@/lib/cms";
+import { HomeView } from "@/components/views/home-view";
+import { HomeData } from "@/lib/types";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col gap-0">
-      <Hero />
-      <StatsSection />
-      <FeaturedProjects />
-      <ServicesSection />
-      <RecentPhotos />
-    </div>
-  );
+// Force dynamic if we want fresh CMS data on every request, or revalidate
+export const revalidate = 0;
+// or export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  const page = await getPage('home');
+  const content = page?.content as HomeData | undefined;
+
+  return <HomeView data={content} />;
 }

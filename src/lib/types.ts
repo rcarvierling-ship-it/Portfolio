@@ -55,8 +55,29 @@ export interface Page extends BaseEntity {
     slug: string; // e.g. 'home', 'about'
     title: string;
     description?: string; // SEO
-    content?: any; // Structured data (e.g. AboutData)
+    content?: any; // Structured data (e.g. AboutData, HomeData)
     blocks: ContentBlock[];
+}
+
+export interface ServiceItem {
+    id: string;
+    title: string;
+    subtitle: string;
+    description: string;
+    color: string;
+    iconName?: 'Camera' | 'Video' | 'Code2' | 'Sparkles'; // Store icon name as string
+}
+
+export interface HomeData {
+    hero: {
+        title: string;
+        description: string;
+    };
+    stats: {
+        line1: string;
+        line2: string;
+    };
+    services: ServiceItem[];
 }
 
 export interface GalleryItem {

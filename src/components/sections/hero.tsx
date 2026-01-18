@@ -1,5 +1,3 @@
-"use client"
-import { useEffect, useState } from "react"
 import { useRef } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { ArrowDown } from "lucide-react"
@@ -8,26 +6,17 @@ import { TextReveal } from "@/components/animations/text-reveal"
 import { MagneticButton } from "@/components/ui/magnetic-button"
 import { ParticlesBackground } from "@/components/animations/particles-background"
 
-export function Hero() {
+interface HeroProps {
+    title: string;
+    description: string;
+}
+
+export function Hero({ title, description }: HeroProps) {
     const ref = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
         target: ref,
         offset: ["start start", "end start"],
     });
-
-    const [content, setContent] = useState({
-        heroTitle: "Capturing light, emotion, and the moments in between.",
-        heroDescription: "Reese Vierling (RCV.Media) — Senior Frontend Engineer & Creative Developer specializing in interactive web applications and 3D experiences."
-    });
-
-    useEffect(() => {
-        fetch('/api/global')
-            .then(res => res.json())
-            .then(data => {
-                if (data.heroTitle) setContent(data);
-            })
-            .catch(err => console.error("Failed to load global content"));
-    }, []);
 
     const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
     const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
@@ -35,7 +24,7 @@ export function Hero() {
     return (
         <section
             ref={ref}
-            className="relative flex flex-col items-center justify-center min-h-screen px-6 pt-20 overflow-hidden" // pt-20 to account for fixed header if needed
+            className="relative flex flex-col items-center justify-center min-h-screen px-6 pt-20 overflow-hidden"
         >
             <motion.div
                 className="absolute inset-0 z-[-1]"
@@ -48,7 +37,7 @@ export function Hero() {
 
             <div className="flex flex-col items-center gap-8 max-w-4xl text-center z-10">
                 <TextReveal
-                    text={content.heroTitle}
+                    text={title}
                     className="text-4xl md:text-7xl font-bold tracking-tighter justify-center"
                 />
 
@@ -58,7 +47,7 @@ export function Hero() {
                     transition={{ delay: 0.8, duration: 0.8 }}
                     className="text-lg md:text-xl text-muted-foreground max-w-2xl text-center"
                 >
-                    {content.heroDescription}
+                    {description}
                 </motion.p>
 
                 <motion.div

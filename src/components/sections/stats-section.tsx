@@ -57,12 +57,17 @@ function ParallaxText({ children, baseVelocity = 100 }: ParallaxProps) {
     )
 }
 
-export function StatsSection() {
+interface StatsSectionProps {
+    line1?: string;
+    line2?: string;
+}
+
+export function StatsSection({ line1 = "50+ Projects • 10+ Years Exp • 15+ Creative Tools •", line2 = "Photography • Videography • Web Development •" }: StatsSectionProps) {
     return (
         <section className="py-12 md:py-20 border-y border-border/50 bg-secondary/10 overflow-hidden relative">
-            <ParallaxText baseVelocity={-2}>50+ Projects • 10+ Years Exp • 15+ Creative Tools •</ParallaxText>
+            <ParallaxText baseVelocity={-2}>{line1}</ParallaxText>
             <div className="h-4 md:h-8" />
-            <ParallaxText baseVelocity={2}>Photography • Videography • Web Development •</ParallaxText>
+            <ParallaxText baseVelocity={2}>{line2}</ParallaxText>
 
             {/* Gradient Fade Edges */}
             <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-background to-transparent z-10" />
