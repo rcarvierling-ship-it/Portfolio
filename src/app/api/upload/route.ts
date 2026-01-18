@@ -10,7 +10,7 @@ import { headers } from 'next/headers';
 
 export async function POST(request: Request) {
     const session = await auth();
-    if (!session || session.user?.email !== process.env.ADMIN_EMAIL) {
+    if (!session) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -64,8 +64,8 @@ export async function POST(request: Request) {
             }
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Upload Error:", error);
-        return NextResponse.json({ error: 'Upload optimization failed.' }, { status: 500 });
+        return NextResponse.json({ error: error.message || 'Upload optimization failed.' }, { status: 500 });
     }
 }

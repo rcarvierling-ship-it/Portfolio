@@ -31,7 +31,10 @@ export function ImageUploader({ value, onChange, multiple = false, className = "
                     body: formData,
                 });
 
-                if (!res.ok) throw new Error('Upload failed');
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({ error: 'Unknown server error' }));
+                    throw new Error(err.error || 'Upload failed');
+                }
 
                 const data = await res.json();
                 newUrls.push(data.url);
@@ -44,9 +47,9 @@ export function ImageUploader({ value, onChange, multiple = false, className = "
                 onChange(newUrls[0]);
             }
 
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("Upload failed. Please try again.");
+            alert(`Upload failed: ${error.message}`);
         } finally {
             setUploading(false);
         }
