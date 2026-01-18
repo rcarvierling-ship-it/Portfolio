@@ -133,11 +133,15 @@ export default async function ProjectPage({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {project.galleryImages.length > 0 ? (
                         project.galleryImages.map((img, idx) => (
-                            <div
-                                key={idx}
-                                className={`relative w-full rounded-sm overflow-hidden bg-muted ${idx % 3 === 0 ? 'md:col-span-2 aspect-[21/9]' : 'aspect-[4/5]'}`}
-                            >
-                                <Image src={img} alt={`Gallery ${idx}`} fill className="object-cover" />
+                            <div key={img.id || idx} className={`flex flex-col gap-2 ${idx % 3 === 0 ? 'md:col-span-2' : ''}`}>
+                                <div
+                                    className={`relative w-full rounded-sm overflow-hidden bg-muted ${idx % 3 === 0 ? 'aspect-[21/9]' : 'aspect-[4/5]'}`}
+                                >
+                                    <Image src={img.url} alt={img.caption || `Gallery ${idx}`} fill className="object-cover" />
+                                </div>
+                                {img.caption && (
+                                    <p className="text-xs text-muted-foreground italic px-1">{img.caption}</p>
+                                )}
                             </div>
                         ))
                     ) : (

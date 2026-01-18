@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { Reorder } from "framer-motion"
-import { GripVertical, Plus, Edit2, ExternalLink, Clock, Check } from "lucide-react"
-import { Project } from "@/lib/types"
+import { GripVertical, Plus, Edit2, ExternalLink, Clock, Check, X, ImageIcon } from "lucide-react"
+import { Project, GalleryItem } from "@/lib/types"
 import { HistoryModal } from "@/components/dashboard/history-modal"
 import { MagneticButton } from "@/components/ui/magnetic-button"
 import { ImageUploader } from "@/components/ui/image-uploader"
@@ -240,6 +240,65 @@ export function ProjectsTab() {
                                 className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
                             />
                         </div>
+                    </div>
+                </div>
+
+                <div className="space-y-6 pt-6 border-t border-border">
+                    <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-bold">Project Gallery</h4>
+                        <span className="text-xs text-muted-foreground">Drag to reorder • Add captions per image</span>
+                    </div>
+
+                    <Reorder.Group axis="y" values={editingProject.galleryImages || []} onReorder={(newOrder) => setEditingProject({ ...editingProject, galleryImages: newOrder })} className="space-y-3">
+                        {editingProject.galleryImages?.map((item) => (
+                            <Reorder.Item key={item.id} value={item} className="flex gap-4 p-3 bg-card border border-border rounded-lg items-start relative group">
+                                <div className="text-muted-foreground pt-8 cursor-grab active:cursor-grabbing"><GripVertical size={20} /></div>
+                                <div className="w-24 h-24 bg-secondary rounded overflow-hidden flex-shrink-0 relative">
+                                    <img src={item.url} className="w-full h-full object-cover" />
+                                </div>
+                                <div className="flex-1 space-y-2">
+                                    <label className="text-xs font-semibold uppercase text-muted-foreground">Caption</label>
+                                    <textarea
+                                        value={item.caption || ""}
+                                        onChange={(e) => {
+                                            const newGallery = editingProject.galleryImages?.map(i => i.id === item.id ? { ...i, caption: e.target.value } : i);
+                                            setEditingProject({ ...editingProject, galleryImages: newGallery });
+                                        }}
+                                        className="w-full p-2 text-sm rounded bg-secondary/30 border border-border h-20 resize-none"
+                                        placeholder="Image caption..."
+                                    />
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        const newGallery = editingProject.galleryImages?.filter(i => i.id !== item.id);
+                                        setEditingProject({ ...editingProject, galleryImages: newGallery });
+                                    }}
+                                    className="p-2 text-muted-foreground hover:text-red-500 transition-colors"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </Reorder.Item>
+                        ))}
+                    </Reorder.Group>
+
+                    <div className="bg-secondary/20 p-4 rounded-xl border border-dashed border-border">
+                        <p className="text-sm font-bold mb-4 flex items-center gap-2"><ImageIcon size={16} /> Add Images</p>
+                        <ImageUploader
+                            value={[]}
+                            onChange={(urls) => {
+                                if (Array.isArray(urls)) {
+                                    const newItems: GalleryItem[] = urls.map(url => ({
+                                        id: Math.random().toString(36).substring(2, 9),
+                                        url
+                                    }));
+                                    setEditingProject({
+                                        ...editingProject,
+                                        galleryImages: [...(editingProject.galleryImages || []), ...newItems]
+                                    });
+                                }
+                            }}
+                            multiple
+                        />
                     </div>
                 </div>
 

@@ -59,6 +59,14 @@ export interface Page extends BaseEntity {
     blocks: ContentBlock[];
 }
 
+export interface GalleryItem {
+    id: string;
+    url: string;
+    caption?: string;
+    width?: number;
+    height?: number;
+}
+
 // Project (Extended)
 export interface Project extends BaseEntity {
     slug: string;
@@ -72,7 +80,7 @@ export interface Project extends BaseEntity {
     camera?: string;
     lens?: string;
     coverImage: string; // URL or Photo ID
-    galleryImages: string[]; // Array of URLs or Photo IDs
+    galleryImages: GalleryItem[]; // Array of structured items
     featured: boolean;
 }
 

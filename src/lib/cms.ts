@@ -1,7 +1,7 @@
 
 import { sql } from '@vercel/postgres';
 import {
-    Project, SiteSettings, Photo, Page, HistoryEntry, AnalyticsEvent
+    Project, SiteSettings, Photo, Page, HistoryEntry, AnalyticsEvent, GalleryItem
 } from '@/lib/types';
 
 // --- History Logging ---
@@ -44,7 +44,11 @@ export const getProjects = async (includeDrafts = false): Promise<Project[]> => 
                 content: typeof r.content === 'string' ? JSON.parse(r.content) : r.content,
                 tags: r.tags || [],
                 tools: r.tools || [],
-                galleryImages: r.gallery_images || []
+                galleryImages: ((): GalleryItem[] => {
+                    const raw = r.gallery_images;
+                    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw || [];
+                    return parsed.map((item: any) => typeof item === 'string' ? { id: item, url: item } : item);
+                })()
             } as Project;
         });
     } catch (e) {
@@ -57,7 +61,15 @@ export const getProject = async (slug: string): Promise<Project | undefined> => 
     try {
         const { rows } = await sql<Project>`SELECT * FROM projects WHERE slug = ${slug} LIMIT 1`;
         if (rows.length === 0) return undefined;
-        return rows[0];
+        const row = rows[0] as any;
+        return {
+            ...row,
+            galleryImages: ((): GalleryItem[] => {
+                const raw = row.gallery_images;
+                const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw || [];
+                return parsed.map((item: any) => typeof item === 'string' ? { id: item, url: item } : item);
+            })()
+        };
     } catch (e) {
         console.error("Get Project Error:", e);
         return undefined;
@@ -72,7 +84,7 @@ export const saveProject = async (project: Project, user: string): Promise<boole
             VALUES (
                 ${project.id}, ${project.slug}, ${project.title}, ${project.description}, ${JSON.stringify(project.content || {})}, 
                 ${project.tags as any}, ${project.tools as any}, ${project.year}, ${project.location}, 
-                ${project.camera}, ${project.lens}, ${project.coverImage}, ${project.galleryImages as any}, 
+                ${project.camera}, ${project.lens}, ${project.coverImage}, ${JSON.stringify(project.galleryImages || [])}, 
                 ${project.featured}, ${project.status}, ${project.version}, ${project.createdAt}, ${new Date().toISOString()}, 
                 ${(project as any).order || 0}
             )
@@ -227,8 +239,8 @@ export const savePage = async (page: Page, user: string): Promise<boolean> => {
         await sql`
             INSERT INTO pages (id, slug, title, description, content, blocks, status, version, created_at, updated_at)
             VALUES (
-                ${page.id}, ${page.slug}, ${page.title}, ${page.description || ''}, 
-                ${JSON.stringify(page.content || {})}, ${JSON.stringify(page.blocks || [])}, 
+                ${page.id}, ${page.slug}, ${page.title}, ${page.description || ''},
+                ${JSON.stringify(page.content || {})}, ${JSON.stringify(page.blocks || [])},
                 ${page.status}, ${page.version}, ${page.createdAt}, ${new Date().toISOString()}
             )
             ON CONFLICT (id) DO UPDATE SET
