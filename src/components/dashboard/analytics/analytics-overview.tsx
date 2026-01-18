@@ -12,7 +12,7 @@ import { MockDataGenerator } from "./mock-data-generator"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function AnalyticsOverview() {
-    const { events, isConnected, refetch } = useAnalyticsQuery();
+    const { events, isConnected, refresh } = useAnalyticsQuery();
     const [range, setRange] = useState<TimeRange>('24h');
 
     // Filter
