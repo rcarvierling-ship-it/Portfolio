@@ -37,20 +37,32 @@ export async function POST(request: Request) {
         const blurBuffer = await image.clone().resize(10).toBuffer();
         const blurDataURL = `data:image/${metadata.format};base64,${blurBuffer.toString('base64')}`;
 
-        // 2. Upload to Vercel Blob
-        const blob = await put(file.name, file, {
-            access: 'public',
-        });
+        // 2. Try Uploading to Vercel Blob
+        let url = "";
+        try {
+            const blob = await put(file.name, file, {
+                access: 'public',
+                token: process.env.BLOB_READ_WRITE_TOKEN // Explicitly pass if available, or auto-picked
+            });
+            url = blob.url;
+        } catch (blobError) {
+            console.warn("Vercel Blob failed, falling back to Base64:", blobError);
 
-        logAudit(user, 'upload', blob.url, `${(buffer.length / 1024).toFixed(2)} KB`);
+            // Fallback: Create optimized Base64
+            // Resize to reasonable max width to save DB space
+            const optimizedBuffer = await image.clone().resize({ width: 1200, withoutEnlargement: true }).toBuffer();
+            url = `data:image/${metadata.format};base64,${optimizedBuffer.toString('base64')}`;
+        }
+
+        logAudit(user, 'upload', url.startsWith('data:') ? 'base64-fallback' : url, `${(buffer.length / 1024).toFixed(2)} KB`);
 
         return NextResponse.json({
-            url: blob.url,
+            url: url,
             width, height, blurDataURL,
             variants: {
-                original: blob.url,
-                medium: blob.url, // Blob serves optimized variants via query params usually, but for now url is enough
-                thumbnail: blob.url
+                original: url,
+                medium: url,
+                thumbnail: url
             }
         });
 
