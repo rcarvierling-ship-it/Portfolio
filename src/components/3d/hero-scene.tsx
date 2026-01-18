@@ -35,7 +35,7 @@ function Geometery() {
                 attenuationDistance={0.5}
                 attenuationColor="#ffffff"
                 color="#ffffff"
-                bg="#000000"
+                background={new THREE.Color("#000000")}
             />
         </mesh>
     )
