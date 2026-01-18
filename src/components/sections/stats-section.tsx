@@ -2,7 +2,11 @@
 
 import { useRef } from "react"
 import { motion, useScroll, useSpring, useTransform, useMotionValue, useVelocity, useAnimationFrame } from "framer-motion"
-import { wrap } from "@motionone/utils"
+// Helper function since @motionone/utils is causing build issues
+const wrap = (min: number, max: number, v: number) => {
+    const rangeSize = max - min;
+    return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min;
+}
 
 interface ParallaxProps {
     children: string
