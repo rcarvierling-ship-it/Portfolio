@@ -35,7 +35,7 @@ export function Navbar() {
                                 alt="RCV.Media Logo"
                                 width={32}
                                 height={32}
-                                className="object-contain dark:invert"
+                                className="object-contain"
                             />
                         </div>
                         <span>RCV.Media</span>
