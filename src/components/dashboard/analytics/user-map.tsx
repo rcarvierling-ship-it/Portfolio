@@ -64,7 +64,7 @@ export function UserMap({ data }: UserMapProps) {
             >
                 <ZoomableGroup zoom={1}>
                     <Geographies geography={geoUrl}>
-                        {({ geographies }) =>
+                        {({ geographies }: { geographies: any[] }) =>
                             geographies.map((geo) => (
                                 <Geography
                                     key={geo.rsmKey}
