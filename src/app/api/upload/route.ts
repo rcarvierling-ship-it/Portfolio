@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { put } from '@vercel/blob';
 import sharp from 'sharp';
 import { auth } from "@/auth"
 
@@ -28,39 +27,30 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'No file received.' }, { status: 400 });
         }
 
-        // ... (rest of logic same) ...
+        // 1. Process with Sharp for metadata
         const buffer = Buffer.from(await file.arrayBuffer());
         const image = sharp(buffer);
         const metadata = await image.metadata();
         const width = metadata.width;
         const height = metadata.height;
-        const timestamp = Date.now();
-        const originalName = file.name.replace(/\.[^/.]+$/, "").replace(/\s+/g, '_');
-        const extension = path.extname(file.name);
-        // ...
-        const filenameOriginal = `${timestamp}_${originalName}${extension}`;
-        const filenameMedium = `${timestamp}_${originalName}_medium${extension}`;
-        const filenameThumb = `${timestamp}_${originalName}_thumb${extension}`;
-        const uploadDir = path.join(process.cwd(), 'public/uploads');
-
-        try { await mkdir(uploadDir, { recursive: true }); } catch (e) { }
-
-        await writeFile(path.join(uploadDir, filenameOriginal), buffer);
-        await image.clone().resize({ width: 1200, withoutEnlargement: true }).toFile(path.join(uploadDir, filenameMedium));
-        await image.clone().resize({ width: 400, withoutEnlargement: true }).toFile(path.join(uploadDir, filenameThumb));
 
         const blurBuffer = await image.clone().resize(10).toBuffer();
         const blurDataURL = `data:image/${metadata.format};base64,${blurBuffer.toString('base64')}`;
 
-        logAudit(user, 'upload', filenameOriginal, `${(buffer.length / 1024).toFixed(2)} KB`);
+        // 2. Upload to Vercel Blob
+        const blob = await put(file.name, file, {
+            access: 'public',
+        });
+
+        logAudit(user, 'upload', blob.url, `${(buffer.length / 1024).toFixed(2)} KB`);
 
         return NextResponse.json({
-            url: `/uploads/${filenameOriginal}`,
+            url: blob.url,
             width, height, blurDataURL,
             variants: {
-                original: `/uploads/${filenameOriginal}`,
-                medium: `/uploads/${filenameMedium}`,
-                thumbnail: `/uploads/${filenameThumb}`
+                original: blob.url,
+                medium: blob.url, // Blob serves optimized variants via query params usually, but for now url is enough
+                thumbnail: blob.url
             }
         });
 
