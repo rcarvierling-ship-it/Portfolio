@@ -194,7 +194,7 @@ export function UserMap({ data }: UserMapProps) {
                                         <span className="text-foreground capitalize">{event.data?.device || "Desktop"}</span>
 
                                         <span className="text-muted-foreground font-medium">Session</span>
-                                        <span className="font-mono text-[10px] text-muted-foreground truncate" title={event.sessionId}>{event.sessionId.slice(0, 8)}...</span>
+                                        <span className="font-mono text-[10px] text-muted-foreground truncate" title={event.sessionId}>{event.sessionId ? event.sessionId.slice(0, 8) : 'N/A'}...</span>
                                     </div>
                                 </div>
                             ))}
