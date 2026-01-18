@@ -17,7 +17,7 @@ export async function POST(request: Request) {
             ...body
         };
 
-        const success = trackAnalyticsEvent(event);
+        const success = await trackAnalyticsEvent(event);
         if (!success) {
             return NextResponse.json({ error: 'Failed to track event' }, { status: 500 });
         }
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-    const events = getAnalyticsEvents();
+    const events = await getAnalyticsEvents();
 
     // Simple aggregation for dashboard (compatible w/ previous chart format)
     // We can do more complex aggregation here or on client
