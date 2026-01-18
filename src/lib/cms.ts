@@ -144,8 +144,13 @@ export const deleteProject = async (id: string, user: string): Promise<boolean> 
 // --- PHOTOS ---
 export const getPhotos = async (includeDrafts = false): Promise<Photo[]> => {
     try {
-        const { rows } = await sql<Photo>`SELECT * FROM photos ORDER BY created_at DESC`;
-        return rows;
+        if (includeDrafts) {
+            const { rows } = await sql<Photo>`SELECT * FROM photos ORDER BY created_at DESC`;
+            return rows;
+        } else {
+            const { rows } = await sql<Photo>`SELECT * FROM photos WHERE status = 'published' ORDER BY created_at DESC`;
+            return rows;
+        }
     } catch (e) {
         return [];
     }
