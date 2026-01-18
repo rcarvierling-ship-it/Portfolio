@@ -29,7 +29,14 @@ export async function GET() {
     return NextResponse.json(data);
 }
 
+import { auth } from "@/auth"
+
 export async function POST(request: Request) {
+    const session = await auth();
+    if (!session || session.user?.email !== process.env.ADMIN_EMAIL) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await request.json();
         const success = writeData(body);

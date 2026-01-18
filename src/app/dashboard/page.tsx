@@ -10,83 +10,79 @@ import { ImageUploader } from "@/components/ui/image-uploader"
 // Analytics removed - connect real provider
 const ANALYTICS_DATA: any[] = []; // Empty for now
 
-export default function DashboardPage() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [pin, setPin] = useState("");
+import { SessionProvider, useSession, signIn, signOut } from "next-auth/react"
+
+export default function DashboardWrapper() {
+    return (
+        <SessionProvider>
+            <DashboardPage />
+        </SessionProvider>
+    )
+}
+
+function DashboardPage() {
+    const { data: session, status } = useSession();
     const [activeTab, setActiveTab] = useState<"analytics" | "projects" | "profile" | "settings">("analytics");
 
-    // Simple client-side protection (use Auth.js for real security)
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-        const correctPin = process.env.NEXT_PUBLIC_ADMIN_PIN || "2025";
-        if (pin === correctPin) {
-            setIsAuthenticated(true);
-        } else {
-            alert("Invalid Access Code");
-            setPin("");
+    // Redirect to login if unauthenticated
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            signIn();
         }
-    };
+    }, [status]);
 
-    if (!isAuthenticated) {
+    if (status === "loading") {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="w-full max-w-md p-8 flex flex-col items-center gap-6">
-                    <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-4">
-                        <Lock size={32} className="text-primary" />
-                    </div>
-                    <h1 className="text-2xl font-bold">Restricted Access</h1>
-                    <p className="text-muted-foreground text-center">
-                        This area is for administrative purposes only. Please enter your access code.
-                    </p>
-                    <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
-                        <input
-                            type="password"
-                            value={pin}
-                            onChange={(e) => setPin(e.target.value)}
-                            placeholder="Enter PIN (Try 2025)"
-                            className="w-full px-4 py-3 rounded-lg bg-secondary/30 border border-border focus:ring-2 focus:ring-primary focus:outline-none text-center tracking-widest text-lg"
-                            autoFocus
-                        />
-                        <MagneticButton className="w-full py-4 bg-primary text-primary-foreground rounded-lg font-medium">
-                            Unlock Dashboard
-                        </MagneticButton>
-                    </form>
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-8 h-8 rounded-full border-t-2 border-primary animate-spin" />
+                    <p className="text-muted-foreground">Verifying access...</p>
                 </div>
             </div>
         )
     }
+
+    if (!session) return null; // Will redirect
 
     return (
         <div className="min-h-screen pt-32 pb-24 px-6 md:px-12 max-w-7xl mx-auto">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
                 <div>
                     <h1 className="text-4xl font-bold mb-2">Command Center</h1>
-                    <p className="text-muted-foreground">Welcome back, Reese.</p>
+                    <p className="text-muted-foreground">Welcome back, {session.user?.name || "Admin"}.</p>
                 </div>
-                <div className="flex gap-2 bg-secondary/50 p-1 rounded-full overflow-x-auto max-w-full">
+                <div className="flex items-center gap-4">
+                    <div className="flex gap-2 bg-secondary/50 p-1 rounded-full overflow-x-auto max-w-full">
+                        <button
+                            onClick={() => setActiveTab("analytics")}
+                            className={cn("px-6 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap", activeTab === "analytics" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
+                        >
+                            Analytics
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("projects")}
+                            className={cn("px-6 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap", activeTab === "projects" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
+                        >
+                            Projects
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("profile")}
+                            className={cn("px-6 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap", activeTab === "profile" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
+                        >
+                            Profile
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("settings")}
+                            className={cn("px-6 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap", activeTab === "settings" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
+                        >
+                            Settings
+                        </button>
+                    </div>
                     <button
-                        onClick={() => setActiveTab("analytics")}
-                        className={cn("px-6 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap", activeTab === "analytics" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
+                        onClick={() => signOut()}
+                        className="text-xs text-muted-foreground hover:text-red-500 underline"
                     >
-                        Analytics
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("projects")}
-                        className={cn("px-6 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap", activeTab === "projects" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
-                    >
-                        Projects
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("profile")}
-                        className={cn("px-6 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap", activeTab === "profile" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
-                    >
-                        Profile
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("settings")}
-                        className={cn("px-6 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap", activeTab === "settings" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
-                    >
-                        Settings
+                        Sign Out
                     </button>
                 </div>
             </header>
