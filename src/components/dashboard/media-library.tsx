@@ -314,6 +314,31 @@ export function MediaLibrary() {
                             </div>
 
                             <div className="space-y-4">
+                                <div className="flex items-center justify-between py-3 border-b border-border">
+                                    <label className="text-sm font-medium">Featured</label>
+                                    <input
+                                        type="checkbox"
+                                        checked={editingPhoto.featured}
+                                        onChange={e => setEditingPhoto({ ...editingPhoto, featured: e.target.checked })}
+                                        className="w-4 h-4 accent-primary"
+                                    />
+                                </div>
+
+                                <div className="flex items-center justify-between py-3 border-b border-border">
+                                    <label className="text-sm font-medium">Published</label>
+                                    <div className="flex items-center gap-2">
+                                        <span className={cn("text-xs font-bold", editingPhoto.status === 'published' ? "text-green-500" : "text-yellow-500")}>
+                                            {editingPhoto.status === 'published' ? 'LIVE' : 'DRAFT'}
+                                        </span>
+                                        <input
+                                            type="checkbox"
+                                            checked={editingPhoto.status === 'published'}
+                                            onChange={e => setEditingPhoto({ ...editingPhoto, status: e.target.checked ? 'published' : 'draft' })}
+                                            className="w-4 h-4 accent-primary"
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="space-y-2">
                                     <label className="text-xs uppercase font-bold text-muted-foreground">Alt Text</label>
                                     <input
@@ -340,30 +365,7 @@ export function MediaLibrary() {
                                     />
                                 </div>
 
-                                <div className="flex items-center justify-between py-3 border-t border-border">
-                                    <label className="text-sm font-medium">Featured</label>
-                                    <input
-                                        type="checkbox"
-                                        checked={editingPhoto.featured}
-                                        onChange={e => setEditingPhoto({ ...editingPhoto, featured: e.target.checked })}
-                                        className="w-4 h-4 accent-primary"
-                                    />
-                                </div>
 
-                                <div className="flex items-center justify-between py-3 border-t border-b border-border">
-                                    <label className="text-sm font-medium">Published</label>
-                                    <div className="flex items-center gap-2">
-                                        <span className={cn("text-xs font-bold", editingPhoto.status === 'published' ? "text-green-500" : "text-yellow-500")}>
-                                            {editingPhoto.status === 'published' ? 'LIVE' : 'DRAFT'}
-                                        </span>
-                                        <input
-                                            type="checkbox"
-                                            checked={editingPhoto.status === 'published'}
-                                            onChange={e => setEditingPhoto({ ...editingPhoto, status: e.target.checked ? 'published' : 'draft' })}
-                                            className="w-4 h-4 accent-primary"
-                                        />
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
