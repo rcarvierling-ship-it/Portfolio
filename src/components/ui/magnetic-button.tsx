@@ -40,8 +40,8 @@ export function MagneticButton({
             onMouseLeave={handleMouseLeave}
             animate={{ x, y }}
             transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
-            {...props} // Pass through valid HTML button props
-        // Remove motion-specific props if they conflict, but motion.button usually handles it
+            data-magnet="true"
+            {...props}
         >
             {children}
         </motion.button>
