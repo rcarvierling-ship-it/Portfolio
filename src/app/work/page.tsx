@@ -1,4 +1,4 @@
-import { getProjects } from "@/lib/cms"
+import { getProjects, getPhotos } from "@/lib/cms"
 import { WorkClient } from "./client_view"
 import { auth } from "@/auth"
 
@@ -16,7 +16,9 @@ export default async function WorkPage(props: { searchParams: SearchParams }) {
     }
 
     const projects = await getProjects(showDrafts);
-    return <WorkClient projects={projects} />;
+    const photos = await getPhotos(showDrafts); // Fetch published photos
+
+    return <WorkClient projects={projects} photos={photos} />;
 }
 
 // Duplicate removed
