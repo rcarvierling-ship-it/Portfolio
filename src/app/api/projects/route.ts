@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const isAdmin = !!session?.user; // Simple check for now
 
     // If admin, return all (drafts included). If public, published only.
-    const data = getProjects(isAdmin);
+    const data = await getProjects(isAdmin);
     return NextResponse.json(data);
 }
 
