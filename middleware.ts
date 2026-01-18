@@ -8,9 +8,9 @@ export default auth((req) => {
     // We'll enforce POST protection inside the API routes themselves or refine this middleware.
 
     // For now, let's strictly protect /dashboard
-    if (isDashboard && !isLoggedIn) {
-        return Response.redirect(new URL('/api/auth/signin', req.nextUrl))
-    }
+    // We rely on the `authorized` callback in auth.ts to handle redirection for protected routes.
+    // The manual check here was causing conflicts or redirection loops without callbackUrl.
+    return;
 })
 
 export const config = {

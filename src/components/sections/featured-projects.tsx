@@ -1,23 +1,10 @@
-
 import { TiltCard } from "@/components/ui/tilt-card"
 import * as Motion from "framer-motion/client"
-import { Project } from "@/lib/types"
-import fs from 'fs'
-import path from 'path'
-
-async function getFeaturedProjects(): Promise<Project[]> {
-    const filePath = path.join(process.cwd(), 'src/data/projects.json');
-    try {
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
-        const all: Project[] = JSON.parse(fileContent);
-        return all.filter(p => p.featured).slice(0, 2);
-    } catch (error) {
-        return [];
-    }
-}
+import { getProjects } from "@/lib/cms"
 
 export async function FeaturedProjects() {
-    const featured = await getFeaturedProjects();
+    const all = getProjects(false); // Only published
+    const featured = all.filter(p => p.featured).slice(0, 2);
 
     if (featured.length === 0) return null;
 

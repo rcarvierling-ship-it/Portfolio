@@ -1,57 +1,64 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { NextResponse, NextRequest } from 'next/server';
+import { revalidatePath } from 'next/cache';
+import { getProjects, saveProject, saveProjects } from '@/lib/cms';
+import { auth } from "@/auth"
 
-const DATA_FILE = path.join(process.cwd(), 'src/data/projects.json');
+export async function GET(request: NextRequest) {
+    const session = await auth();
+    const isAdmin = !!session?.user; // Simple check for now
 
-function readData() {
-    try {
-        const fileContent = fs.readFileSync(DATA_FILE, 'utf-8');
-        return JSON.parse(fileContent);
-    } catch (error) {
-        console.error("Error reading projects data:", error);
-        return [];
-    }
-}
-
-function writeData(data: any) {
-    try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-        return true;
-    } catch (error) {
-        console.error("Error writing projects data:", error);
-        return false;
-    }
-}
-
-export async function GET() {
-    const data = readData();
+    // If admin, return all (drafts included). If public, published only.
+    const data = getProjects(isAdmin);
     return NextResponse.json(data);
 }
 
-import { auth } from "@/auth"
+import { checkRateLimit } from '@/lib/rate-limit';
+import { logAudit } from '@/lib/audit';
+import { headers } from 'next/headers';
 
 export async function POST(request: Request) {
     const session = await auth();
-    if (!session || session.user?.email !== process.env.ADMIN_EMAIL) {
+    if (!session) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Rate Limit (Write)
+    // Use IP or User ID. Next.js headers().get('x-forwarded-for') works in Vercel/proxies
+    const ip = (await headers()).get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(ip, 'write_project', { interval: 60000, limit: 20 })) {
+        return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+    }
+
     try {
-        const body = await request.json(); // body can be a single project to ADD, or full array
-        // Check if body is array (bulk replace) or object (append)
-        let currentData = readData();
+        const body = await request.json();
+        const user = session.user?.email || "Admin";
 
         if (Array.isArray(body)) {
-            currentData = body;
-        } else {
-            // Assume it's a new project to append
-            currentData.unshift(body); // Add to top
+            const success = saveProjects(body, user);
+            if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
+
+            logAudit(user, 'update', 'Bulk Project Reorder');
+
+            revalidatePath('/work');
+            revalidatePath('/');
+            return NextResponse.json({ success: true, data: body });
         }
 
-        const success = writeData(currentData);
+        // Determine action type
+        const projects = getProjects(true);
+        const existing = projects.find(p => p.id === body.id);
+        const action = existing ? 'update' : 'create';
+
+        const success = saveProject(body, user);
         if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
-        return NextResponse.json({ success: true, data: currentData });
+
+        logAudit(user, action, `Project: ${body.title} (${body.id})`);
+
+        revalidatePath('/work');
+        revalidatePath('/');
+        revalidatePath(`/work/${body.slug}`);
+
+        return NextResponse.json({ success: true, data: body });
     } catch (error) {
         return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }

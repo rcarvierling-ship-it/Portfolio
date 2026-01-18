@@ -1,0 +1,18 @@
+{
+    "id": "global-settings",
+    "createdAt": "2026-01-18T00:00:00.000Z",
+    "updatedAt": "2026-01-18T00:00:00.000Z",
+    "status": "published",
+    "version": 1,
+    "heroTitle": "Capturing light, emotion, and the moments in between.",
+    "heroDescription": "Reese Vierling (RCV.Media) — Senior Frontend Engineer & Creative Developer specializing in interactive web applications and 3D experiences.",
+    "footerText": "© 2026 RCV.Media. All rights reserved.",
+    "email": "info@rcv-media.com",
+    "instagram": "https://www.instagram.com/rcv.media/",
+    "homepageSections": [],
+    "seo": {
+        "defaultTitle": "RCV.Media | Reese Vierling",
+        "defaultDescription": "A highly interactive portfolio website showcasing a decade of visual excellence.",
+        "ogImage": "/og-image.jpg"
+    }
+}

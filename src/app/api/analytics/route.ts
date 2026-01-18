@@ -1,74 +1,58 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const DATA_FILE = path.join(process.cwd(), 'analytics-data.json');
-
-interface AnalyticsData {
-    pageViews: Record<string, number>; // "2025-01-17": 12
-    totalViews: number;
-    visitors: Record<string, boolean>; // Simple visitor tracking by date-ip hash
-}
-
-// Initial data structure
-const getInitialData = (): AnalyticsData => ({
-    pageViews: {},
-    totalViews: 0,
-    visitors: {},
-});
-
-function readData(): AnalyticsData {
-    try {
-        if (!fs.existsSync(DATA_FILE)) {
-            return getInitialData();
-        }
-        const fileContent = fs.readFileSync(DATA_FILE, 'utf-8');
-        return JSON.parse(fileContent);
-    } catch (error) {
-        console.error("Error reading analytics file:", error);
-        return getInitialData();
-    }
-}
-
-function writeData(data: AnalyticsData) {
-    try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-    } catch (error) {
-        console.error("Error writing analytics file:", error);
-    }
-}
+import { trackAnalyticsEvent, getAnalyticsEvents } from '@/lib/cms';
+import { AnalyticsEvent } from '@/lib/types';
 
 export async function POST(request: Request) {
-    const body = await request.json();
-    const { path } = body;
-    const date = new Date().toLocaleDateString('en-US', { weekday: 'short' }); // "Mon", "Tue"
+    try {
+        const body = await request.json();
 
-    const data = readData();
+        // Basic validation
+        if (!body.type || !body.sessionId) {
+            return NextResponse.json({ error: 'Invalid event data' }, { status: 400 });
+        }
 
-    // Update views
-    data.totalViews = (data.totalViews || 0) + 1;
-    data.pageViews[date] = (data.pageViews[date] || 0) + 1;
+        const event: AnalyticsEvent = {
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            timestamp: new Date().toISOString(),
+            ...body
+        };
 
-    writeData(data);
+        const success = trackAnalyticsEvent(event);
+        if (!success) {
+            return NextResponse.json({ error: 'Failed to track event' }, { status: 500 });
+        }
 
-    return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    }
 }
 
 export async function GET() {
-    const data = readData();
+    const events = getAnalyticsEvents();
 
-    // Transform for dashboard { day: "Mon", views: 12 }
-    const chartData = Object.entries(data.pageViews).map(([day, views]) => ({
+    // Simple aggregation for dashboard (compatible w/ previous chart format)
+    // We can do more complex aggregation here or on client
+    const pageViews: Record<string, number> = {};
+    let totalViews = 0;
+
+    events.forEach(e => {
+        if (e.type === 'pageview') {
+            totalViews++;
+            const day = new Date(e.timestamp).toLocaleDateString('en-US', { weekday: 'short' });
+            pageViews[day] = (pageViews[day] || 0) + 1;
+        }
+    });
+
+    const chartData = Object.entries(pageViews).map(([day, views]) => ({
         day,
         views
     }));
 
-    // Ensure all days (or at least recent ones) are present ideally, 
-    // but for simplicity we return what we have. 
-    // We can sort or fill gaps in the frontend if needed.
+    // Ensure we have last 7 days or so if needed, but for now just raw data aggregation
 
     return NextResponse.json({
-        totalViews: data.totalViews,
-        chartData: chartData
+        totalViews,
+        chartData
     });
 }

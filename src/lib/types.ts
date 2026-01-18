@@ -1,17 +1,79 @@
-export interface Project {
+// Base Entity for all CMS items
+export interface BaseEntity {
+    id: string;
+    createdAt: string; // ISO Date
+    updatedAt: string; // ISO Date
+    publishedAt?: string; // ISO Date (if published)
+    status: 'draft' | 'published';
+    version: number;
+}
+
+// Global Site Settings
+export interface SiteSettings extends BaseEntity {
+    heroTitle: string;
+    heroDescription: string;
+    email: string;
+    instagram: string;
+    footerText: string;
+    homepageSections: string[]; // Order of section IDs
+    seo: {
+        defaultTitle: string;
+        defaultDescription: string;
+        ogImage: string;
+    }
+}
+
+// Media Library Item
+export interface Photo extends BaseEntity {
+    url: string;
+    caption?: string;
+    altText: string;
+    tags: string[];
+    featured: boolean; // For portfolio highlights
+    width?: number;
+    height?: number;
+    blurDataURL?: string; // Base64 placeholder
+    variants?: {
+        thumbnail: string; // 300px
+        medium: string;    // 800px
+        original: string;
+    };
+}
+
+// Content Blocks for Dynamic Pages
+export type ContentBlockType = 'text' | 'image' | 'gallery' | 'quote' | 'video' | 'cta';
+
+export interface ContentBlock {
+    id: string;
+    type: ContentBlockType;
+    content: any; // Flexible content based on type
+    // e.g. text: { html: string }, image: { photoId: string }, gallery: { photoIds: string[] }
+}
+
+// Dynamic Page (e.g. Home, About)
+export interface Page extends BaseEntity {
+    slug: string; // e.g. 'home', 'about'
     title: string;
+    blocks: ContentBlock[];
+}
+
+// Project (Extended)
+export interface Project extends BaseEntity {
     slug: string;
-    year: string;
-    tags: string[]; // e.g. "Portrait", "Street", "B&W"
+    title: string;
     description: string;
+    year: string;
     location: string;
-    camera?: string; // e.g. "Sony A7IV"
-    lens?: string; // e.g. "35mm GM"
-    coverImage: string;
-    galleryImages: string[]; // Array of image paths
+    tags: string[];
+    tools: string[]; // e.g. "Next.js", "React"
+    camera?: string;
+    lens?: string;
+    coverImage: string; // URL or Photo ID
+    galleryImages: string[]; // Array of URLs or Photo IDs
     featured: boolean;
 }
 
+// Legacy types support (mapped or deprecated)
 export interface AboutData {
     headline: string;
     bio: string[];
@@ -28,4 +90,32 @@ export interface TimelineItem {
     title: string;
     location?: string;
     description: string;
+}
+
+// Audit Log
+export interface HistoryEntry {
+    id: string;
+    timestamp: string;
+    user: string; // Email or name
+    action: 'create' | 'update' | 'delete';
+    entityType: 'project' | 'photo' | 'page' | 'settings';
+    entityId: string;
+    changes?: string; // JSON string diff or summary
+    snapshot?: any; // Previous state for rollback
+}
+
+// Analytics
+export interface AnalyticsEvent {
+    id: string;
+    sessionId: string;
+    timestamp: string;
+    type: 'pageview' | 'click' | 'scroll' | 'social';
+    path: string;
+    data?: {
+        target?: string; // For clicks (href or id)
+        depth?: number;  // For scroll (25, 50, 75, 100)
+        referrer?: string;
+        device?: 'mobile' | 'desktop' | 'tablet';
+        [key: string]: any;
+    };
 }

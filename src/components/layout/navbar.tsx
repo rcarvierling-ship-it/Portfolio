@@ -30,7 +30,13 @@ export function Navbar() {
                 <div className="pointer-events-auto">
                     <Link href="/" className="flex items-center gap-2 font-bold tracking-tighter text-primary">
                         <div className="relative w-8 h-8">
-                            <Image src="/logo.png" alt="RCV.Media Logo" fill className="object-contain dark:invert" />
+                            <Image
+                                src="/logo.png"
+                                alt="RCV.Media Logo"
+                                width={32}
+                                height={32}
+                                className="object-contain dark:invert"
+                            />
                         </div>
                         <span>RCV.Media</span>
                     </Link>

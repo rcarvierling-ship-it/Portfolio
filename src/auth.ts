@@ -1,21 +1,34 @@
 import NextAuth from "next-auth"
-import GitHub from "next-auth/providers/github"
+import Credentials from "next-auth/providers/credentials"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    providers: [GitHub],
-    pages: {
-        signIn: "/login",
-    },
+    providers: [
+        Credentials({
+            name: "Password",
+            credentials: {
+                password: { label: "Password", type: "password" }
+            },
+            async authorize(credentials) {
+                const correctPassword = process.env.ADMIN_PASSWORD;
+                if (credentials.password === correctPassword) {
+                    // Return a user object that mimics what the API routes expect
+                    // We reuse ADMIN_EMAIL so existing checks pass perfectly
+                    return {
+                        name: "Admin",
+                        email: process.env.ADMIN_EMAIL || "admin@example.com"
+                    };
+                }
+                return null;
+            }
+        })
+    ],
     callbacks: {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
             const isAdminPath = nextUrl.pathname.startsWith("/dashboard");
-            const isApiWrite = nextUrl.pathname.startsWith("/api") && ["POST", "PUT", "DELETE", "PATCH"].includes(nextUrl.searchParams.get("method") || ""); // Basic check, middleware handles method better
 
-            // Allow admin only if email matches env
-            if (isLoggedIn && auth.user?.email !== process.env.ADMIN_EMAIL) {
-                return false; // Redirect to signin/error
-            }
+            // API route protection is handled individually in each route file 
+            // by checking `auth()` session.
 
             if (isAdminPath) {
                 if (isLoggedIn) return true;
@@ -23,11 +36,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
             return true;
         },
-        async signIn({ user }) {
-            if (user.email === process.env.ADMIN_EMAIL) {
-                return true;
-            }
-            return false; // Deny sign in
-        }
+        // No need for signIn callback checking email anymore, authorize handles it
     },
+    pages: {
+        signIn: '/login',
+    }
 })

@@ -65,11 +65,17 @@ export function CommandPalette() {
                                 <Command.Item onSelect={() => runCommand(() => router.push("/work"))} className="flex items-center gap-2 px-2 py-2 text-sm rounded-md cursor-pointer hover:bg-secondary aria-selected:bg-secondary">
                                     <Briefcase size={14} /> Work
                                 </Command.Item>
-                                <Command.Item onSelect={() => runCommand(() => router.push("/about"))} className="flex items-center gap-2 px-2 py-2 text-sm rounded-md cursor-pointer hover:bg-secondary aria-selected:bg-secondary">
-                                    <User size={14} /> About
+                            </Command.Group>
+
+                            <Command.Group heading="Dashboard">
+                                <Command.Item onSelect={() => runCommand(() => router.push("/dashboard?tab=overview"))} className="flex items-center gap-2 px-2 py-2 text-sm rounded-md cursor-pointer hover:bg-secondary aria-selected:bg-secondary">
+                                    <Home size={14} /> Dashboard Home
                                 </Command.Item>
-                                <Command.Item onSelect={() => runCommand(() => router.push("/contact"))} className="flex items-center gap-2 px-2 py-2 text-sm rounded-md cursor-pointer hover:bg-secondary aria-selected:bg-secondary">
-                                    <Mail size={14} /> Contact
+                                <Command.Item onSelect={() => runCommand(() => router.push("/dashboard?tab=analytics-overview"))} className="flex items-center gap-2 px-2 py-2 text-sm rounded-md cursor-pointer hover:bg-secondary aria-selected:bg-secondary">
+                                    <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" /> Analytics
+                                </Command.Item>
+                                <Command.Item onSelect={() => runCommand(() => router.push("/dashboard?tab=projects"))} className="flex items-center gap-2 px-2 py-2 text-sm rounded-md cursor-pointer hover:bg-secondary aria-selected:bg-secondary">
+                                    <FileText size={14} /> Manage Projects
                                 </Command.Item>
                             </Command.Group>
 

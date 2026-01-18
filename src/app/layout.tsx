@@ -17,32 +17,46 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "RCV.Media | Reese Vierling",
-  description: "A highly interactive portfolio website showcasing a decade of visual excellence.",
-  openGraph: {
-    title: "RCV.Media | Reese Vierling",
-    description: "A highly interactive portfolio website showcasing a decade of visual excellence.",
-    url: "https://rcv.media",
-    siteName: "RCV.Media",
-    images: [
-      {
-        url: "/og-image.jpg", // Default placeholder
-        width: 1200,
-        height: 630,
-        alt: "RCV.Media Portfolio",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "RCV.Media | Reese Vierling",
-    description: "A highly interactive portfolio website showcasing a decade of visual excellence.",
-    images: ["/og-image.jpg"],
-  },
-};
+import { getSettings } from "@/lib/cms";
+
+export async function generateMetadata() {
+  const settings = getSettings();
+  const title = settings.seo?.defaultTitle || "RCV.Media | Reese Vierling";
+  const description = settings.seo?.defaultDescription || "A highly interactive portfolio website showcasing a decade of visual excellence.";
+  const ogImage = settings.seo?.ogImage || "/og-image.jpg";
+
+  return {
+    metadataBase: new URL("https://rcv-media.com"),
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: "https://rcv-media.com",
+      siteName: "RCV.Media",
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
+  };
+}
+
+import { Suspense } from "react";
+import { AnalyticsProvider } from "@/components/analytics-provider";
+import { ToastProvider } from "@/components/ui/toast-context";
 
 export default function RootLayout({
   children,
@@ -60,14 +74,20 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SmoothScroll>
-            <CommandPalette />
-            <Navbar />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <Footer />
-          </SmoothScroll>
+          <Suspense fallback={null}>
+            <AnalyticsProvider>
+              <ToastProvider>
+                <SmoothScroll>
+                  <CommandPalette />
+                  <Navbar />
+                  <main className="min-h-screen">
+                    {children}
+                  </main>
+                  <Footer />
+                </SmoothScroll>
+              </ToastProvider>
+            </AnalyticsProvider>
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>

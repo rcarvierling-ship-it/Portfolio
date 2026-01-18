@@ -3,26 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ArrowLeft, ExternalLink, Github } from "lucide-react";
-import fs from 'fs'
-import path from 'path'
-import { Project } from "@/lib/types";
-
-async function getProjects(): Promise<Project[]> {
-    const filePath = path.join(process.cwd(), 'src/data/projects.json');
-    try {
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
-        return JSON.parse(fileContent);
-    } catch (error) {
-        return [];
-    }
-}
-
 import { Metadata } from 'next';
+import { getProjects as getProjectsCMS, getProject as getProjectCMS } from "@/lib/cms";
+import { auth } from "@/auth";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const projects = await getProjects();
-    const project = projects.find((p) => p.slug === slug);
+    const project = getProjectCMS(slug);
 
     if (!project) {
         return {
@@ -49,22 +36,49 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export async function generateStaticParams() {
-    const projects = await getProjects();
+    const projects = getProjectsCMS(false); // Only generate static params for published? Or all?
+    // If we want drafts to be previewable, they might not be SSG'd if not in this list.
+    // Use published for static gen. Drafts can fallback to dynamic or just 404 if not generated?
+    // Actually, if we use dynamic rendering for drafts usage, we shouldn't rely on generateStaticParams for them.
     return projects.map((project) => ({
         slug: project.slug,
     }));
 }
 
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
+
 export default async function ProjectPage({
     params,
+    searchParams
 }: {
     params: Promise<{ slug: string }>;
+    searchParams: SearchParams;
 }) {
     const { slug } = await params;
-    const projects = await getProjects();
-    const project = projects.find((p) => p.slug === slug);
+
+    // Preview Logic
+    const sp = await searchParams;
+    const isPreview = sp.preview === 'true';
+    let showDrafts = false;
+    if (isPreview) {
+        const session = await auth();
+        if (session) showDrafts = true;
+    }
+
+    // CMS fetch
+    // getProjectCMS reads from JSON. It returns undefined if not found.
+    // Note: getProjectCMS finds by slug in ALL projects currently? 
+    // Let's check src/lib/cms.ts implementation of getProject.
+    // It does `readJson... find(...)`. It reads whole file. So it finds drafts too.
+    // We need to enforce published check if not authorized.
+
+    const project = getProjectCMS(slug);
 
     if (!project) {
+        notFound();
+    }
+
+    if (!showDrafts && project.status !== 'published') {
         notFound();
     }
 

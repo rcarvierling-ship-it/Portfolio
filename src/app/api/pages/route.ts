@@ -1,26 +1,30 @@
-import { NextResponse } from 'next/server';
-import { getSettings, saveSettings } from '@/lib/cms';
+import { NextResponse, NextRequest } from 'next/server';
+import { getPages, savePage } from '@/lib/cms';
 import { auth } from "@/auth"
 
-export async function GET() {
-    const data = getSettings();
+export async function GET(request: NextRequest) {
+    const session = await auth();
+    const isAdmin = !!session?.user;
+
+    const data = getPages(isAdmin);
     return NextResponse.json(data);
 }
 
 export async function POST(request: Request) {
     const session = await auth();
-    // Re-using the ADMIN_EMAIL check is fine, or check session user name if using credentials
-    // My credentials provider returns { name: "Admin", email: ... } so email check still works if env var is set.
-    // Ideally I should strictly check if session is valid.
     if (!session) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     try {
         const body = await request.json();
-        // user email from session might be null depending on provider, fallback to "Admin"
         const user = session.user?.email || "Admin";
-        const success = saveSettings(body, user);
+
+        if (Array.isArray(body)) {
+            return NextResponse.json({ error: 'Bulk update not supported' }, { status: 400 });
+        }
+
+        const success = savePage(body, user);
 
         if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
         return NextResponse.json({ success: true, data: body });
