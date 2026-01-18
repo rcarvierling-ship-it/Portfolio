@@ -27,8 +27,8 @@ export function UserMap({ data }: UserMapProps) {
                         lat: parseFloat(event.data.geo.lat),
                         lng: parseFloat(event.data.geo.lng),
                         count: 0,
-                        city: event.data.geo.city || "Unknown City",
-                        country: event.data.geo.country || "Unknown",
+                        city: event.data.geo.city ? decodeURIComponent(event.data.geo.city) : "Unknown City",
+                        country: event.data.geo.country ? decodeURIComponent(event.data.geo.country) : "Unknown",
                         lastActive: event.timestamp,
                         events: []
                     }
