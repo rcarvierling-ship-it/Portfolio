@@ -8,8 +8,6 @@ import { TextReveal } from "@/components/animations/text-reveal"
 import { MagneticButton } from "@/components/ui/magnetic-button"
 import { ParticlesBackground } from "@/components/animations/particles-background"
 
-import { HeroScene } from "@/components/3d/hero-scene";
-
 export function Hero() {
     const ref = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
@@ -45,7 +43,6 @@ export function Hero() {
             >
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-background to-background opacity-50" />
                 <div className="absolute inset-0 bg-grid-zinc-900/[0.02] dark:bg-grid-white/[0.02]" />
-                <HeroScene />
                 <ParticlesBackground />
             </motion.div>
 

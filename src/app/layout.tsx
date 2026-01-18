@@ -64,8 +64,6 @@ import { Suspense } from "react";
 import { AnalyticsProvider } from "@/components/analytics-provider";
 import { ToastProvider } from "@/components/ui/toast-context";
 
-import { CustomCursor } from "@/components/ui/custom-cursor";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -86,7 +84,6 @@ export default function RootLayout({
             <AnalyticsProvider>
               <ToastProvider>
                 <SmoothScroll>
-                  <CustomCursor />
                   <ScrollProgress />
                   <CommandPalette />
                   <Navbar />
