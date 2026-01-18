@@ -7,6 +7,7 @@ import { Photo } from "@/lib/types"
 import { MagneticButton } from "@/components/ui/magnetic-button"
 import { TagInput } from "@/components/ui/tag-input"
 import { cn } from "@/lib/utils"
+import imageCompression from 'browser-image-compression'
 // We'll reuse the existing history/uploader where possible, or reimplement within this scope if needed for "Advanced" features
 import { HistoryModal } from "@/components/dashboard/history-modal"
 
@@ -22,7 +23,7 @@ export function MediaLibrary() {
     const [showHistory, setShowHistory] = useState(false);
 
     // Upload State
-    const [uploadQueue, setUploadQueue] = useState<{ file: File, status: 'pending' | 'uploading' | 'done' | 'error' }[]>([]);
+    const [uploadQueue, setUploadQueue] = useState<{ file: File, status: 'pending' | 'uploading' | 'done' | 'error', error?: string }[]>([]);
 
     useEffect(() => {
         fetchPhotos();
@@ -49,11 +50,30 @@ export function MediaLibrary() {
             setUploadQueue(q => q.map(i => i.file === item.file ? { ...i, status: 'uploading' } : i));
 
             try {
+                // Compress image before upload
+                let fileToUpload = item.file;
+                try {
+                    const options = {
+                        maxSizeMB: 1,
+                        maxWidthOrHeight: 1920,
+                        useWebWorker: true
+                    };
+                    const compressedBlob = await imageCompression(item.file, options);
+                    fileToUpload = new File([compressedBlob], item.file.name, { type: item.file.type });
+                    console.log(`Compressed ${item.file.size / 1024 / 1024}MB -> ${fileToUpload.size / 1024 / 1024}MB`);
+                } catch (compressionError) {
+                    console.warn("Compression failed, using original:", compressionError);
+                }
+
                 const formData = new FormData();
-                formData.append('file', item.file);
+                formData.append('file', fileToUpload);
 
                 const res = await fetch('/api/upload', { method: 'POST', body: formData });
-                if (!res.ok) throw new Error("Upload failed");
+
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+                    throw new Error(errorData.error || `Upload failed with status ${res.status}`);
+                }
 
                 const data = await res.json();
 
@@ -88,9 +108,11 @@ export function MediaLibrary() {
                 // Add to list immediately
                 setPhotos(prev => [newPhoto, ...prev]);
 
-            } catch (err) {
-                console.error(err);
-                setUploadQueue(q => q.map(i => i.file === item.file ? { ...i, status: 'error' } : i));
+            } catch (err: any) {
+                console.error("Upload error:", err);
+                const errorMessage = err.message || "Upload failed";
+                setUploadQueue(q => q.map(i => i.file === item.file ? { ...i, status: 'error', error: errorMessage } : i));
+                alert(`Failed to upload ${item.file.name}: ${errorMessage}`);
             }
         }
 
@@ -203,7 +225,12 @@ export function MediaLibrary() {
                                 <div key={idx} className="aspect-square rounded-xl bg-secondary/50 border border-border flex flex-col items-center justify-center p-4 relative overflow-hidden">
                                     <div className="text-xs font-bold text-center truncate w-full mb-2">{item.file.name}</div>
                                     {item.status === 'uploading' && <Loader2 className="animate-spin text-primary" />}
-                                    {item.status === 'error' && <X className="text-red-500" />}
+                                    {item.status === 'error' && (
+                                        <>
+                                            <X className="text-red-500" />
+                                            {item.error && <div className="text-[10px] text-red-500 text-center mt-1">{item.error}</div>}
+                                        </>
+                                    )}
                                     {item.status === 'done' && <Check className="text-green-500" />}
                                     {/* Progress bar could go here */}
                                     <div className="absolute bottom-0 left-0 h-1 bg-primary transition-all duration-300" style={{ width: item.status === 'uploading' ? '50%' : item.status === 'done' ? '100%' : '0%' }} />
