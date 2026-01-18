@@ -1,63 +1,90 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { Camera, Code2, Sparkles, Video } from "lucide-react"
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { ArrowRight, Camera, Video, Code2, Sparkles } from "lucide-react"
+import Image from "next/image"
 
+// Define services data with images (using placeholders or actual images if available)
 const services = [
     {
-        icon: Camera,
+        id: "photography",
         title: "Photography",
-        description: "Professional photography capturing authentic moments and stunning visuals across various styles and settings.",
+        subtitle: "Capturing moments that tell a story.",
+        description: "Editorial, Lifestyle, Event, and Product photography delivered with a unique cinematic style.",
+        // Using a color gradient placeholder for now, ideally this would be a real image
+        color: "from-orange-500/20 to-red-500/20",
+        icon: Camera
     },
     {
-        icon: Video,
+        id: "videography",
         title: "Videography",
-        description: "Cinematic video production bringing stories to life with creative direction and technical excellence.",
+        subtitle: "Motion pictures that move emotions.",
+        description: "End-to-end video production from storyboarding and shooting to editing and color grading.",
+        color: "from-blue-500/20 to-cyan-500/20",
+        icon: Video
     },
     {
-        icon: Code2,
+        id: "web-dev",
         title: "Web Development",
-        description: "Interactive web experiences combining cutting-edge technology with beautiful, user-focused design.",
+        subtitle: "Digital experiences that engage.",
+        description: "Modern, performant websites and applications built with Next.js, React, and creative coding.",
+        color: "from-emerald-500/20 to-green-500/20",
+        icon: Code2
     },
     {
-        icon: Sparkles,
+        id: "creative",
         title: "Creative Direction",
-        description: "End-to-end creative solutions from concept to execution, ensuring cohesive brand storytelling.",
+        subtitle: "Vision turned into reality.",
+        description: "Comprehensive brand strategy and visual identity development for digital-first businesses.",
+        color: "from-purple-500/20 to-pink-500/20",
+        icon: Sparkles
     },
 ]
 
 export function ServicesSection() {
-    return (
-        <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-center mb-16"
-            >
-                <h2 className="text-3xl md:text-5xl font-bold mb-4">What I Do</h2>
-                <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                    Blending technical expertise with creative vision to deliver exceptional results
-                </p>
-            </motion.div>
+    const [hoveredService, setHoveredService] = useState<string | null>(null)
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {services.map((service, index) => (
+    return (
+        <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto cursor-default">
+            <div className="mb-16">
+                <h2 className="text-sm font-mono uppercase tracking-widest text-muted-foreground mb-4"> Expertise</h2>
+                <div className="h-px w-full bg-border" />
+            </div>
+
+            <div className="flex flex-col">
+                {services.map((service) => (
                     <motion.div
-                        key={service.title}
+                        key={service.id}
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
-                        className="group p-6 rounded-xl bg-card border border-border hover:border-primary/50 transition-all hover:shadow-lg"
+                        className="group relative border-b border-border py-12 md:py-16 transition-all duration-300"
+                        onMouseEnter={() => setHoveredService(service.id)}
+                        onMouseLeave={() => setHoveredService(null)}
                     >
-                        <div className="mb-4 p-3 rounded-lg bg-primary/10 w-fit group-hover:bg-primary/20 transition-colors">
-                            <service.icon className="w-6 h-6 text-primary" />
+                        <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-6 z-10 relative">
+                            <h3 className="text-4xl md:text-6xl font-bold transition-transform duration-300 group-hover:translate-x-4">
+                                {service.title}
+                            </h3>
+                            <div className="md:max-w-md">
+                                <p className="text-xl md:text-2xl font-medium mb-2 text-foreground/80 group-hover:text-primary transition-colors">
+                                    {service.subtitle}
+                                </p>
+                                <p className="text-muted-foreground leading-relaxed">
+                                    {service.description}
+                                </p>
+                            </div>
+
+                            <div className="md:self-center opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300">
+                                <ArrowRight className="w-8 h-8 md:w-12 md:h-12 -rotate-45 group-hover:rotate-0 transition-transform duration-300" />
+                            </div>
                         </div>
-                        <h3 className="text-xl font-bold mb-2">{service.title}</h3>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                            {service.description}
-                        </p>
+
+                        {/* Background Glow Effect on Hover */}
+                        <div
+                            className={`absolute inset-0 bg-gradient-to-r ${service.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-3xl -z-10`}
+                        />
                     </motion.div>
                 ))}
             </div>
