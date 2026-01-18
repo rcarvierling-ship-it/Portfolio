@@ -52,6 +52,11 @@ export async function generateMetadata() {
       description,
       images: [ogImage],
     },
+    icons: {
+      icon: '/logo.png',
+      shortcut: '/logo.png',
+      apple: '/logo.png',
+    },
   };
 }
 
