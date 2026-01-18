@@ -182,6 +182,7 @@ export const savePhoto = async (photo: Photo, user: string): Promise<boolean> =>
                 caption = EXCLUDED.caption,
                 tags = EXCLUDED.tags,
                 featured = EXCLUDED.featured,
+                status = EXCLUDED.status,
                 updated_at = EXCLUDED.updated_at
         `;
         await logHistory('create', 'photo', photo.id, user);
