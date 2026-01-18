@@ -6,6 +6,7 @@ import { SmoothScroll } from "@/components/smooth-scroll";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { CommandPalette } from "@/components/ui/command-palette";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -78,6 +79,7 @@ export default function RootLayout({
             <AnalyticsProvider>
               <ToastProvider>
                 <SmoothScroll>
+                  <ScrollProgress />
                   <CommandPalette />
                   <Navbar />
                   <main className="min-h-screen">
