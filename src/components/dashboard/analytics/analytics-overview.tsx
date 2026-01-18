@@ -8,7 +8,6 @@ import { Loader2 } from "lucide-react"
 import { ChartSkeleton } from "./skeleton"
 import { HeatmapViz } from "./heatmap-viz"
 import { UserMap } from "./user-map"
-import { MockDataGenerator } from "./mock-data-generator"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function AnalyticsOverview() {
@@ -41,7 +40,6 @@ export function AnalyticsOverview() {
                     {!isConnected && <Loader2 className="animate-spin text-muted-foreground w-4 h-4" />}
                 </h2>
                 <div className="flex items-center gap-2">
-                    <MockDataGenerator onGenerate={() => window.location.reload()} />
                     <div className="flex bg-secondary/50 rounded-lg p-1">
                         {(['15m', '1h', '24h', '7d', '30d'] as TimeRange[]).map(r => (
                             <button
