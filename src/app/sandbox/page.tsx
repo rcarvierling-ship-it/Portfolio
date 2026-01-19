@@ -77,38 +77,38 @@ export default function SandboxDashboard() {
                 </div>
 
                 {/* Project Experiments */}
-                <div className="bg-secondary/20 p-6 rounded-xl border border-border space-y-4 hover:border-primary/50 transition-colors group">
+                <div className="bg-secondary/20 p-6 rounded-xl border border-border space-y-4 hover:border-primary/50 transition-colors group relative">
                     <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
                         <Copy size={24} />
                     </div>
                     <h2 className="text-xl font-bold">Project Manager</h2>
                     <p className="text-sm text-muted-foreground">Manage {store.projects.length} mock projects. Test reordering, deletion, and duplication logic safely.</p>
                     <div className="flex gap-2 pt-2">
-                        <button disabled className="text-xs bg-secondary px-3 py-1.5 rounded-md border text-muted-foreground cursor-not-allowed">Coming Soon</button>
+                        <Link href="/sandbox/projects" className="text-xs bg-background px-3 py-1.5 rounded-md border font-medium hover:text-primary hover:border-primary">Launch Manager</Link>
                     </div>
                 </div>
 
                 {/* Media Library */}
-                <div className="bg-secondary/20 p-6 rounded-xl border border-border space-y-4 hover:border-primary/50 transition-colors group">
+                <div className="bg-secondary/20 p-6 rounded-xl border border-border space-y-4 hover:border-primary/50 transition-colors group relative">
                     <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform">
                         <Camera size={24} />
                     </div>
                     <h2 className="text-xl font-bold">Media Library</h2>
                     <p className="text-sm text-muted-foreground">Mess around with {store.photos.length} mock photos. Test drag-and-drop, tagging, and mass deletion.</p>
                     <div className="flex gap-2 pt-2">
-                        <button disabled className="text-xs bg-secondary px-3 py-1.5 rounded-md border text-muted-foreground cursor-not-allowed">Coming Soon</button>
+                        <Link href="/sandbox/media" className="text-xs bg-background px-3 py-1.5 rounded-md border font-medium hover:text-primary hover:border-primary">Open Library</Link>
                     </div>
                 </div>
 
                 {/* Analytics Simulator */}
-                <div className="bg-secondary/20 p-6 rounded-xl border border-border space-y-4 hover:border-primary/50 transition-colors group">
+                <div className="bg-secondary/20 p-6 rounded-xl border border-border space-y-4 hover:border-primary/50 transition-colors group relative">
                     <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center text-green-500 group-hover:scale-110 transition-transform">
                         <BarChart3 size={24} />
                     </div>
                     <h2 className="text-xl font-bold">Analytics Simulator</h2>
                     <p className="text-sm text-muted-foreground">Inject fake traffic spikes and visualize data streams.</p>
                     <div className="flex gap-2 pt-2">
-                        <button disabled className="text-xs bg-secondary px-3 py-1.5 rounded-md border text-muted-foreground cursor-not-allowed">Coming Soon</button>
+                        <Link href="/sandbox/analytics" className="text-xs bg-background px-3 py-1.5 rounded-md border font-medium hover:text-primary hover:border-primary">Start Simulation</Link>
                     </div>
                 </div>
 

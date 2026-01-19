@@ -141,7 +141,115 @@ export class MockStore {
         // Reset pages logic if needed, simplify for now
     }
 
-    // Simulates a DB update
+    // --- Project Actions ---
+
+    addProject(project: Partial<Project>) {
+        const newProject: Project = {
+            id: `mock-project-${Date.now()}`,
+            slug: `mock-project-${Date.now()}`,
+            title: project.title || "New Mock Project",
+            description: project.description || "Description placeholder",
+            tags: project.tags || [],
+            coverImage: project.coverImage || "/api/placeholder/800/600",
+            galleryImages: [],
+            tools: [],
+            year: new Date().getFullYear().toString(),
+            location: "Sandbox City",
+            featured: false,
+            status: 'draft',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            version: 1,
+            ...project
+        } as Project;
+        this.projects.unshift(newProject);
+    }
+
+    updateProject(id: string, updates: Partial<Project>) {
+        const index = this.projects.findIndex(p => p.id === id);
+        if (index !== -1) {
+            this.projects[index] = { ...this.projects[index], ...updates, updatedAt: new Date().toISOString() };
+        }
+    }
+
+    deleteProject(id: string) {
+        this.projects = this.projects.filter(p => p.id !== id);
+    }
+
+    reorderProjects(activeId: string, overId: string) {
+        const oldIndex = this.projects.findIndex((p) => p.id === activeId);
+        const newIndex = this.projects.findIndex((p) => p.id === overId);
+
+        if (oldIndex !== -1 && newIndex !== -1) {
+            const [moved] = this.projects.splice(oldIndex, 1);
+            this.projects.splice(newIndex, 0, moved);
+        }
+    }
+
+    // --- Media Actions ---
+
+    addPhoto() {
+        // Simulating an upload
+        const newPhoto: Photo = {
+            id: `mock-photo-${Date.now()}`,
+            url: `/api/placeholder/1000/1000?text=New+Upload+${this.photos.length + 1}`,
+            width: 1000,
+            height: 1000,
+            altText: "New Mock Upload",
+            caption: "Freshly uploaded to sandbox",
+            tags: [],
+            status: 'published',
+            featured: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            version: 1
+        };
+        this.photos.unshift(newPhoto);
+    }
+
+    updatePhoto(id: string, updates: Partial<Photo>) {
+        const index = this.photos.findIndex(p => p.id === id);
+        if (index !== -1) {
+            this.photos[index] = { ...this.photos[index], ...updates, updatedAt: new Date().toISOString() };
+        }
+    }
+
+    deletePhoto(id: string) {
+        this.photos = this.photos.filter(p => p.id !== id);
+    }
+
+    // --- Analytics Simulation ---
+
+    setLiveVisitors(count: number) {
+        this.analytics.liveVisitors = Math.max(0, count);
+    }
+
+    simulateSpike() {
+        this.analytics.liveVisitors += Math.floor(Math.random() * 50) + 20;
+    }
+
+    simulateDrop() {
+        this.analytics.liveVisitors = Math.max(0, this.analytics.liveVisitors - Math.floor(Math.random() * 20));
+    }
+
+    // --- Chaos Mode ---
+
+    triggerChaos() {
+        // Randomly delete 30% of projects
+        this.projects = this.projects.filter(() => Math.random() > 0.3);
+
+        // Shuffle photos completely
+        this.photos = this.photos.sort(() => Math.random() - 0.5);
+
+        // Corrupt analytics
+        this.analytics.liveVisitors = 9999;
+        this.analytics.pageViews = this.analytics.pageViews.map(() => Math.floor(Math.random() * 5000));
+
+        console.warn("CHAOS MODE ACTIVATED: Data scrambled.");
+    }
+
+    // --- Helper ---
+
     updatePage(slug: string, content: any) {
         if (this.pages[slug]) {
             this.pages[slug].content = content;
