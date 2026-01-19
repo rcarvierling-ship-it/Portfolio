@@ -95,8 +95,80 @@ export function SettingsTab() {
                         {/* Theme Section */}
                         <div className="p-4 rounded-lg bg-secondary/20 border border-border">
                             <h4 className="font-bold text-sm mb-4 flex items-center gap-2"><Palette size={16} /> Theme & Colors</h4>
+                            <div className="mb-6 space-y-3">
+                                <label className="text-xs font-semibold uppercase text-muted-foreground">Gradient Preset</label>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex-1 relative">
+                                        <select
+                                            value={data.theme?.presetId || "custom"}
+                                            onChange={(e) => {
+                                                const newId = e.target.value;
+                                                if (newId === 'custom') {
+                                                    setData({ ...data, theme: { ...data.theme, presetId: 'custom' } });
+                                                } else {
+                                                    const preset = GRADIENT_PRESETS.find(p => p.id === newId);
+                                                    if (preset) {
+                                                        setData({
+                                                            ...data,
+                                                            theme: {
+                                                                ...data.theme,
+                                                                presetId: preset.id,
+                                                                backgroundColors: {
+                                                                    ...preset.colors
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }}
+                                            className="w-full p-2 rounded-md bg-background border border-border text-sm appearance-none cursor-pointer"
+                                        >
+                                            <option value="custom">Custom (Manual Edit)</option>
+                                            <optgroup label="Presets">
+                                                {GRADIENT_PRESETS.map(p => (
+                                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                                ))}
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    <MagneticButton
+                                        onClick={() => {
+                                            const randomPreset = GRADIENT_PRESETS[Math.floor(Math.random() * GRADIENT_PRESETS.length)];
+                                            setData({
+                                                ...data,
+                                                theme: {
+                                                    ...data.theme,
+                                                    presetId: randomPreset.id,
+                                                    backgroundColors: { ...randomPreset.colors }
+                                                }
+                                            });
+                                        }}
+                                        className="p-2 bg-secondary hover:bg-secondary/80 rounded-md"
+                                        title="Random Preset"
+                                    >
+                                        <RefreshCw size={16} />
+                                    </MagneticButton>
+                                </div>
+
+                                {/* Preset Preview dots for current selection */}
+                                {data.theme?.backgroundColors && (
+                                    <div className="flex items-center gap-2 p-2 rounded-md bg-secondary/30 mt-2">
+                                        <span className="text-[10px] text-muted-foreground mr-auto">Current Palette:</span>
+                                        <div className="w-4 h-4 rounded-full" style={{ background: data.theme.backgroundColors.color1 }} />
+                                        <div className="w-4 h-4 rounded-full" style={{ background: data.theme.backgroundColors.color2 }} />
+                                        <div className="w-4 h-4 rounded-full" style={{ background: data.theme.backgroundColors.color3 }} />
+                                        <div className="w-4 h-4 rounded-full" style={{ background: data.theme.backgroundColors.color4 }} />
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="space-y-4">
-                                <label className="text-xs font-semibold uppercase text-muted-foreground">Background Gradient Colors</label>
+                                <label className="text-xs font-semibold uppercase text-muted-foreground flex items-center justify-between">
+                                    Manual Overrides
+                                    {data.theme?.presetId && data.theme.presetId !== 'custom' && (
+                                        <span className="text-[10px] bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded">Editing will switch to Custom</span>
+                                    )}
+                                </label>
                                 <div className="grid grid-cols-2 gap-4">
                                     {([
                                         { label: "Top Left", key: 'color1', default: "rgba(217, 70, 239, 0.5)" },
@@ -122,6 +194,7 @@ export function SettingsTab() {
                                                             ...data,
                                                             theme: {
                                                                 ...data.theme,
+                                                                presetId: 'custom', // Switch to custom on manual edit
                                                                 backgroundColors: {
                                                                     color1: data.theme?.backgroundColors?.color1 || "rgba(217, 70, 239, 0.5)",
                                                                     color2: data.theme?.backgroundColors?.color2 || "rgba(34, 211, 238, 0.5)",
