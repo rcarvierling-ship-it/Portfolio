@@ -54,7 +54,13 @@ export default function SandboxVisualEditor({ slug }: SandboxEditorProps) {
     if (!draftData) return <div className="p-10 text-center text-muted-foreground">Loading sandbox editor...</div>
 
     const renderPreview = () => {
-        if (slug === 'home') return <HomeView data={draftData as HomeData} />
+        if (slug === 'home') return (
+            <HomeView
+                data={draftData as HomeData}
+                featuredProjectsNode={<div className="py-12 text-center border-y border-border opacity-50">Featured Projects (Server Component placeholder)</div>}
+                recentPhotosNode={<div className="py-12 text-center border-y border-border opacity-50">Recent Photos (Server Component placeholder)</div>}
+            />
+        )
         if (slug === 'about') return <AboutView data={draftData as AboutData} />
         if (slug === 'contact') return <ContactView data={draftData as ContactData} />
         return <div>Preview not available</div>

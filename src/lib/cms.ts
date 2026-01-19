@@ -51,7 +51,11 @@ export const getProjects = async (includeDrafts = false): Promise<Project[]> => 
                 })()
             } as Project;
         });
-    } catch (e) {
+    } catch (e: any) {
+        if (e.message?.includes('missing_connection_string')) {
+            // Suppress error in local dev without DB
+            return [];
+        }
         console.error("Get Projects Error:", e);
         return [];
     }

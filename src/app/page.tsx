@@ -1,5 +1,7 @@
 import { getPage } from "@/lib/cms";
 import { HomeView } from "@/components/views/home-view";
+import { FeaturedProjects } from "@/components/sections/featured-projects";
+import { RecentPhotos } from "@/components/sections/recent-photos";
 import { HomeData } from "@/lib/types";
 
 // Force dynamic if we want fresh CMS data on every request, or revalidate
@@ -12,5 +14,11 @@ export default async function Home() {
   const rawContent = page?.content || {};
   const content = (rawContent.published || rawContent) as HomeData | undefined;
 
-  return <HomeView data={content} />;
+  return (
+    <HomeView
+      data={content}
+      featuredProjectsNode={<FeaturedProjects />}
+      recentPhotosNode={<RecentPhotos />}
+    />
+  );
 }

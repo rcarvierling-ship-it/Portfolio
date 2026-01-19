@@ -24,10 +24,7 @@ export function VisualEditor({ slug }: VisualEditorProps) {
         },
         stats: { line1: "50+ Projects • 10+ Years Exp •", line2: "Photography • Videography •" },
         services: [
-            { id: "photography", title: "Photography", subtitle: "Capturing moments that tell a story.", description: "Editorial, Lifestyle, Event, and Product photography delivered with a unique cinematic style.", color: "from-orange-500/20 to-red-500/20", iconName: "Camera", show: true },
-            { id: "videography", title: "Videography", subtitle: "Motion pictures that move emotions.", description: "End-to-end video production from storyboarding and shooting to editing and color grading.", color: "from-blue-500/20 to-cyan-500/20", iconName: "Video", show: true },
-            { id: "web-dev", title: "Web Development", subtitle: "Digital experiences that engage.", description: "Modern, performant websites and applications built with Next.js, React, and creative coding.", color: "from-emerald-500/20 to-green-500/20", iconName: "Code2", show: true },
-            { id: "creative", title: "Creative Direction", subtitle: "Vision turned into reality.", description: "Comprehensive brand strategy and visual identity development for digital-first businesses.", color: "from-purple-500/20 to-pink-500/20", iconName: "Sparkles", show: true }
+            { id: "photography", title: "Photography", subtitle: "Capturing moments that tell a story.", description: "Editorial, Lifestyle, Event, and Product photography delivered with a unique cinematic style.", color: "from-orange-500/20 to-red-500/20", iconName: "Camera", show: true, link: "/work" }
         ],
         settings: {
             backgroundEffects: true,
@@ -475,7 +472,13 @@ export function VisualEditor({ slug }: VisualEditorProps) {
 
     const renderPreview = () => {
         // Use DRAFT data for preview
-        if (slug === 'home') return <HomeView data={draftData as HomeData} />
+        if (slug === 'home') return (
+            <HomeView
+                data={draftData as HomeData}
+                featuredProjectsNode={<div className="py-12 text-center border-y border-border opacity-50">Featured Projects (Server Component)</div>}
+                recentPhotosNode={<div className="py-12 text-center border-y border-border opacity-50">Recent Photos (Server Component)</div>}
+            />
+        )
         if (slug === 'about') return <AboutView data={draftData as AboutData} />
         if (slug === 'contact') return <ContactView data={draftData as ContactData} />
         return <div>Preview not available</div>

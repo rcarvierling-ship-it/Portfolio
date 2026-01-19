@@ -16,31 +16,8 @@ const defaultServices: ServiceItem[] = [
         subtitle: "Capturing moments that tell a story.",
         description: "Editorial, Lifestyle, Event, and Product photography delivered with a unique cinematic style.",
         color: "from-orange-500/20 to-red-500/20",
-        iconName: "Camera"
-    },
-    {
-        id: "videography",
-        title: "Videography",
-        subtitle: "Motion pictures that move emotions.",
-        description: "End-to-end video production from storyboarding and shooting to editing and color grading.",
-        color: "from-blue-500/20 to-cyan-500/20",
-        iconName: "Video"
-    },
-    {
-        id: "web-dev",
-        title: "Web Development",
-        subtitle: "Digital experiences that engage.",
-        description: "Modern, performant websites and applications built with Next.js, React, and creative coding.",
-        color: "from-emerald-500/20 to-green-500/20",
-        iconName: "Code2"
-    },
-    {
-        id: "creative",
-        title: "Creative Direction",
-        subtitle: "Vision turned into reality.",
-        description: "Comprehensive brand strategy and visual identity development for digital-first businesses.",
-        color: "from-purple-500/20 to-pink-500/20",
-        iconName: "Sparkles"
+        iconName: "Camera",
+        link: "/work"
     },
 ]
 
@@ -66,7 +43,7 @@ export function ServicesSection({ services = defaultServices }: ServicesSectionP
             </div>
 
             <div className="flex flex-col">
-                {services.map((service) => {
+                {services.filter(s => !['videography', 'web-dev', 'creative'].includes(s.id)).map((service) => {
                     const Icon = service.iconName ? iconMap[service.iconName] : Sparkles;
 
                     const CardContent = (
