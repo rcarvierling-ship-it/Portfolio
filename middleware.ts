@@ -3,6 +3,7 @@ import { auth } from "@/auth"
 export default auth((req) => {
     const isLoggedIn = !!req.auth
     const isDashboard = req.nextUrl.pathname.startsWith('/dashboard')
+    const isSandbox = req.nextUrl.pathname.startsWith('/sandbox')
     // We can't confuse this with the API routes that need public access (e.g. initial fetches)
     // BUT all our API routes are currently public GET, private POST.
     // We'll enforce POST protection inside the API routes themselves or refine this middleware.

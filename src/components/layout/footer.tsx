@@ -23,7 +23,7 @@ export function Footer() {
 
     return (
         <footer className="w-full py-12 px-6 md:px-12 border-t bg-background">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
                 <div className="text-sm text-muted-foreground">
                     {content.footerText}
                 </div>

@@ -14,7 +14,7 @@ export function ContactView({ data }: ContactViewProps) {
     return (
         <div className="min-h-screen pt-32 pb-24 px-6 md:px-12 max-w-4xl mx-auto">
             <div className="flex flex-col gap-12">
-                <TextReveal text={title} className="text-4xl md:text-6xl font-bold" />
+                <TextReveal text={title} className="text-3xl sm:text-4xl md:text-6xl font-bold" />
                 <p className="text-xl text-muted-foreground leading-relaxed">
                     {description}
                 </p>

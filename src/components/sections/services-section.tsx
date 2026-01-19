@@ -78,7 +78,7 @@ export function ServicesSection({ services = defaultServices }: ServicesSectionP
                             onMouseLeave={() => setHoveredService(null)}
                         >
                             <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-6 z-10 relative">
-                                <h3 className="text-4xl md:text-6xl font-bold transition-transform duration-300 group-hover:translate-x-4">
+                                <h3 className="text-3xl md:text-6xl font-bold transition-transform duration-300 group-hover:translate-x-4">
                                     {service.title}
                                 </h3>
                                 <div className="md:max-w-md">

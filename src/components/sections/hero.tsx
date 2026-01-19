@@ -35,17 +35,17 @@ export function Hero({ title, description }: HeroProps) {
                 <ParticlesBackground />
             </motion.div>
 
-            <div className="flex flex-col items-center gap-8 max-w-4xl text-center z-10">
+            <div className="flex flex-col items-center gap-8 max-w-4xl text-center z-10 w-full">
                 <TextReveal
                     text={title}
-                    className="text-4xl md:text-7xl font-bold tracking-tighter justify-center"
+                    className="text-3xl sm:text-4xl md:text-7xl font-bold tracking-tighter justify-center px-4"
                 />
 
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8, duration: 0.8 }}
-                    className="text-lg md:text-xl text-muted-foreground max-w-2xl text-center"
+                    className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl text-center px-4"
                 >
                     {description}
                 </motion.p>
@@ -54,15 +54,15 @@ export function Hero({ title, description }: HeroProps) {
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 1, duration: 0.5 }}
-                    className="flex gap-4 mt-4"
+                    className="flex flex-col sm:flex-row gap-4 mt-4 w-full sm:w-auto px-6 sm:px-0"
                 >
-                    <Link href="/work">
-                        <MagneticButton className="px-8 py-4 bg-primary text-primary-foreground rounded-full text-lg font-medium">
+                    <Link href="/work" className="w-full sm:w-auto">
+                        <MagneticButton className="w-full sm:w-auto px-8 py-4 bg-primary text-primary-foreground rounded-full text-lg font-medium">
                             View Gallery
                         </MagneticButton>
                     </Link>
-                    <Link href="/contact">
-                        <MagneticButton className="px-8 py-4 border border-input bg-background hover:bg-muted text-foreground rounded-full text-lg font-medium">
+                    <Link href="/contact" className="w-full sm:w-auto">
+                        <MagneticButton className="w-full sm:w-auto px-8 py-4 border border-input bg-background hover:bg-muted text-foreground rounded-full text-lg font-medium">
                             Contact Me
                         </MagneticButton>
                     </Link>
