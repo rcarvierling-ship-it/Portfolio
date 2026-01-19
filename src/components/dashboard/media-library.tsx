@@ -149,10 +149,12 @@ export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
             // Filter out deleted
             const kept = photos.filter(p => !selectedIds.has(p.id));
             setPhotos(kept);
+
+            // Call DELETE endpoint
             await fetch('/api/photos', {
-                method: 'POST',
+                method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(kept) // This logic relies on "Save full array" behavior of our generic backend
+                body: JSON.stringify({ ids: Array.from(selectedIds) })
             });
         } else {
             setPhotos(updatedPhotos);

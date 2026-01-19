@@ -156,6 +156,16 @@ export const getPhotos = async (includeDrafts = false): Promise<Photo[]> => {
     }
 };
 
+export const getPhoto = async (id: string): Promise<Photo | undefined> => {
+    try {
+        const { rows } = await sql<Photo>`SELECT * FROM photos WHERE id = ${id} LIMIT 1`;
+        if (rows.length === 0) return undefined;
+        return rows[0] as unknown as Photo;
+    } catch (e) {
+        return undefined;
+    }
+};
+
 export const savePhotos = async (photos: Photo[], user: string): Promise<boolean> => {
     try {
         for (const p of photos) {
