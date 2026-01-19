@@ -26,6 +26,10 @@ export function VisualEditor({ slug }: VisualEditorProps) {
         services: [
             { id: "photography", title: "Photography", subtitle: "Capturing moments that tell a story.", description: "Editorial, Lifestyle, Event, and Product photography delivered with a unique cinematic style.", color: "from-orange-500/20 to-red-500/20", iconName: "Camera", show: true, link: "/work" }
         ],
+        marquee: {
+            show: true,
+            keywords: ["EDITORIAL", "LIFESTYLE", "CAMPAIGN", "STUDIO", "PORTRAIT", "ANALOG", "DIGITAL"]
+        },
         settings: {
             backgroundEffects: true,
             animationIntensity: 'normal',
@@ -408,6 +412,20 @@ export function VisualEditor({ slug }: VisualEditorProps) {
                             </div>
                         </div>
                     ))}
+                </section>
+
+                {/* Marquee Section */}
+                <section className="space-y-4">
+                    <h3 className="text-xs uppercase font-bold text-muted-foreground tracking-wider pb-2 border-b border-border">Marquee Ticker</h3>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Keywords (comma separated)</label>
+                        <textarea
+                            className="w-full p-2 rounded bg-secondary/50 border border-border text-sm min-h-[80px]"
+                            value={homeData.marquee?.keywords?.join(', ')}
+                            onChange={e => updateDraft({ ...homeData, marquee: { ...homeData.marquee, keywords: e.target.value.split(',').map(s => s.trim()).filter(s => s) } })}
+                            placeholder="EDITORIAL, LIFESTYLE, CAMPAIGN..."
+                        />
+                    </div>
                 </section>
             </div>
         )

@@ -98,6 +98,10 @@ export interface HomeData {
         line2: string;
     };
     services: ServiceItem[];
+    marquee?: {
+        show?: boolean;
+        keywords: string[];
+    };
     settings?: {
         backgroundEffects: boolean;
         animationIntensity: 'normal' | 'reduced';

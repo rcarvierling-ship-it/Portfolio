@@ -3,6 +3,7 @@
 import { Hero } from "@/components/sections/hero"
 import { StatsSection } from "@/components/sections/stats-section"
 import { ServicesSection } from "@/components/sections/services-section"
+import { MarqueeSection } from "@/components/sections/marquee-section"
 import { HomeData } from "@/lib/types"
 
 interface HomeViewProps {
@@ -24,6 +25,9 @@ export function HomeView({ data, featuredProjectsNode, recentPhotosNode }: HomeV
             />
             {featuredProjectsNode}
             <ServicesSection services={data?.services} />
+            <ServicesSection services={data?.services} />
+            <MarqueeSection keywords={data?.marquee?.keywords} />
+            {recentPhotosNode}
             {recentPhotosNode}
         </div>
     );
