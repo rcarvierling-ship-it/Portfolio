@@ -82,6 +82,7 @@ export interface ServiceItem {
     color: string;
     iconName?: 'Camera' | 'Video' | 'Code2' | 'Sparkles'; // Store icon name as string
     show?: boolean;
+    link?: string; // Optional link URL
 }
 
 export interface HomeData {

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight, Camera, Video, Code2, Sparkles } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 import { ServiceItem } from "@/lib/types"
 
@@ -67,13 +68,13 @@ export function ServicesSection({ services = defaultServices }: ServicesSectionP
             <div className="flex flex-col">
                 {services.map((service) => {
                     const Icon = service.iconName ? iconMap[service.iconName] : Sparkles;
-                    return (
+
+                    const CardContent = (
                         <motion.div
-                            key={service.id}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="group relative border-b border-border py-12 md:py-16 transition-all duration-300"
+                            className="group relative border-b border-border py-12 md:py-16 transition-all duration-300 cursor-pointer"
                             onMouseEnter={() => setHoveredService(service.id)}
                             onMouseLeave={() => setHoveredService(null)}
                         >
@@ -100,7 +101,18 @@ export function ServicesSection({ services = defaultServices }: ServicesSectionP
                                 className={`absolute inset-0 bg-gradient-to-r ${service.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-3xl -z-10`}
                             />
                         </motion.div>
-                    )
+                    );
+
+                    return service.link ? (
+                        <Link href={service.link} key={service.id} className="block">
+                            {CardContent}
+                        </Link>
+                    ) : (
+                        <div key={service.id}>
+                            {CardContent}
+                        </div>
+                    );
+
                 })}
             </div>
         </section>

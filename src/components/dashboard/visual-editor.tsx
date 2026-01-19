@@ -56,6 +56,7 @@ export function VisualEditor({ slug }: VisualEditorProps) {
     const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
     const [activeTab, setActiveTab] = useState<'content' | 'settings'>('content');
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [availablePages, setAvailablePages] = useState<{ title: string, slug: string }[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const scrollToSection = (sectionId: string) => {
@@ -69,6 +70,14 @@ export function VisualEditor({ slug }: VisualEditorProps) {
             if (sectionId === 'bottom') scrollContainerRef.current.scrollTo({ top: scrollContainerRef.current.scrollHeight, behavior: 'smooth' });
         }
     };
+
+    useEffect(() => {
+        // Fetch available pages for linking
+        fetch('/api/pages')
+            .then(res => res.json())
+            .then(data => setAvailablePages(data))
+            .catch(() => { });
+    }, []);
 
     useEffect(() => {
         setLoading(true);
@@ -376,6 +385,30 @@ export function VisualEditor({ slug }: VisualEditorProps) {
                                 }}
                                 placeholder="Description"
                             />
+
+                            {/* Link Selection */}
+                            <div className="pt-2 border-t border-border mt-2">
+                                <label className="text-xs uppercase font-bold text-muted-foreground mb-1 block">Link to Page</label>
+                                <input
+                                    className="w-full p-2 rounded bg-background border border-border text-sm"
+                                    value={service.link || ''}
+                                    onChange={e => {
+                                        const newServices = [...homeData.services];
+                                        newServices[idx].link = e.target.value;
+                                        updateDraft({ ...homeData, services: newServices });
+                                    }}
+                                    placeholder="Enter URL or select page..."
+                                    list={`pages-list-${idx}`}
+                                />
+                                <datalist id={`pages-list-${idx}`}>
+                                    <option value="/work">Work (Gallery)</option>
+                                    <option value="/about">About</option>
+                                    <option value="/contact">Contact</option>
+                                    {availablePages.map(page => (
+                                        <option key={page.slug} value={`/pages/${page.slug}`}>{page.title}</option>
+                                    ))}
+                                </datalist>
+                            </div>
                         </div>
                     ))}
                 </section>
