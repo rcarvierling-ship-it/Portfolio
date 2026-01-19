@@ -25,7 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     callbacks: {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
-            const isAdminPath = nextUrl.pathname.startsWith("/dashboard");
+            const isAdminPath = nextUrl.pathname.startsWith("/dashboard") || nextUrl.pathname.startsWith("/architecture");
 
             // API route protection is handled individually in each route file 
             // by checking `auth()` session.
