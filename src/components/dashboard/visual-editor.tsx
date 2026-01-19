@@ -56,6 +56,19 @@ export function VisualEditor({ slug }: VisualEditorProps) {
     const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
     const [activeTab, setActiveTab] = useState<'content' | 'settings'>('content');
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const scrollToSection = (sectionId: string) => {
+        if (!scrollContainerRef.current) return;
+
+        const element = scrollContainerRef.current.querySelector(sectionId.startsWith('#') ? sectionId : `#${sectionId}`);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            if (sectionId === 'top') scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+            if (sectionId === 'bottom') scrollContainerRef.current.scrollTo({ top: scrollContainerRef.current.scrollHeight, behavior: 'smooth' });
+        }
+    };
 
     useEffect(() => {
         setLoading(true);
@@ -434,26 +447,6 @@ export function VisualEditor({ slug }: VisualEditorProps) {
         if (slug === 'contact') return <ContactView data={draftData as ContactData} />
         return <div>Preview not available</div>
     }
-
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-    const scrollToSection = (sectionId: string) => {
-        if (!scrollContainerRef.current) return;
-
-        // Map section names to rough scroll positions or try to find elements
-        // Since the rendered content is inside, we can try to find elements by ID if they exist, 
-        // or just scroll by percentage for now since we don't have IDs on all sections in the view components.
-        // Actually, let's try to find the element inside the ref.
-
-        const element = scrollContainerRef.current.querySelector(sectionId.startsWith('#') ? sectionId : `#${sectionId}`);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            // Fallback for known sections if IDs aren't present
-            if (sectionId === 'top') scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-            if (sectionId === 'bottom') scrollContainerRef.current.scrollTo({ top: scrollContainerRef.current.scrollHeight, behavior: 'smooth' });
-        }
-    };
 
     return (
         <div className="flex h-screen bg-background overflow-hidden">
