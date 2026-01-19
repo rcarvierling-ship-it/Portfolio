@@ -96,37 +96,46 @@ export function SettingsTab() {
                             <div className="space-y-4">
                                 <label className="text-xs font-semibold uppercase text-muted-foreground">Background Gradient Colors</label>
                                 <div className="grid grid-cols-2 gap-4">
-                                    {[
+                                    {([
                                         { label: "Top Left", key: 'color1', default: "rgba(217, 70, 239, 0.5)" },
                                         { label: "Bottom Right", key: 'color2', default: "rgba(34, 211, 238, 0.5)" },
                                         { label: "Center", key: 'color3', default: "rgba(167, 139, 250, 0.4)" },
                                         { label: "Top Middle", key: 'color4', default: "rgba(244, 114, 182, 0.4)" }
-                                    ].map((c) => (
-                                        <div key={c.key} className="space-y-1">
-                                            <label className="text-[10px] text-muted-foreground">{c.label}</label>
-                                            <div className="flex items-center gap-2">
-                                                <div
-                                                    className="w-8 h-8 rounded-full border border-border shrink-0"
-                                                    style={{ background: data.theme?.backgroundColors?.[c.key as any] || c.default }}
-                                                />
-                                                <input
-                                                    type="text"
-                                                    value={data.theme?.backgroundColors?.[c.key as any] || c.default}
-                                                    onChange={e => setData({
-                                                        ...data,
-                                                        theme: {
-                                                            ...data.theme,
-                                                            backgroundColors: {
-                                                                ...data.theme?.backgroundColors,
-                                                                [c.key]: e.target.value
+                                    ] as const).map((c) => {
+                                        const colorKey = c.key as keyof NonNullable<NonNullable<SiteSettings['theme']>['backgroundColors']>;
+                                        const currentValue = data.theme?.backgroundColors?.[colorKey] || c.default;
+
+                                        return (
+                                            <div key={c.key} className="space-y-1">
+                                                <label className="text-[10px] text-muted-foreground">{c.label}</label>
+                                                <div className="flex items-center gap-2">
+                                                    <div
+                                                        className="w-8 h-8 rounded-full border border-border shrink-0"
+                                                        style={{ background: currentValue }}
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={currentValue}
+                                                        onChange={e => setData({
+                                                            ...data,
+                                                            theme: {
+                                                                ...data.theme,
+                                                                backgroundColors: {
+                                                                    color1: data.theme?.backgroundColors?.color1 || "rgba(217, 70, 239, 0.5)",
+                                                                    color2: data.theme?.backgroundColors?.color2 || "rgba(34, 211, 238, 0.5)",
+                                                                    color3: data.theme?.backgroundColors?.color3 || "rgba(167, 139, 250, 0.4)",
+                                                                    color4: data.theme?.backgroundColors?.color4 || "rgba(244, 114, 182, 0.4)",
+                                                                    ...data.theme?.backgroundColors,
+                                                                    [c.key]: e.target.value
+                                                                }
                                                             }
-                                                        }
-                                                    })}
-                                                    className="w-full p-2 rounded-md bg-background border border-border text-xs font-mono"
-                                                />
+                                                        })}
+                                                        className="w-full p-2 rounded-md bg-background border border-border text-xs font-mono"
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        )
+                                    })}
                                 </div>
                                 <p className="text-[10px] text-muted-foreground">
                                     Supports HEX, RGBA, and standard CSS color names.
