@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { HomeView } from "@/components/views/home-view"
 import { AboutView } from "@/components/views/about-view"
 import { ContactView } from "@/components/views/contact-view"
@@ -435,10 +435,30 @@ export function VisualEditor({ slug }: VisualEditorProps) {
         return <div>Preview not available</div>
     }
 
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const scrollToSection = (sectionId: string) => {
+        if (!scrollContainerRef.current) return;
+
+        // Map section names to rough scroll positions or try to find elements
+        // Since the rendered content is inside, we can try to find elements by ID if they exist, 
+        // or just scroll by percentage for now since we don't have IDs on all sections in the view components.
+        // Actually, let's try to find the element inside the ref.
+
+        const element = scrollContainerRef.current.querySelector(sectionId.startsWith('#') ? sectionId : `#${sectionId}`);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            // Fallback for known sections if IDs aren't present
+            if (sectionId === 'top') scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+            if (sectionId === 'bottom') scrollContainerRef.current.scrollTo({ top: scrollContainerRef.current.scrollHeight, behavior: 'smooth' });
+        }
+    };
+
     return (
         <div className="flex h-screen bg-background overflow-hidden">
             {/* Sidebar Controls */}
-            <div className="w-[400px] border-r border-border flex flex-col bg-card z-10 shadow-xl">
+            <div className="w-[400px] border-r border-border flex flex-col bg-card z-10 shadow-xl shrink-0">
                 {/* Header */}
                 <div className="p-4 border-b border-border">
                     <div className="flex items-center justify-between mb-4">
@@ -473,35 +493,58 @@ export function VisualEditor({ slug }: VisualEditorProps) {
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                <div
+                    className="flex-1 overflow-y-auto p-6 custom-scrollbar"
+                    data-lenis-prevent
+                    onWheel={(e) => e.stopPropagation()}
+                >
                     {renderForm()}
                 </div>
             </div>
 
             {/* Preview Area */}
-            <div className="flex-1 bg-zinc-900 flex flex-col relative overflow-hidden">
-                <div className="h-12 border-b border-white/10 flex items-center justify-center gap-4 text-white">
+            <div className="flex-1 bg-zinc-900 flex flex-col relative overflow-hidden h-full">
+                <div className="h-12 border-b border-white/10 flex items-center justify-between px-4 text-white bg-[#0a0a0a] shrink-0 z-20">
                     <span className="text-xs uppercase tracking-widest text-white/50 flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${hasUnsavedChanges ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`} />
                         {hasUnsavedChanges ? 'Unsaved Changes' : 'All Saved'}
                     </span>
-                    <div className="flex bg-black/50 rounded-lg p-1">
-                        <button
-                            onClick={() => setViewMode('desktop')}
-                            className={`p-2 rounded ${viewMode === 'desktop' ? 'bg-white/20' : 'hover:bg-white/10'}`}
-                        >
-                            <Monitor size={16} />
-                        </button>
-                        <button
-                            onClick={() => setViewMode('mobile')}
-                            className={`p-2 rounded ${viewMode === 'mobile' ? 'bg-white/20' : 'hover:bg-white/10'}`}
-                        >
-                            <Smartphone size={16} />
-                        </button>
+
+                    <div className="flex items-center gap-4">
+                        {/* Scroll Navigation */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] uppercase text-white/30 font-bold tracking-wider">Jump To</span>
+                            <div className="flex bg-white/10 rounded p-0.5">
+                                <button onClick={() => scrollToSection('top')} className="p-1 hover:bg-white/10 rounded" title="Top"><ChevronUp size={14} /></button>
+                                <button onClick={() => scrollToSection('bottom')} className="p-1 hover:bg-white/10 rounded" title="Bottom"><ChevronDown size={14} /></button>
+                            </div>
+                        </div>
+
+                        <div className="w-px h-4 bg-white/10" />
+
+                        {/* View Mode */}
+                        <div className="flex bg-black/50 rounded-lg p-1">
+                            <button
+                                onClick={() => setViewMode('desktop')}
+                                className={`p-2 rounded ${viewMode === 'desktop' ? 'bg-white/20' : 'hover:bg-white/10'}`}
+                            >
+                                <Monitor size={16} />
+                            </button>
+                            <button
+                                onClick={() => setViewMode('mobile')}
+                                className={`p-2 rounded ${viewMode === 'mobile' ? 'bg-white/20' : 'hover:bg-white/10'}`}
+                            >
+                                <Smartphone size={16} />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-auto p-8 flex items-start justify-center bg-zinc-950">
+                <div
+                    ref={scrollContainerRef}
+                    className="flex-1 overflow-y-auto overflow-x-hidden p-8 flex items-start justify-center bg-zinc-950 scroll-smooth"
+                    data-lenis-prevent
+                >
                     <div
                         className={`bg-background transition-all duration-300 shadow-2xl origin-top ${viewMode === 'mobile' ? 'w-[375px] min-h-[800px] rounded-[3rem] border-[8px] border-zinc-800' : 'w-full max-w-[1400px] min-h-screen rounded-md'
                             } overflow-hidden`}
@@ -509,7 +552,8 @@ export function VisualEditor({ slug }: VisualEditorProps) {
                             transform: viewMode === 'mobile' ? 'scale(0.9)' : 'scale(1)'
                         }}
                     >
-                        <div className={viewMode === 'mobile' ? 'pointer-events-none select-none' : ''}>
+                        {/* Content Wrapper - Interactive! */}
+                        <div className="h-full">
                             {renderPreview()}
                         </div>
                     </div>
