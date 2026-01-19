@@ -70,6 +70,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSettings();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -85,10 +87,10 @@ export default async function RootLayout({
             <AnalyticsProvider>
               <ToastProvider>
                 <SmoothScroll>
-                  <AnimatedBackground />
+                  <AnimatedBackground colors={settings.theme?.backgroundColors} />
                   <ScrollProgress />
                   <CommandPalette />
-                  <Navbar settings={await getSettings()} />
+                  <Navbar settings={settings} />
                   <main className="min-h-screen">
                     {children}
                   </main>

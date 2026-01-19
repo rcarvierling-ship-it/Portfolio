@@ -27,6 +27,14 @@ export interface SiteSettings extends BaseEntity {
         brandName: string; // e.g. "RCV.Media"
         logoAltText?: string;
     };
+    theme?: {
+        backgroundColors?: {
+            color1: string;
+            color2: string;
+            color3: string;
+            color4: string;
+        }
+    };
 }
 
 // Media Library Item
