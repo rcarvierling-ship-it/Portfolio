@@ -4,7 +4,6 @@ import { ArrowDown } from "lucide-react"
 import Link from "next/link"
 import { TextReveal } from "@/components/animations/text-reveal"
 import { MagneticButton } from "@/components/ui/magnetic-button"
-import { ParticlesBackground } from "@/components/animations/particles-background"
 
 interface HeroProps {
     title: string;
@@ -30,9 +29,6 @@ export function Hero({ title, description }: HeroProps) {
                 className="absolute inset-0 z-[-1]"
                 style={{ y: backgroundY, opacity }}
             >
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-background to-background opacity-50" />
-                <div className="absolute inset-0 bg-grid-zinc-900/[0.02] dark:bg-grid-white/[0.02]" />
-                <ParticlesBackground />
             </motion.div>
 
             <div className="flex flex-col items-center gap-8 max-w-4xl text-center z-10 w-full">
