@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Instagram, Mail } from "lucide-react"
+import { AnimatedIcon } from "@/components/ui/animated-icon"
 
 export function Footer() {
     const currentYear = new Date().getFullYear();
@@ -30,11 +31,11 @@ export function Footer() {
 
                 <div className="flex gap-6">
                     <Link href={content.instagram} target="_blank" className="hover:text-primary transition-colors">
-                        <Instagram size={20} />
+                        <AnimatedIcon icon={Instagram} size={20} variant="rotate" />
                         <span className="sr-only">Instagram</span>
                     </Link>
                     <Link href={content.email.startsWith('mailto:') ? content.email : `mailto:${content.email}`} className="hover:text-primary transition-colors">
-                        <Mail size={20} />
+                        <AnimatedIcon icon={Mail} size={20} variant="shake" />
                         <span className="sr-only">Email</span>
                     </Link>
                 </div>

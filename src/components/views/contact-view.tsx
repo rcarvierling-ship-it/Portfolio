@@ -3,6 +3,7 @@
 import { ContactData } from "@/lib/types"
 import { TextReveal } from "@/components/animations/text-reveal"
 import { Mail, Instagram } from "lucide-react"
+import { AnimatedIcon } from "@/components/ui/animated-icon"
 
 interface ContactViewProps {
     data: ContactData
@@ -21,9 +22,12 @@ export function ContactView({ data }: ContactViewProps) {
 
                 <div className="flex flex-col gap-6 mt-8">
                     <div className="flex items-center gap-4 text-lg">
-                        <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-primary">
-                            <Mail size={24} />
-                        </div>
+                        <AnimatedIcon
+                            icon={Mail}
+                            size={24}
+                            variant="pulse"
+                            className="w-12 h-12 rounded-full bg-secondary text-primary"
+                        />
                         <div>
                             <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Email</h3>
                             <a href={`mailto:${email}`} className="text-2xl hover:text-primary transition-colors">{email}</a>
@@ -31,9 +35,12 @@ export function ContactView({ data }: ContactViewProps) {
                     </div>
 
                     <div className="flex items-center gap-4 text-lg">
-                        <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-primary">
-                            <Instagram size={24} />
-                        </div>
+                        <AnimatedIcon
+                            icon={Instagram}
+                            size={24}
+                            variant="rotate"
+                            className="w-12 h-12 rounded-full bg-secondary text-primary"
+                        />
                         <div>
                             <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Instagram</h3>
                             <a href={`https://www.instagram.com/${instagram.replace('@', '')}/`} target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-primary transition-colors">{instagram}</a>
