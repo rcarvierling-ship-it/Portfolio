@@ -8,9 +8,30 @@ export async function GET(
 ) {
     const slug = (await params).slug;
     const page = await getPage(slug);
-    // Return empty object if not found, to let frontend fill defaults
+
+    // Return empty object if not found
     if (!page) return NextResponse.json({});
-    return NextResponse.json(page);
+
+    // Migration Strategy:
+    // If content has NO 'published' key, assume it is legacy flat content.
+    // We transform it into { published: content, draft: content } structure on the fly
+    // so the editor receives the correct shape.
+    let content = page.content || {};
+    if (!content.published && !content.draft) {
+        // It's legacy flat content. 
+        // For the EDITOR (fetch), we treat this flat content as BOTH published and draft.
+        content = {
+            published: { ...content },
+            draft: { ...content }
+        };
+    }
+
+    // Determine what to return based on query param? 
+    // Actually, for the editor, we always want the FULL object (draft + published).
+    // The public site usually calls getPage directly, not this API.
+    // This API is primarily for the Dashboard Editor.
+
+    return NextResponse.json({ ...page, content });
 }
 
 export async function POST(
@@ -26,10 +47,12 @@ export async function POST(
         const body = await request.json();
         const user = session.user?.email || "Admin";
 
-        // Ensure ID exists
+        // body.content should be the FULL object { draft: ..., published: ... }
+        // The editor decides when to update 'published' (by copying draft to it).
+
         const pageToSave = {
             ...body,
-            id: body.id || (await params).slug, // Use slug as ID for simple pages like 'home'
+            id: body.id || (await params).slug,
             createdAt: body.createdAt || new Date().toISOString()
         };
 

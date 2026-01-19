@@ -8,7 +8,9 @@ export const revalidate = 0;
 
 export default async function Home() {
   const page = await getPage('home');
-  const content = page?.content as HomeData | undefined;
+  // Handle both new { published, draft } structure and legacy flat structure
+  const rawContent = page?.content || {};
+  const content = (rawContent.published || rawContent) as HomeData | undefined;
 
   return <HomeView data={content} />;
 }

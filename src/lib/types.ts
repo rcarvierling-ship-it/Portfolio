@@ -66,18 +66,28 @@ export interface ServiceItem {
     description: string;
     color: string;
     iconName?: 'Camera' | 'Video' | 'Code2' | 'Sparkles'; // Store icon name as string
+    show?: boolean;
 }
 
 export interface HomeData {
     hero: {
         title: string;
         description: string;
+        ctaPrimary?: { text: string; link: string; show: boolean };
+        ctaSecondary?: { text: string; link: string; show: boolean };
+        defaultTheme?: 'dark' | 'light';
     };
     stats: {
         line1: string;
         line2: string;
     };
     services: ServiceItem[];
+    settings?: {
+        backgroundEffects: boolean;
+        animationIntensity: 'normal' | 'reduced';
+        showScrollIndicator: boolean;
+        sectionSpacing: 'small' | 'default' | 'large';
+    };
 }
 
 export interface GalleryItem {
