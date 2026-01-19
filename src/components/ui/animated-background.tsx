@@ -10,8 +10,8 @@ export function AnimatedBackground() {
                 className="absolute inset-0 h-full w-full opacity-40 dark:opacity-30 animate-gradient"
                 style={{
                     background: `
-            radial-gradient(circle at 15% 50%, rgba(147, 51, 234, 0.5), transparent 25%), 
-            radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.5), transparent 25%)
+            radial-gradient(circle at 15% 50%, rgba(217, 70, 239, 0.5), transparent 25%), 
+            radial-gradient(circle at 85% 30%, rgba(34, 211, 238, 0.5), transparent 25%)
           `,
                     backgroundSize: "200% 200%",
                     filter: "blur(60px)",
@@ -23,8 +23,8 @@ export function AnimatedBackground() {
                 className="absolute inset-0 h-full w-full opacity-30 dark:opacity-20 animate-gradient-reverse"
                 style={{
                     background: `
-            radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.4), transparent 50%),
-            radial-gradient(circle at 50% 10%, rgba(99, 102, 241, 0.4), transparent 40%)
+            radial-gradient(circle at 50% 50%, rgba(167, 139, 250, 0.4), transparent 50%),
+            radial-gradient(circle at 50% 10%, rgba(244, 114, 182, 0.4), transparent 40%)
           `,
                     backgroundSize: "200% 200%",
                     filter: "blur(80px)",

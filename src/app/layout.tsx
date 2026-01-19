@@ -65,7 +65,7 @@ import { Suspense } from "react";
 import { AnalyticsProvider } from "@/components/analytics-provider";
 import { ToastProvider } from "@/components/ui/toast-context";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -88,7 +88,7 @@ export default function RootLayout({
                   <AnimatedBackground />
                   <ScrollProgress />
                   <CommandPalette />
-                  <Navbar />
+                  <Navbar settings={await getSettings()} />
                   <main className="min-h-screen">
                     {children}
                   </main>

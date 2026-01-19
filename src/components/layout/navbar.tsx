@@ -18,10 +18,16 @@ const navItems = [
     { name: "Contact", path: "/contact" },
 ]
 
-export function Navbar() {
+import { SiteSettings } from "@/lib/types";
+
+export function Navbar({ settings }: { settings?: SiteSettings }) {
     const [isOpen, setIsOpen] = useState(false)
     const pathname = usePathname()
     const { theme, setTheme } = useTheme()
+
+    const brandName = settings?.branding?.brandName || "RCV.Media";
+    const logoUrl = settings?.branding?.logoUrl || "/logo.png";
+    const logoAlt = settings?.branding?.logoAltText || "Logo";
 
     return (
         <>
@@ -30,15 +36,15 @@ export function Navbar() {
                 <div className="pointer-events-auto">
                     <Link href="/" className="flex items-center gap-2 font-bold tracking-tighter text-primary">
                         <div className="relative w-8 h-8">
-                            <Image
-                                src="/logo.png"
-                                alt="RCV.Media Logo"
-                                width={32}
-                                height={32}
-                                className="object-contain"
+                            {/* If using remote URL, we might need a trusted domain or just use img tag if domain not in next.config */}
+                            {/* For safety with user uploads via blob/S3, standard img tag is often easier unless configured */}
+                            <img
+                                src={logoUrl}
+                                alt={logoAlt}
+                                className="w-full h-full object-contain"
                             />
                         </div>
-                        <span>RCV.Media</span>
+                        <span>{brandName}</span>
                     </Link>
                 </div>
 

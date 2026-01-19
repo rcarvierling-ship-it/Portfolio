@@ -11,7 +11,12 @@ import imageCompression from 'browser-image-compression'
 // We'll reuse the existing history/uploader where possible, or reimplement within this scope if needed for "Advanced" features
 import { HistoryModal } from "@/components/dashboard/history-modal"
 
-export function MediaLibrary() {
+interface MediaLibraryProps {
+    mode?: 'manage' | 'select';
+    onSelect?: (photo: Photo) => void;
+}
+
+export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
     const [photos, setPhotos] = useState<Photo[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
@@ -173,44 +178,62 @@ export function MediaLibrary() {
     return (
         <div className="flex flex-col gap-6 h-[calc(100vh-240px)] min-h-[500px]">
             {/* Toolbar */}
-            <div className="flex items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
-                <div className="flex items-center gap-4">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-                        <input
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                            placeholder="Search media..."
-                            className="pl-9 pr-4 py-2 rounded-lg bg-secondary/30 text-sm border-none focus:ring-1 focus:ring-primary w-64"
-                        />
+            {mode === 'manage' && (
+                <div className="flex items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
+                    {/* ... (Search and Upload controls) ... */}
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
+                            <input
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                                placeholder="Search media..."
+                                className="pl-9 pr-4 py-2 rounded-lg bg-secondary/30 text-sm border-none focus:ring-1 focus:ring-primary w-64"
+                            />
+                        </div>
+                        <div className="h-6 w-px bg-border mx-2" />
+                        <button
+                            onClick={() => setIsSelectionMode(!isSelectionMode)}
+                            className={cn("text-xs font-bold px-3 py-1.5 rounded transition-colors", isSelectionMode ? "bg-primary/20 text-primary" : "hover:bg-secondary")}
+                        >
+                            {isSelectionMode ? "Cancel Select" : "Select Multiple"}
+                        </button>
                     </div>
-                    <div className="h-6 w-px bg-border mx-2" />
-                    <button
-                        onClick={() => setIsSelectionMode(!isSelectionMode)}
-                        className={cn("text-xs font-bold px-3 py-1.5 rounded transition-colors", isSelectionMode ? "bg-primary/20 text-primary" : "hover:bg-secondary")}
-                    >
-                        {isSelectionMode ? "Cancel Select" : "Select Multiple"}
-                    </button>
-                </div>
 
-                <div className="flex items-center gap-3">
-                    {selectedIds.size > 0 && (
-                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4">
-                            <span className="text-xs font-bold mr-2">{selectedIds.size} selected</span>
-                            <button onClick={() => handleBulkAction('publish')} className="p-2 hover:bg-green-500/20 text-green-500 rounded" title="Publish"><Check size={16} /></button>
-                            <button onClick={() => handleBulkAction('draft')} className="p-2 hover:bg-yellow-500/20 text-yellow-500 rounded" title="Unpublish"><X size={16} /></button>
-                            <button onClick={() => handleBulkAction('delete')} className="p-2 hover:bg-red-500/20 text-red-500 rounded" title="Delete"><Trash2 size={16} /></button>
-                        </div>
-                    )}
+                    <div className="flex items-center gap-3">
+                        {selectedIds.size > 0 && (
+                            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4">
+                                <span className="text-xs font-bold mr-2">{selectedIds.size} selected</span>
+                                <button onClick={() => handleBulkAction('publish')} className="p-2 hover:bg-green-500/20 text-green-500 rounded" title="Publish"><Check size={16} /></button>
+                                <button onClick={() => handleBulkAction('draft')} className="p-2 hover:bg-yellow-500/20 text-yellow-500 rounded" title="Unpublish"><X size={16} /></button>
+                                <button onClick={() => handleBulkAction('delete')} className="p-2 hover:bg-red-500/20 text-red-500 rounded" title="Delete"><Trash2 size={16} /></button>
+                            </div>
+                        )}
 
-                    <label className="cursor-pointer">
-                        <input type="file" multiple accept="image/*" className="hidden" onChange={handleFileUpload} />
-                        <div className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
-                            <Upload size={16} /> Upload
-                        </div>
-                    </label>
+                        <label className="cursor-pointer">
+                            <input type="file" multiple accept="image/*" className="hidden" onChange={handleFileUpload} />
+                            <div className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+                                <Upload size={16} /> Upload
+                            </div>
+                        </label>
+                    </div>
                 </div>
-            </div>
+            )}
+            {mode === 'select' && (
+                <div className="flex items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
+                            <input
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                                placeholder="Search media..."
+                                className="pl-9 pr-4 py-2 rounded-lg bg-secondary/30 text-sm border-none focus:ring-1 focus:ring-primary w-64"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Content Area */}
             <div className="flex-1 flex gap-6 overflow-hidden">
@@ -241,6 +264,10 @@ export function MediaLibrary() {
                                 <div
                                     key={photo.id}
                                     onClick={() => {
+                                        if (mode === 'select' && onSelect) {
+                                            onSelect(photo);
+                                            return;
+                                        }
                                         if (isSelectionMode) toggleSelection(photo.id);
                                         else setEditingPhoto(photo);
                                     }}

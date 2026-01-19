@@ -1,13 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Lock } from "lucide-react"
-import { SiteSettings } from "@/lib/types"
+import { Settings, Lock, Image as ImageIcon, X } from "lucide-react"
+import { SiteSettings, Photo } from "@/lib/types"
 import { MagneticButton } from "@/components/ui/magnetic-button"
+import { MediaLibrary } from "@/components/dashboard/media-library"
+import { AnimatePresence, motion } from "framer-motion"
 
 export function SettingsTab() {
     const [data, setData] = useState<SiteSettings | null>(null);
     const [loading, setLoading] = useState(true);
+    const [showLogoPicker, setShowLogoPicker] = useState(false);
 
     useEffect(() => {
         fetch('/api/global').then(res => res.json()).then(d => { setData(d); setLoading(false); });
@@ -31,95 +34,177 @@ export function SettingsTab() {
     if (loading || !data) return <div>Loading settings...</div>;
 
     return (
-        <div className="flex flex-col gap-8 max-w-2xl">
-            <div className="p-6 rounded-xl border border-border bg-card">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 rounded-full bg-secondary/50"><Settings size={20} /></div>
-                    <h3 className="text-lg font-bold">Global Site Settings</h3>
-                </div>
-
-                <div className="flex flex-col gap-6">
-                    <div className="space-y-2">
-                        <label className="text-xs font-semibold uppercase text-muted-foreground">Hero Title</label>
-                        <input
-                            value={data.heroTitle}
-                            onChange={e => setData({ ...data, heroTitle: e.target.value })}
-                            className="w-full p-2 rounded-md bg-secondary/30 border border-border text-lg font-bold"
-                        />
+        <>
+            <div className="flex flex-col gap-8 max-w-2xl">
+                <div className="p-6 rounded-xl border border-border bg-card">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 rounded-full bg-secondary/50"><Settings size={20} /></div>
+                        <h3 className="text-lg font-bold">Global Site Settings</h3>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-semibold uppercase text-muted-foreground">Hero Description</label>
-                        <textarea
-                            value={data.heroDescription}
-                            onChange={e => setData({ ...data, heroDescription: e.target.value })}
-                            className="w-full p-2 rounded-md bg-secondary/30 border border-border resize-none h-24 text-sm"
-                        />
-                    </div>
+                    <div className="flex flex-col gap-6">
+                        {/* Branding Section */}
+                        <div className="p-4 rounded-lg bg-secondary/20 border border-border">
+                            <h4 className="font-bold text-sm mb-4 flex items-center gap-2"><ImageIcon size={16} /> Branding</h4>
+                            <div className="space-y-6">
+                                {/* Brand Name */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-semibold uppercase text-muted-foreground">Brand Name</label>
+                                    <input
+                                        value={data.branding?.brandName || "RCV.Media"}
+                                        onChange={e => setData({ ...data, branding: { ...data.branding!, brandName: e.target.value } })}
+                                        className="w-full p-2 rounded-md bg-background border border-border text-lg font-bold"
+                                        placeholder="RCV.Media"
+                                    />
+                                </div>
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-semibold uppercase text-muted-foreground">Footer Text</label>
-                        <input
-                            value={data.footerText}
-                            onChange={e => setData({ ...data, footerText: e.target.value })}
-                            className="w-full p-2 rounded-md bg-secondary/30 border border-border text-sm"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
+                                {/* Logo Picker */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-semibold uppercase text-muted-foreground">Logo Icon</label>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-16 h-16 rounded-lg bg-background border border-border flex items-center justify-center overflow-hidden p-2">
+                                            <img
+                                                src={data.branding?.logoUrl || "/logo.png"}
+                                                alt={data.branding?.logoAltText || "Brand Logo"}
+                                                className="w-full h-full object-contain"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <MagneticButton
+                                                onClick={() => setShowLogoPicker(true)}
+                                                className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground text-xs font-bold rounded-md"
+                                            >
+                                                Change Logo
+                                            </MagneticButton>
+                                            {data.branding?.logoUrl && (
+                                                <button
+                                                    onClick={() => setData({ ...data, branding: { ...data.branding!, logoUrl: undefined, logoId: undefined } })}
+                                                    className="text-xs text-red-500 hover:underline"
+                                                >
+                                                    Reset to Default
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold uppercase text-muted-foreground">Email Address</label>
+                            <label className="text-xs font-semibold uppercase text-muted-foreground">Hero Title</label>
                             <input
-                                value={data.email}
-                                onChange={e => setData({ ...data, email: e.target.value })}
+                                value={data.heroTitle}
+                                onChange={e => setData({ ...data, heroTitle: e.target.value })}
+                                className="w-full p-2 rounded-md bg-secondary/30 border border-border text-lg font-bold"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold uppercase text-muted-foreground">Hero Description</label>
+                            <textarea
+                                value={data.heroDescription}
+                                onChange={e => setData({ ...data, heroDescription: e.target.value })}
+                                className="w-full p-2 rounded-md bg-secondary/30 border border-border resize-none h-24 text-sm"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold uppercase text-muted-foreground">Footer Text</label>
+                            <input
+                                value={data.footerText}
+                                onChange={e => setData({ ...data, footerText: e.target.value })}
                                 className="w-full p-2 rounded-md bg-secondary/30 border border-border text-sm"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold uppercase text-muted-foreground">Instagram URL</label>
-                            <input
-                                value={data.instagram}
-                                onChange={e => setData({ ...data, instagram: e.target.value })}
-                                className="w-full p-2 rounded-md bg-secondary/30 border border-border text-sm"
-                            />
-                        </div>
-                    </div>
 
-                    {/* SEO Section used to be missing, adding it now */}
-                    <div className="p-4 rounded-lg bg-secondary/20 border border-border mt-2">
-                        <h4 className="font-bold text-sm mb-4">SEO Defaults</h4>
-                        <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-xs font-semibold uppercase text-muted-foreground">Default Title</label>
+                                <label className="text-xs font-semibold uppercase text-muted-foreground">Email Address</label>
                                 <input
-                                    value={data.seo?.defaultTitle || ""}
-                                    onChange={e => setData({ ...data, seo: { ...data.seo, defaultTitle: e.target.value } })}
-                                    className="w-full p-2 rounded-md bg-background border border-border text-sm"
+                                    value={data.email}
+                                    onChange={e => setData({ ...data, email: e.target.value })}
+                                    className="w-full p-2 rounded-md bg-secondary/30 border border-border text-sm"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-semibold uppercase text-muted-foreground">Default Description</label>
-                                <textarea
-                                    value={data.seo?.defaultDescription || ""}
-                                    onChange={e => setData({ ...data, seo: { ...data.seo, defaultDescription: e.target.value } })}
-                                    className="w-full p-2 rounded-md bg-background border border-border text-sm h-20 resize-none"
+                                <label className="text-xs font-semibold uppercase text-muted-foreground">Instagram URL</label>
+                                <input
+                                    value={data.instagram}
+                                    onChange={e => setData({ ...data, instagram: e.target.value })}
+                                    className="w-full p-2 rounded-md bg-secondary/30 border border-border text-sm"
                                 />
                             </div>
                         </div>
-                    </div>
 
-                    <div className="p-4 rounded-lg bg-secondary/20 border border-border mt-4">
-                        <h4 className="font-bold text-sm mb-2 flex items-center gap-2"><Lock size={14} /> Security</h4>
-                        <p className="text-xs text-muted-foreground mb-2">
-                            Admin Password is set in your environment variables (`ADMIN_PASSWORD`).
-                        </p>
-                    </div>
+                        {/* SEO Section used to be missing, adding it now */}
+                        <div className="p-4 rounded-lg bg-secondary/20 border border-border mt-2">
+                            <h4 className="font-bold text-sm mb-4">SEO Defaults</h4>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-semibold uppercase text-muted-foreground">Default Title</label>
+                                    <input
+                                        value={data.seo?.defaultTitle || ""}
+                                        onChange={e => setData({ ...data, seo: { ...data.seo, defaultTitle: e.target.value } })}
+                                        className="w-full p-2 rounded-md bg-background border border-border text-sm"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-semibold uppercase text-muted-foreground">Default Description</label>
+                                    <textarea
+                                        value={data.seo?.defaultDescription || ""}
+                                        onChange={e => setData({ ...data, seo: { ...data.seo, defaultDescription: e.target.value } })}
+                                        className="w-full p-2 rounded-md bg-background border border-border text-sm h-20 resize-none"
+                                    />
+                                </div>
+                            </div>
+                        </div>
 
-                    <MagneticButton onClick={handleSave} className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-medium">
-                        Save Site Settings
-                    </MagneticButton>
+                        <div className="p-4 rounded-lg bg-secondary/20 border border-border mt-4">
+                            <h4 className="font-bold text-sm mb-2 flex items-center gap-2"><Lock size={14} /> Security</h4>
+                            <p className="text-xs text-muted-foreground mb-2">
+                                Admin Password is set in your environment variables (`ADMIN_PASSWORD`).
+                            </p>
+                        </div>
+
+                        <MagneticButton onClick={handleSave} className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-medium">
+                            Save Site Settings
+                        </MagneticButton>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {/* Logo Picker Modal */}
+            <AnimatePresence>
+                {showLogoPicker && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-6"
+                    >
+                        <div className="w-full max-w-5xl h-[80vh] bg-card border border-border rounded-xl shadow-2xl flex flex-col overflow-hidden">
+                            <div className="flex items-center justify-between p-4 border-b border-border">
+                                <h3 className="font-bold">Select Logo</h3>
+                                <button onClick={() => setShowLogoPicker(false)}><X size={20} /></button>
+                            </div>
+                            <div className="flex-1 overflow-hidden p-4">
+                                <MediaLibrary
+                                    mode="select"
+                                    onSelect={(photo) => {
+                                        setData({
+                                            ...data!,
+                                            branding: {
+                                                ...data!.branding!,
+                                                logoId: photo.id,
+                                                logoUrl: photo.url,
+                                                logoAltText: photo.altText
+                                            }
+                                        });
+                                        setShowLogoPicker(false);
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
     )
 }

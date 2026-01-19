@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getSettings, saveSettings } from '@/lib/cms';
 import { auth } from "@/auth"
 
@@ -23,6 +24,8 @@ export async function POST(request: Request) {
         const success = await saveSettings(body, user);
 
         if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
+
+        revalidatePath('/', 'layout'); // Clear cache for all pages since Navbar is global
         return NextResponse.json({ success: true, data: body });
     } catch (error) {
         return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

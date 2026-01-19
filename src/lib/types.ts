@@ -20,7 +20,13 @@ export interface SiteSettings extends BaseEntity {
         defaultTitle: string;
         defaultDescription: string;
         ogImage: string;
-    }
+    };
+    branding?: {
+        logoId?: string;
+        logoUrl?: string; // Fallback or direct URL
+        brandName: string; // e.g. "RCV.Media"
+        logoAltText?: string;
+    };
 }
 
 // Media Library Item
