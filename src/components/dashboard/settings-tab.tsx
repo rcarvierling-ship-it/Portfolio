@@ -26,7 +26,10 @@ export function SettingsTab() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            if (res.ok) alert("Site Settings Saved!");
+            if (res.ok) {
+                alert("Site Settings Saved!");
+                window.location.reload(); // Hard reload to ensure all server components re-fetch fresh settings
+            }
             else alert("Failed to save");
         } catch (e) {
             alert("Error saving settings");
