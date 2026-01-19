@@ -28,6 +28,7 @@ export interface SiteSettings extends BaseEntity {
         logoAltText?: string;
     };
     theme?: {
+        presetId?: string; // 'custom' or preset ID
         backgroundColors?: {
             color1: string;
             color2: string;

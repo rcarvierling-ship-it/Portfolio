@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react"
 import { Settings, Lock, Image as ImageIcon, X, Palette } from "lucide-react"
 import { SiteSettings, Photo } from "@/lib/types"
+import { GRADIENT_PRESETS } from "@/lib/gradient-presets"
 import { MagneticButton } from "@/components/ui/magnetic-button"
+import { RefreshCw } from "lucide-react"
 import { MediaLibrary } from "@/components/dashboard/media-library"
 import { AnimatePresence, motion } from "framer-motion"
 
