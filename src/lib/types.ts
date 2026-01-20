@@ -89,6 +89,7 @@ export interface HomeData {
     hero: {
         title: string;
         description: string;
+        images?: string[]; // Background images for lens effect
         ctaPrimary?: { text: string; link: string; show: boolean };
         ctaSecondary?: { text: string; link: string; show: boolean };
         defaultTheme?: 'dark' | 'light';

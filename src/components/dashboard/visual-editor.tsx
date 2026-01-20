@@ -20,7 +20,8 @@ export function VisualEditor({ slug }: VisualEditorProps) {
             description: "Reese Vierling (RCV.Media) — Senior Frontend Engineer & Creative Developer.",
             ctaPrimary: { text: "View Gallery", link: "/work", show: true },
             ctaSecondary: { text: "Contact Me", link: "/contact", show: true },
-            defaultTheme: 'dark'
+            defaultTheme: 'dark',
+            images: ["/uploads/hero-placeholder.jpg"]
         },
         stats: { line1: "50+ Projects • 10+ Years Exp •", line2: "Photography • Videography •" },
         services: [
@@ -243,6 +244,16 @@ export function VisualEditor({ slug }: VisualEditorProps) {
                             className="w-full p-2 rounded bg-secondary/50 border border-border text-sm min-h-[100px]"
                             value={homeData.hero.description}
                             onChange={e => updateDraft({ ...homeData, hero: { ...homeData.hero, description: e.target.value } })}
+                        />
+                    </div>
+                    {/* Hero Image */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Background Image URL</label>
+                        <input
+                            className="w-full p-2 rounded bg-secondary/50 border border-border text-sm"
+                            value={homeData.hero.images?.[0] || ""}
+                            onChange={e => updateDraft({ ...homeData, hero: { ...homeData.hero, images: [e.target.value] } })}
+                            placeholder="/uploads/my-photo.jpg"
                         />
                     </div>
 

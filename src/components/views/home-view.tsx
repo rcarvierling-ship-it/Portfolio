@@ -18,7 +18,7 @@ export function HomeView({ data, featuredProjectsNode, recentPhotosNode }: HomeV
 
     return (
         <div className="flex flex-col gap-0">
-            <Hero title={heroTitle} description={heroDescription} />
+            <Hero title={heroTitle} description={heroDescription} images={data?.hero?.images} />
             <StatsSection
                 line1={data?.stats?.line1}
                 line2={data?.stats?.line2}
