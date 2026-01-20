@@ -5,6 +5,8 @@ import Link from "next/link"
 import { TextReveal } from "@/components/animations/text-reveal"
 import { MagneticButton } from "@/components/ui/magnetic-button"
 
+import { FloatingParticles } from "@/components/ui/floating-particles"
+
 interface HeroProps {
     title: string;
     description: string;
@@ -29,6 +31,7 @@ export function Hero({ title, description }: HeroProps) {
                 className="absolute inset-0 z-[-1]"
                 style={{ y: backgroundY, opacity }}
             >
+                <FloatingParticles />
             </motion.div>
 
             <div className="flex flex-col items-center gap-8 max-w-4xl text-center z-10 w-full">
