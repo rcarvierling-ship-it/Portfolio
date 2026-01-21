@@ -26,7 +26,7 @@ export async function POST(req: Request) {
                 {
                     role: "user",
                     content: [
-                        { type: "text", text: "Analyze this image. Provide a concise caption (max 1 sentence) and a list of 5 relevance tags. Return JSON like: { \"caption\": \"...\", \"tags\": [...] }" },
+                        { type: "text", text: "Analyze this image. Provide a concise caption (max 1 sentence), a list of 5 relevance tags, a 'mood' string (e.g. 'Cyberpunk', 'Minimalist'), and 'colors' (array of 4 hex codes). Return JSON like: { \"caption\": \"...\", \"tags\": [...], \"mood\": \"...\", \"colors\": [...] }" },
                         {
                             type: "image_url",
                             image_url: {

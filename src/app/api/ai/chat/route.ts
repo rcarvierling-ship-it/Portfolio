@@ -71,6 +71,10 @@ async function getContext(query: string) {
 
 export async function POST(req: Request) {
     try {
+        if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === "dummy-key-for-build") {
+            return new Response("OpenAI API Key is not set.", { status: 503 });
+        }
+
         const { messages } = await req.json();
         const lastMessage = messages[messages.length - 1];
 

@@ -108,6 +108,15 @@ export async function createTables() {
             console.log("Embedding column might already exist on photos or error:", e);
         }
 
+        // Phase 4: Photos AI
+        try {
+            await sql`ALTER TABLE photos ADD COLUMN IF NOT EXISTS colors JSONB;`;
+            await sql`ALTER TABLE photos ADD COLUMN IF NOT EXISTS mood TEXT;`;
+            console.log("Added colors and mood columns to photos");
+        } catch (e) {
+            console.log("Colors/Mood columns might already exist or error:", e);
+        }
+
         console.log("All tables created/updated successfully.");
     } catch (e) {
         console.error("Error creating tables:", e);

@@ -38,7 +38,10 @@ export function EchoChat() {
                 })
             })
 
-            if (!res.ok) throw new Error(res.statusText)
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(errorText || res.statusText);
+            }
 
             const reader = res.body?.getReader()
             const decoder = new TextDecoder()
@@ -57,9 +60,9 @@ export function EchoChat() {
                     return newMsgs
                 })
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error(e)
-            setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I lost connection. Please try again." }])
+            setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${e.message || "Connection lost. Please try again."}` }])
         } finally {
             setLoading(false)
         }

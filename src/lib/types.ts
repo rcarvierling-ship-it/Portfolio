@@ -53,6 +53,8 @@ export interface Photo extends BaseEntity {
         medium: string;    // 800px
         original: string;
     };
+    colors?: string[]; // Array of hex codes
+    mood?: string;     // AI-detected vibe (e.g. "Cyberpunk", "Minimalist")
 }
 
 // Content Blocks for Dynamic Pages
