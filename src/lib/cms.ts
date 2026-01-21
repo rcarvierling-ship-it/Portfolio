@@ -3,6 +3,7 @@ import { sql } from '@vercel/postgres';
 import {
     Project, SiteSettings, Photo, Page, HistoryEntry, AnalyticsEvent, GalleryItem
 } from '@/lib/types';
+import { generateEmbedding } from '@/lib/embeddings';
 
 // --- History Logging ---
 async function logHistory(
@@ -82,15 +83,19 @@ export const getProject = async (slug: string): Promise<Project | undefined> => 
 
 export const saveProject = async (project: Project, user: string): Promise<boolean> => {
     try {
+        // Generate embedding (Phase 2)
+        const embeddingText = `${project.title} ${project.description} ${project.tags?.join(' ')} ${JSON.stringify(project.content || {})}`;
+        const embedding = await generateEmbedding(embeddingText);
+
         // Upsert
         await sql`
-            INSERT INTO projects (id, slug, title, description, content, tags, tools, year, location, camera, lens, cover_image, gallery_images, featured, status, version, created_at, updated_at, "order")
+            INSERT INTO projects (id, slug, title, description, content, tags, tools, year, location, camera, lens, cover_image, gallery_images, featured, status, version, created_at, updated_at, "order", embedding)
             VALUES (
                 ${project.id}, ${project.slug}, ${project.title}, ${project.description}, ${JSON.stringify(project.content || {})}, 
                 ${project.tags as any}, ${project.tools as any}, ${project.year}, ${project.location}, 
                 ${project.camera}, ${project.lens}, ${project.coverImage}, ${JSON.stringify(project.galleryImages || [])}, 
                 ${project.featured}, ${project.status}, ${project.version}, ${project.createdAt}, ${new Date().toISOString()}, 
-                ${(project as any).order || 0}
+                ${(project as any).order || 0}, ${JSON.stringify(embedding) as any}
             )
             ON CONFLICT (id) DO UPDATE SET
                 slug = EXCLUDED.slug,
@@ -108,7 +113,8 @@ export const saveProject = async (project: Project, user: string): Promise<boole
                 featured = EXCLUDED.featured,
                 status = EXCLUDED.status,
                 updated_at = EXCLUDED.updated_at,
-                "order" = EXCLUDED."order"
+                "order" = EXCLUDED."order",
+                embedding = EXCLUDED.embedding
         `;
         await logHistory(project.version === 1 ? 'create' : 'update', 'project', project.id, user);
         return true;
@@ -184,12 +190,16 @@ export const savePhotos = async (photos: Photo[], user: string): Promise<boolean
 
 export const savePhoto = async (photo: Photo, user: string): Promise<boolean> => {
     try {
+        // Generate embedding from caption/tags
+        const embeddingText = `${photo.caption || ''} ${photo.altText || ''} ${photo.tags?.join(' ')}`;
+        const embedding = await generateEmbedding(embeddingText);
+
         await sql`
-            INSERT INTO photos (id, url, alt_text, caption, width, height, blur_data_url, variants, tags, featured, status, created_at, updated_at)
+            INSERT INTO photos (id, url, alt_text, caption, width, height, blur_data_url, variants, tags, featured, status, created_at, updated_at, embedding)
             VALUES (
                 ${photo.id}, ${photo.url}, ${photo.altText}, ${photo.caption}, ${photo.width}, ${photo.height}, 
                 ${photo.blurDataURL}, ${JSON.stringify(photo.variants)}, ${photo.tags as any}, ${photo.featured}, 
-                ${photo.status}, ${photo.createdAt}, ${new Date().toISOString()}
+                ${photo.status}, ${photo.createdAt}, ${new Date().toISOString()}, ${JSON.stringify(embedding) as any}
             )
             ON CONFLICT (id) DO UPDATE SET
                 alt_text = EXCLUDED.alt_text,
@@ -197,7 +207,8 @@ export const savePhoto = async (photo: Photo, user: string): Promise<boolean> =>
                 tags = EXCLUDED.tags,
                 featured = EXCLUDED.featured,
                 status = EXCLUDED.status,
-                updated_at = EXCLUDED.updated_at
+                updated_at = EXCLUDED.updated_at,
+                embedding = EXCLUDED.embedding
         `;
         await logHistory('create', 'photo', photo.id, user);
         return true;

@@ -5,7 +5,7 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Search } from "lucide-react"
 import { MagneticButton } from "@/components/ui/magnetic-button"
 import { cn } from "@/lib/utils"
 // toggle theme is in separate component, but I can include it here or user can add it
@@ -76,6 +76,15 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
                         <span className="sr-only">Toggle theme</span>
                     </button>
                 </nav>
+
+                {/* Search Trigger */}
+                <button
+                    onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+                    className="hidden md:flex p-2 hover:bg-muted rounded-full transition-colors mr-2 text-muted-foreground hover:text-foreground"
+                    title="Search (⌘K)"
+                >
+                    <Search size={20} />
+                </button>
 
                 {/* Mobile Toggle */}
                 <div className="md:hidden pointer-events-auto flex items-center gap-4">

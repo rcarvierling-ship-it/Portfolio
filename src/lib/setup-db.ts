@@ -90,7 +90,25 @@ export async function createTables() {
         `;
         console.log("- Settings table created");
 
-        console.log("All tables created successfully.");
+        console.log("- Settings table created");
+
+        // --- Migrations / Updates ---
+        // Add embedding column if it doesn't exist (Phase 2)
+        try {
+            await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS embedding JSONB;`;
+            console.log("Added embedding column to projects");
+        } catch (e) {
+            console.log("Embedding column might already exist on projects or error:", e);
+        }
+
+        try {
+            await sql`ALTER TABLE photos ADD COLUMN IF NOT EXISTS embedding JSONB;`;
+            console.log("Added embedding column to photos");
+        } catch (e) {
+            console.log("Embedding column might already exist on photos or error:", e);
+        }
+
+        console.log("All tables created/updated successfully.");
     } catch (e) {
         console.error("Error creating tables:", e);
     }
