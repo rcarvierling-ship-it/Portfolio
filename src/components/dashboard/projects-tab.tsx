@@ -11,7 +11,7 @@ import { TagInput } from "@/components/ui/tag-input"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/components/ui/toast-context"
 import { PulseIndicator, Shake, SuccessCheckmark } from "@/components/ui/motion-feedback"
-import { AiButton } from "@/components/dashboard/ai-button"
+
 
 export function ProjectsTab() {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -118,90 +118,7 @@ export function ProjectsTab() {
         setLastSaved(null);
     }
 
-    // AI HANDLERS
-    const [analyzingImageId, setAnalyzingImageId] = useState<string | null>(null);
-    const [generatingDescription, setGeneratingDescription] = useState(false);
 
-    const handleAnalyzeImage = async (imageId: string, imageUrl: string) => {
-        setAnalyzingImageId(imageId);
-        try {
-            const res = await fetch('/api/ai/analyze-image', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageUrl })
-            });
-            const data = await res.json();
-
-            if (data.error) throw new Error(data.error);
-
-            // Update gallery item caption
-            const newGallery = editingProject?.galleryImages?.map(img =>
-                img.id === imageId ? { ...img, caption: data.caption } : img
-            );
-
-            // If tags returned and we don't have many, suggest them via toast or append?
-            // For now let's just toast the success
-            addToast("Image analyzed successfully", "success");
-
-            setEditingProject(prev => ({ ...prev, galleryImages: newGallery }));
-
-        } catch (e: unknown) {
-            const message = e instanceof Error ? e.message : "Failed to analyze image";
-            addToast(message, "error");
-        } finally {
-            setAnalyzingImageId(null);
-        }
-    }
-
-    const handleGenerateDescription = async () => {
-        if (!editingProject?.title) {
-            addToast("Please enter a title first", "error");
-            return;
-        }
-
-        setGeneratingDescription(true);
-        try {
-            const res = await fetch('/api/ai/generate-description', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: editingProject.title,
-                    tags: editingProject.tags || [],
-                    imageCaptions: editingProject.galleryImages?.map(i => i.caption).filter(Boolean) || [],
-                    currentDescription: editingProject.description
-                })
-            });
-
-            if (!res.ok) throw new Error(res.statusText);
-
-            // Stream the response
-            const reader = res.body?.getReader();
-            const decoder = new TextDecoder();
-
-            if (!reader) throw new Error("No reader available");
-
-            let newDescription = "";
-            setEditingProject(prev => ({ ...prev, description: "" })); // Clear current to stream new
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                const chunk = decoder.decode(value, { stream: true });
-                newDescription += chunk;
-
-                setEditingProject(prev => ({ ...prev, description: (prev?.description || "") + chunk }));
-            }
-
-            addToast("Description generated", "success");
-
-        } catch (e: unknown) {
-            const message = e instanceof Error ? e.message : "Failed to generate description";
-            addToast(message, "error");
-        } finally {
-            setGeneratingDescription(false);
-        }
-    }
 
     if (loading) return <div>Loading...</div>;
 
@@ -295,11 +212,7 @@ export function ProjectsTab() {
                         <div className="space-y-2 relative">
                             <div className="flex justify-between items-center">
                                 <label className="text-xs font-semibold uppercase text-muted-foreground">Description</label>
-                                <AiButton
-                                    label="Generate Story"
-                                    onClick={handleGenerateDescription}
-                                    loading={generatingDescription}
-                                />
+
                             </div>
                             <textarea
                                 value={editingProject.description || ""}
@@ -355,12 +268,7 @@ export function ProjectsTab() {
                                 <div className="flex-1 space-y-2">
                                     <div className="flex justify-between items-center">
                                         <label className="text-xs font-semibold uppercase text-muted-foreground">Caption</label>
-                                        <AiButton
-                                            iconOnly
-                                            loading={analyzingImageId === item.id}
-                                            onClick={() => handleAnalyzeImage(item.id, item.url)}
-                                            title="Auto-caption with AI"
-                                        />
+
                                     </div>
                                     <textarea
                                         value={item.caption || ""}

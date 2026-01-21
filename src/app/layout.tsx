@@ -8,7 +8,6 @@ import { Footer } from "@/components/layout/footer";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { AnimatedBackground } from "@/components/ui/animated-background";
-import { EchoChat } from "@/components/ai/echo-chat";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -95,7 +94,6 @@ export default async function RootLayout({
                   <main className="min-h-screen">
                     {children}
                   </main>
-                  <EchoChat />
                   <Footer />
                 </SmoothScroll>
               </ToastProvider>

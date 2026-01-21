@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils"
 import imageCompression from 'browser-image-compression'
 // We'll reuse the existing history/uploader where possible, or reimplement within this scope if needed for "Advanced" features
 import { HistoryModal } from "@/components/dashboard/history-modal"
-import { AiButton } from "@/components/dashboard/ai-button"
 
 interface MediaLibraryProps {
     mode?: 'manage' | 'select';
@@ -32,46 +31,7 @@ export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
     // Upload State
     const [uploadQueue, setUploadQueue] = useState<{ file: File, status: 'pending' | 'uploading' | 'done' | 'error', error?: string }[]>([]);
 
-    // AI & Related
-    const [analyzing, setAnalyzing] = useState(false);
-    const [relatedPhotos, setRelatedPhotos] = useState<Photo[]>([]);
 
-    useEffect(() => {
-        if (editingPhoto?.id) {
-            // Fetch related
-            fetch(`/api/photos/${editingPhoto.id}/related`)
-                .then(res => res.json())
-                .then(data => setRelatedPhotos(data.related || []))
-                .catch(err => console.error("Failed to fetch related", err));
-        } else {
-            setRelatedPhotos([]);
-        }
-    }, [editingPhoto?.id]);
-
-    const handleAnalyze = async () => {
-        if (!editingPhoto) return;
-        setAnalyzing(true);
-        try {
-            const res = await fetch('/api/ai/analyze-image', {
-                method: 'POST',
-                body: JSON.stringify({ imageUrl: editingPhoto.url })
-            });
-            const data = await res.json();
-            if (data.error) throw new Error(data.error);
-
-            setEditingPhoto(prev => prev ? ({
-                ...prev,
-                caption: data.caption,
-                tags: [...new Set([...prev.tags, ...data.tags])],
-                mood: data.mood,
-                colors: data.colors
-            }) : null);
-        } catch (error) {
-            alert('Analysis failed: ' + error);
-        } finally {
-            setAnalyzing(false);
-        }
-    };
 
     useEffect(() => {
         fetchPhotos();
@@ -413,40 +373,7 @@ export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
                                         }}
                                     />
 
-                                    <div className="bg-secondary/10 rounded-xl p-4 border border-border">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <h4 className="text-xs font-bold uppercase text-muted-foreground">AI Intelligence</h4>
-                                            <AiButton onClick={handleAnalyze} loading={analyzing} label="Analyze" className="h-7 text-xs px-2" />
-                                        </div>
 
-                                        {/* Colors */}
-                                        {editingPhoto.colors && editingPhoto.colors.length > 0 && (
-                                            <div className="flex items-center gap-2 mb-3">
-                                                {editingPhoto.colors.map((color, i) => (
-                                                    <div key={i} className="w-6 h-6 rounded-full border border-white/20 shadow-sm" style={{ backgroundColor: color }} title={color} />
-                                                ))}
-                                                {editingPhoto.mood && (
-                                                    <span className="ml-auto text-[10px] uppercase font-bold bg-primary/20 text-primary px-2 py-1 rounded-full">
-                                                        {editingPhoto.mood}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {/* Related */}
-                                        {relatedPhotos.length > 0 && (
-                                            <div className="space-y-2 mt-4 pt-4 border-t border-border/50">
-                                                <label className="text-[10px] font-bold text-muted-foreground uppercase">Visually Similar</label>
-                                                <div className="grid grid-cols-4 gap-2">
-                                                    {relatedPhotos.map(p => (
-                                                        <div key={p.id} className="aspect-square rounded-md overflow-hidden bg-black/20 cursor-pointer hover:ring-2 hover:ring-primary transition-all" onClick={() => setEditingPhoto(p)}>
-                                                            <img src={p.variants?.thumbnail || p.url} className="w-full h-full object-cover" />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
 
                                     {/* Quick Actions (Featured/Published) */}
                                     <div className="grid grid-cols-2 gap-4">

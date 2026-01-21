@@ -3,7 +3,7 @@ import { sql } from '@vercel/postgres';
 import {
     Project, SiteSettings, Photo, Page, HistoryEntry, AnalyticsEvent, GalleryItem
 } from '@/lib/types';
-import { generateEmbedding } from '@/lib/embeddings';
+
 
 // --- History Logging ---
 async function logHistory(
@@ -84,8 +84,8 @@ export const getProject = async (slug: string): Promise<Project | undefined> => 
 export const saveProject = async (project: Project, user: string): Promise<boolean> => {
     try {
         // Generate embedding (Phase 2)
-        const embeddingText = `${project.title} ${project.description} ${project.tags?.join(' ')} ${JSON.stringify(project.content || {})}`;
-        const embedding = await generateEmbedding(embeddingText);
+        // Generate embedding (Phase 2) - REMOVED
+        const embedding = null; // await generateEmbedding(embeddingText);
 
         // Upsert
         await sql`
@@ -191,8 +191,8 @@ export const savePhotos = async (photos: Photo[], user: string): Promise<boolean
 export const savePhoto = async (photo: Photo, user: string): Promise<boolean> => {
     try {
         // Generate embedding from caption/tags
-        const embeddingText = `${photo.caption || ''} ${photo.altText || ''} ${photo.tags?.join(' ')}`;
-        const embedding = await generateEmbedding(embeddingText);
+        // Generate embedding from caption/tags - REMOVED
+        const embedding = null; // await generateEmbedding(embeddingText);
 
         await sql`
             INSERT INTO photos (id, url, alt_text, caption, width, height, blur_data_url, variants, tags, featured, status, created_at, updated_at, embedding)
