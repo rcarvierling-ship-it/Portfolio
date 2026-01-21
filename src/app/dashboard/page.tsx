@@ -77,7 +77,7 @@ function DashboardPage() {
         // So they are distinct tabs efficiently.
         { id: "analytics-projects", label: "Perf" },
         { id: "analytics-sources", label: "Sources" },
-        { id: "projects", label: "Work" },
+        { id: "projects", label: "Projects" },
         { id: "photos", label: "Photos" }, // Re-enabled as per request
         { id: "pages", label: "Pages" },
         { id: "about", label: "About" },
@@ -129,8 +129,7 @@ function DashboardPage() {
                 {activeTab === "analytics-projects" && <AnalyticsProjects />}
                 {activeTab === "analytics-sources" && <AnalyticsSources />}
 
-                {activeTab === "analytics-projects" && <AnalyticsProjects />}
-                {activeTab === "analytics-sources" && <AnalyticsSources />}
+
 
                 {activeTab === "about" && <AboutTab />}
                 {activeTab === "settings" && <SettingsTab />}

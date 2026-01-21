@@ -306,115 +306,150 @@ export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
 
                 {/* Edit Sidebar */}
                 {editingPhoto && (
-                    <div className="w-80 bg-card border-l border-border flex flex-col h-full overflow-hidden animate-in slide-in-from-right shadow-2xl z-20 absolute right-0 top-0 bottom-0 md:relative md:shadow-none">
-                        {/* Header - Fixed */}
-                        <div className="flex items-center justify-between p-6 border-b border-border bg-card z-10">
-                            <div className="flex items-center gap-2">
-                                <h3 className="font-bold">Details</h3>
-                                {editingPhoto.id && (
-                                    <button onClick={() => setShowHistory(true)} className="text-muted-foreground hover:text-foreground transition-colors" title="History">
-                                        <Clock size={16} />
-                                    </button>
-                                )}
-                            </div>
-                            <button onClick={() => setEditingPhoto(null)}><X size={18} /></button>
-                        </div>
+                    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-200">
+                        {/* Modal Container */}
+                        <div className="w-full h-full max-w-7xl bg-card rounded-2xl border border-border shadow-2xl flex flex-col md:flex-row overflow-hidden relative">
 
-                        {/* Scrollable Content */}
-                        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                            <HistoryModal
-                                entityId={editingPhoto.id || ""}
-                                isOpen={showHistory}
-                                onClose={() => setShowHistory(false)}
-                                onRollback={async (snapshot) => {
-                                    setEditingPhoto(snapshot);
-                                    await fetch('/api/photos', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify(snapshot)
-                                    });
-                                    fetchPhotos();
-                                    alert("Restored version.");
-                                }}
-                            />
+                            {/* Close Button (Absolute Top Right of Modal) */}
+                            <button
+                                onClick={() => setEditingPhoto(null)}
+                                className="absolute top-4 right-4 z-50 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors md:hidden"
+                            >
+                                <X size={20} />
+                            </button>
 
-                            <div className="aspect-video rounded-lg bg-secondary overflow-hidden border border-border shrink-0">
-                                <img src={editingPhoto.variants?.medium || editingPhoto.url} className="w-full h-full object-contain" />
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between py-3 border-b border-border">
-                                    <label className="text-sm font-medium">Featured</label>
-                                    <input
-                                        type="checkbox"
-                                        checked={editingPhoto.featured}
-                                        onChange={e => setEditingPhoto({ ...editingPhoto, featured: e.target.checked })}
-                                        className="w-4 h-4 accent-primary"
+                            {/* LEFT: Image Preview (Large) */}
+                            <div className="flex-1 bg-black/90 flex items-center justify-center p-4 md:p-12 relative overflow-hidden group">
+                                <div className="relative w-full h-full flex items-center justify-center">
+                                    <img
+                                        src={editingPhoto.variants?.original || editingPhoto.url}
+                                        alt={editingPhoto.altText}
+                                        className="max-w-full max-h-full object-contain shadow-2xl"
                                     />
                                 </div>
 
-                                <div className="flex items-center justify-between py-3 border-b border-border">
-                                    <label className="text-sm font-medium">Published</label>
+                                {/* Image Info Overlay */}
+                                <div className="absolute bottom-4 left-4 text-white/50 text-xs font-mono">
+                                    {editingPhoto.width}x{editingPhoto.height}
+                                </div>
+                            </div>
+
+                            {/* RIGHT: Options Panel (Fixed Width) */}
+                            <div className="w-full md:w-[400px] bg-card border-t md:border-t-0 md:border-l border-border flex flex-col h-[50%] md:h-full">
+
+                                {/* Header */}
+                                <div className="h-16 flex items-center justify-between px-6 border-b border-border shrink-0">
                                     <div className="flex items-center gap-2">
-                                        <span className={cn("text-xs font-bold", editingPhoto.status === 'published' ? "text-green-500" : "text-yellow-500")}>
-                                            {editingPhoto.status === 'published' ? 'LIVE' : 'DRAFT'}
-                                        </span>
+                                        <h3 className="font-bold text-lg">Edit Photo</h3>
+                                        {editingPhoto.id && (
+                                            <button onClick={() => setShowHistory(true)} className="text-muted-foreground hover:text-foreground transition-colors p-1" title="History">
+                                                <Clock size={16} />
+                                            </button>
+                                        )}
+                                    </div>
+                                    <button onClick={() => setEditingPhoto(null)} className="hidden md:block p-2 hover:bg-secondary rounded-full transition-colors">
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                {/* Scrollable Form Content */}
+                                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                                    <HistoryModal
+                                        entityId={editingPhoto.id || ""}
+                                        isOpen={showHistory}
+                                        onClose={() => setShowHistory(false)}
+                                        onRollback={async (snapshot) => {
+                                            setEditingPhoto(snapshot);
+                                            await fetch('/api/photos', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify(snapshot)
+                                            });
+                                            fetchPhotos();
+                                            alert("Restored version.");
+                                        }}
+                                    />
+
+                                    {/* Quick Actions (Featured/Published) */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-4 rounded-xl bg-secondary/20 border border-border space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-sm font-bold text-muted-foreground">Featured</label>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={editingPhoto.featured}
+                                                    onChange={e => setEditingPhoto({ ...editingPhoto, featured: e.target.checked })}
+                                                    className="w-5 h-5 accent-primary cursor-pointer"
+                                                />
+                                            </div>
+                                            <p className="text-[10px] text-muted-foreground">Highlight this photo in galleries.</p>
+                                        </div>
+                                        <div className="p-4 rounded-xl bg-secondary/20 border border-border space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-sm font-bold text-muted-foreground">Status</label>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={editingPhoto.status === 'published'}
+                                                    onChange={e => setEditingPhoto({ ...editingPhoto, status: e.target.checked ? 'published' : 'draft' })}
+                                                    className="w-5 h-5 accent-primary cursor-pointer"
+                                                />
+                                            </div>
+                                            <p className="text-[10px] text-muted-foreground">
+                                                Currently: <span className={cn("font-bold", editingPhoto.status === 'published' ? "text-green-500" : "text-yellow-500")}>
+                                                    {editingPhoto.status === 'published' ? 'LIVE' : 'DRAFT'}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Alt Text (SEO)</label>
                                         <input
-                                            type="checkbox"
-                                            checked={editingPhoto.status === 'published'}
-                                            onChange={e => setEditingPhoto({ ...editingPhoto, status: e.target.checked ? 'published' : 'draft' })}
-                                            className="w-4 h-4 accent-primary"
+                                            className="w-full p-3 bg-secondary/30 rounded-lg border border-border text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all"
+                                            value={editingPhoto.altText}
+                                            onChange={e => setEditingPhoto({ ...editingPhoto, altText: e.target.value })}
+                                            placeholder="Describe the image for accessibility..."
+                                        />
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Caption</label>
+                                        <textarea
+                                            className="w-full p-3 bg-secondary/30 rounded-lg border border-border text-sm h-32 focus:ring-2 focus:ring-primary/50 outline-none transition-all resize-none"
+                                            value={editingPhoto.caption || ""}
+                                            onChange={e => setEditingPhoto({ ...editingPhoto, caption: e.target.value })}
+                                            placeholder="Add a caption like 'Shot on Sony A7III...'"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Tags</label>
+                                        <TagInput
+                                            tags={editingPhoto.tags}
+                                            onTagsChange={tags => setEditingPhoto({ ...editingPhoto, tags })}
                                         />
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-xs uppercase font-bold text-muted-foreground">Alt Text</label>
-                                    <input
-                                        className="w-full p-2 bg-secondary/30 rounded border border-border text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
-                                        value={editingPhoto.altText}
-                                        onChange={e => setEditingPhoto({ ...editingPhoto, altText: e.target.value })}
-                                        placeholder="Describe the image..."
-                                    />
+                                {/* Footer Actions */}
+                                <div className="p-6 border-t border-border bg-muted/20 shrink-0">
+                                    <MagneticButton
+                                        onClick={async () => {
+                                            await fetch('/api/photos', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify(editingPhoto)
+                                            });
+                                            // Refresh list
+                                            setPhotos(prev => prev.map(p => p.id === editingPhoto.id ? editingPhoto : p));
+                                            setEditingPhoto(null); // Close on save?
+                                        }}
+                                        className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+                                    >
+                                        Save Changes
+                                    </MagneticButton>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs uppercase font-bold text-muted-foreground">Caption</label>
-                                    <textarea
-                                        className="w-full p-2 bg-secondary/30 rounded border border-border text-sm h-24 focus:ring-1 focus:ring-primary outline-none transition-all resize-none"
-                                        value={editingPhoto.caption || ""}
-                                        onChange={e => setEditingPhoto({ ...editingPhoto, caption: e.target.value })}
-                                        placeholder="Add a caption..."
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs uppercase font-bold text-muted-foreground">Tags</label>
-                                    <TagInput
-                                        tags={editingPhoto.tags}
-                                        onTagsChange={tags => setEditingPhoto({ ...editingPhoto, tags })}
-                                    />
-                                </div>
-
-
                             </div>
-                        </div>
-
-                        {/* Footer - Fixed */}
-                        <div className="p-4 border-t border-border bg-card z-10 shrink-0">
-                            <MagneticButton
-                                onClick={async () => {
-                                    await fetch('/api/photos', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify(editingPhoto)
-                                    });
-                                    // Refresh list
-                                    setPhotos(prev => prev.map(p => p.id === editingPhoto.id ? editingPhoto : p));
-                                    alert("Saved");
-                                }}
-                                className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-bold text-sm hover:opacity-90 transition-opacity"
-                            >
-                                Save Changes
-                            </MagneticButton>
                         </div>
                     </div>
                 )}
