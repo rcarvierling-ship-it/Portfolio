@@ -4,6 +4,7 @@ import { ArrowDown } from "lucide-react"
 import Link from "next/link"
 import { TextReveal } from "@/components/animations/text-reveal"
 import { MagneticButton } from "@/components/ui/magnetic-button"
+import { ParallaxGrid } from "@/components/ui/parallax-grid"
 
 interface HeroProps {
     title: string;
@@ -11,7 +12,7 @@ interface HeroProps {
     images?: string[];
 }
 
-export function Hero({ title, description }: HeroProps) {
+export function Hero({ title, description, images }: HeroProps) {
     const ref = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
         target: ref,
@@ -26,10 +27,14 @@ export function Hero({ title, description }: HeroProps) {
             ref={ref}
             className="relative flex flex-col items-center justify-center min-h-screen px-6 pt-20 overflow-hidden"
         >
+            {/* Ambient Parallax Grid Background */}
             <motion.div
                 className="absolute inset-0 z-[-1]"
                 style={{ y: backgroundY, opacity }}
             >
+                {images && images.length > 0 && (
+                    <ParallaxGrid images={images} />
+                )}
             </motion.div>
 
             <div className="flex flex-col items-center gap-8 max-w-4xl text-center z-10 w-full">
