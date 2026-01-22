@@ -64,6 +64,8 @@ export async function generateMetadata() {
 import { Suspense } from "react";
 import { AnalyticsProvider } from "@/components/analytics-provider";
 import { ToastProvider } from "@/components/ui/toast-context";
+import { SessionProvider } from "@/components/session-provider";
+import { PrivacyHeatmapTracker } from "@/components/analytics/privacy-heatmap-tracker";
 
 export default async function RootLayout({
   children,
@@ -83,22 +85,25 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Suspense fallback={null}>
-            <AnalyticsProvider>
-              <ToastProvider>
-                <SmoothScroll>
-                  <AnimatedBackground colors={settings.theme?.backgroundColors} />
-                  <ScrollProgress />
-                  <CommandPalette />
-                  <Navbar settings={settings} />
-                  <main className="min-h-screen">
-                    {children}
-                  </main>
-                  <Footer />
-                </SmoothScroll>
-              </ToastProvider>
-            </AnalyticsProvider>
-          </Suspense>
+          <SessionProvider>
+            <Suspense fallback={null}>
+              <AnalyticsProvider>
+                <ToastProvider>
+                  <SmoothScroll>
+                    <AnimatedBackground colors={settings.theme?.backgroundColors} />
+                    <ScrollProgress />
+                    <PrivacyHeatmapTracker />
+                    <CommandPalette />
+                    <Navbar settings={settings} />
+                    <main className="min-h-screen">
+                      {children}
+                    </main>
+                    <Footer />
+                  </SmoothScroll>
+                </ToastProvider>
+              </AnalyticsProvider>
+            </Suspense>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>
