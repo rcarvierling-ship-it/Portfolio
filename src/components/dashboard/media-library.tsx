@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { Reorder } from "framer-motion"
-import { Image as ImageIcon, Trash2, Edit2, Check, X, Upload, Loader2, Search, Filter, Clock } from "lucide-react"
-import { Photo } from "@/lib/types"
+import { Link as LinkIcon, Image as ImageIcon, Trash2, Edit2, Check, X, Upload, Loader2, Search, Filter, Clock, AlertTriangle } from "lucide-react"
+import Link from "next/link"
+import { Photo, Project, Page, SiteSettings } from "@/lib/types"
 import { MagneticButton } from "@/components/ui/magnetic-button"
 import { TagInput } from "@/components/ui/tag-input"
 import { cn } from "@/lib/utils"
@@ -37,12 +38,134 @@ export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
         fetchPhotos();
     }, []);
 
-    const fetchPhotos = async () => {
+    const [usageMap, setUsageMap] = useState<Record<string, { type: string, title: string, link: string }[]>>({});
+
+    // Context Data for Usage Tracking
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [pages, setPages] = useState<Page[]>([]);
+    const [settings, setSettings] = useState<SiteSettings | null>(null);
+
+    useEffect(() => {
+        fetchAllData();
+    }, []);
+
+    const fetchAllData = async () => {
         setLoading(true);
+        try {
+            const [photosRes, projectsRes, pagesRes, settingsRes] = await Promise.all([
+                fetch('/api/photos'),
+                fetch('/api/projects'),
+                fetch('/api/pages'),
+                fetch('/api/global')
+            ]);
+
+            const [photosData, projectsData, pagesData, settingsData] = await Promise.all([
+                photosRes.json(),
+                projectsRes.json(),
+                pagesRes.json(),
+                settingsRes.json()
+            ]);
+
+            setPhotos(photosData);
+            setProjects(projectsData);
+            setPages(pagesData);
+            setSettings(settingsData);
+
+            calculateUsage(photosData, projectsData, pagesData, settingsData);
+        } catch (e) {
+            console.error("Failed to load library data", e);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // Explicitly separate fetchPhotos for re-fetching just the list (e.g. after upload)
+    const fetchPhotos = async () => {
         const res = await fetch('/api/photos');
         const data = await res.json();
         setPhotos(data);
-        setLoading(false);
+        // Re-calc usage with new photos list but existing context
+        calculateUsage(data, projects, pages, settings);
+    }
+
+    const calculateUsage = (
+        currentPhotos: Photo[],
+        currentProjects: Project[],
+        currentPages: Page[],
+        currentSettings: SiteSettings | null
+    ) => {
+        const usage: Record<string, { type: string, title: string, link: string }[]> = {};
+
+        // Helper to add usage
+        const addUsage = (photoId: string | undefined, photoUrl: string | undefined, item: { type: string, title: string, link: string }) => {
+            // Find the photo in our list that matches ID or URL
+            const photo = currentPhotos.find(p =>
+                (photoId && p.id === photoId) ||
+                (photoUrl && p.url === photoUrl) ||
+                (photoUrl && p.variants?.original === photoUrl) ||
+                (photoUrl && p.variants?.medium === photoUrl)
+            );
+
+            if (photo) {
+                if (!usage[photo.id]) usage[photo.id] = [];
+                // Avoid duplicates
+                if (!usage[photo.id].some(u => u.link === item.link && u.title === item.title)) {
+                    usage[photo.id].push(item);
+                }
+            }
+        };
+
+        // 1. Scan Projects
+        currentProjects.forEach(proj => {
+            // Cover Image
+            if (proj.coverImage) addUsage(undefined, proj.coverImage, { type: 'Project Cover', title: proj.title, link: `/dashboard?tab=projects&editId=${proj.id}` });
+
+            // Gallery
+            proj.galleryImages?.forEach(img => {
+                if (img.url) addUsage(undefined, img.url, { type: 'Project Gallery', title: proj.title, link: `/dashboard?tab=projects&editId=${proj.id}` });
+            });
+
+            // Content (basic string check for now, can be improved)
+            if (JSON.stringify(proj.content).includes('http')) {
+                // If we really wanted to be precise we'd parse the content blocks
+                // For now, simpler matching or skip content body to avoid false positives
+            }
+        });
+
+        // 2. Scan Pages
+        currentPages.forEach(page => {
+            // Check Home Data specific fields if it's home
+            if (page.slug === 'home' && page.content?.draft?.hero?.images) {
+                (page.content.draft.hero.images as string[]).forEach(url => {
+                    addUsage(undefined, url, { type: 'Home Hero', title: 'Home Page', link: '/dashboard?tab=overview' });
+                });
+            }
+
+            // Check Blocks
+            page.blocks?.forEach(block => {
+                if (block.type === 'image' && block.content?.url) {
+                    addUsage(undefined, block.content.url, { type: 'Page Image Block', title: page.title, link: '/dashboard?tab=pages' });
+                }
+                if (block.type === 'gallery' && block.content?.images) {
+                    // Assuming gallery block structure
+                    (block.content.images as any[]).forEach((img: any) => {
+                        if (img.url) addUsage(undefined, img.url, { type: 'Page Gallery', title: page.title, link: '/dashboard?tab=pages' });
+                    });
+                }
+            });
+        });
+
+        // 3. Scan Settings
+        if (currentSettings) {
+            if (currentSettings.branding?.logoUrl) {
+                addUsage(currentSettings.branding.logoId, currentSettings.branding.logoUrl, { type: 'Site Logo', title: 'Global Settings', link: '/dashboard?tab=settings' });
+            }
+            if (currentSettings.seo?.ogImage) {
+                addUsage(undefined, currentSettings.seo.ogImage, { type: 'SEO Image', title: 'Global Settings', link: '/dashboard?tab=settings' });
+            }
+        }
+
+        setUsageMap(usage);
     }
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,6 +272,14 @@ export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
         });
 
         if (action === 'delete') {
+            // Check for usage constraints
+            const inUseItems = Array.from(selectedIds).filter(id => usageMap[id]?.length > 0);
+
+            if (inUseItems.length > 0) {
+                alert(`Cannot delete ${inUseItems.length} items because they are currently in use.`);
+                return;
+            }
+
             // Filter out deleted
             const kept = photos.filter(p => !selectedIds.has(p.id));
             setPhotos(kept);
@@ -293,6 +424,14 @@ export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
                                     <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
                                         {photo.status === 'draft' && <span className="text-[10px] font-bold bg-yellow-500 text-black px-1.5 py-0.5 rounded shadow-sm">DRAFT</span>}
                                         {photo.featured && <span className="text-[10px] font-bold bg-purple-500 text-white px-1.5 py-0.5 rounded shadow-sm">★</span>}
+
+                                        {/* Usage Indicator */}
+                                        {usageMap[photo.id]?.length > 0 && (
+                                            <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md text-white px-1.5 py-0.5 rounded border border-white/10 shadow-sm" title="In Use">
+                                                <LinkIcon size={10} className="text-blue-400" />
+                                                <span className="text-[10px] font-bold">{usageMap[photo.id].length}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Selection Checkbox (always visible in selection mode, or on hover) */}
@@ -375,8 +514,36 @@ export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
 
 
 
+                                    {/* Usage Information */}
+                                    {usageMap[editingPhoto.id]?.length > 0 && (
+                                        <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 space-y-3">
+                                            <div className="flex items-center gap-2 text-blue-400 font-bold text-xs uppercase tracking-wider">
+                                                <LinkIcon size={12} />
+                                                Used In {usageMap[editingPhoto.id].length} Places
+                                            </div>
+                                            <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-2">
+                                                {usageMap[editingPhoto.id].map((usage, i) => (
+                                                    <Link
+                                                        key={i}
+                                                        href={usage.link}
+                                                        target="_blank"
+                                                        className="block p-2 rounded bg-background/50 hover:bg-background border border-border/50 transition-colors text-xs group"
+                                                    >
+                                                        <div className="font-semibold text-foreground group-hover:text-primary transition-colors">{usage.title}</div>
+                                                        <div className="text-[10px] text-muted-foreground">{usage.type}</div>
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                            <div className="flex items-center gap-2 text-[10px] text-muted-foreground bg-background/50 p-2 rounded text-center justify-center">
+                                                <AlertTriangle size={12} className="text-yellow-500" />
+                                                Cannot delete while in use.
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Quick Actions (Featured/Published) */}
                                     <div className="grid grid-cols-2 gap-4">
+                                        {/* ... existing items ... */}
                                         <div className="p-4 rounded-xl bg-secondary/20 border border-border space-y-2">
                                             <div className="flex items-center justify-between">
                                                 <label className="text-sm font-bold text-muted-foreground">Featured</label>
@@ -407,6 +574,8 @@ export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
                                         </div>
                                     </div>
 
+                                    {/* ... rest of form ... */}
+
                                     <div className="space-y-3">
                                         <label className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Alt Text (SEO)</label>
                                         <input
@@ -434,6 +603,30 @@ export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
                                             onTagsChange={tags => setEditingPhoto({ ...editingPhoto, tags })}
                                         />
                                     </div>
+
+                                    {/* Delete Button (Only if not in use) */}
+                                    {!usageMap[editingPhoto.id]?.length && (
+                                        <div className="pt-4 border-t border-border">
+                                            <button
+                                                onClick={() => {
+                                                    if (confirm("Delete this photo permanently?")) {
+                                                        // Handle delete single
+                                                        fetch('/api/photos', {
+                                                            method: 'DELETE',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ ids: [editingPhoto.id] })
+                                                        }).then(() => {
+                                                            setPhotos(prev => prev.filter(p => p.id !== editingPhoto.id));
+                                                            setEditingPhoto(null);
+                                                        });
+                                                    }
+                                                }}
+                                                className="w-full flex items-center justify-center gap-2 p-3 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors text-sm font-medium"
+                                            >
+                                                <Trash2 size={16} /> Delete Photo
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Footer Actions */}
@@ -447,7 +640,7 @@ export function MediaLibrary({ mode = 'manage', onSelect }: MediaLibraryProps) {
                                             });
                                             // Refresh list
                                             setPhotos(prev => prev.map(p => p.id === editingPhoto.id ? editingPhoto : p));
-                                            setEditingPhoto(null); // Close on save?
+                                            setEditingPhoto(null);
                                         }}
                                         className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20"
                                     >
