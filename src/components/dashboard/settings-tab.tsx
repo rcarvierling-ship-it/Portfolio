@@ -267,6 +267,78 @@ export function SettingsTab() {
                             </div>
                         </div>
 
+                        {/* Metadata Overlay Globals */}
+                        <div className="p-4 rounded-lg bg-secondary/20 border border-border">
+                            <h4 className="font-bold text-sm mb-4 flex items-center gap-2"><ImageIcon size={16} /> Metadata Overlays</h4>
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-semibold uppercase text-muted-foreground">Enable Globally</label>
+                                    <input
+                                        type="checkbox"
+                                        checked={data.metadataOverlay?.show ?? false}
+                                        onChange={e => setData({ ...data, metadataOverlay: { ...data.metadataOverlay!, show: e.target.checked } })}
+                                        className="w-5 h-5 accent-primary cursor-pointer"
+                                    />
+                                </div>
+
+                                {data.metadataOverlay?.show && (
+                                    <div className="space-y-4 pt-4 border-t border-border/50 animate-in fade-in slide-in-from-top-2">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-semibold uppercase text-muted-foreground">Display Mode</label>
+                                                <select
+                                                    value={data.metadataOverlay?.mode || 'hover'}
+                                                    onChange={e => setData({ ...data, metadataOverlay: { ...data.metadataOverlay!, mode: e.target.value as any } })}
+                                                    className="w-full p-2 rounded bg-background border border-border text-sm"
+                                                >
+                                                    <option value="hover">Show on Hover</option>
+                                                    <option value="always">Always Visible</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-semibold uppercase text-muted-foreground">Style</label>
+                                                <select
+                                                    value={data.metadataOverlay?.style || 'minimal'}
+                                                    onChange={e => setData({ ...data, metadataOverlay: { ...data.metadataOverlay!, style: e.target.value as any } })}
+                                                    className="w-full p-2 rounded bg-background border border-border text-sm"
+                                                >
+                                                    <option value="minimal">Minimal (Text)</option>
+                                                    <option value="badge">Badge (Pill)</option>
+                                                    <option value="terminal">Terminal (Monospace)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-semibold uppercase text-muted-foreground">Visible Fields</label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {['camera', 'lens', 'settings', 'date'].map(field => (
+                                                    <label key={field} className="flex items-center gap-2 text-sm p-2 rounded bg-background border border-border cursor-pointer hover:border-primary/50 transition-colors">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={(data.metadataOverlay?.fields as any)?.[field] ?? true}
+                                                            onChange={e => setData({
+                                                                ...data,
+                                                                metadataOverlay: {
+                                                                    ...data.metadataOverlay!,
+                                                                    fields: {
+                                                                        ...data.metadataOverlay?.fields!,
+                                                                        [field]: e.target.checked
+                                                                    }
+                                                                }
+                                                            })}
+                                                            className="accent-primary"
+                                                        />
+                                                        <span className="capitalize">{field}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         {/* SEO Section used to be missing, adding it now */}
                         <div className="p-4 rounded-lg bg-secondary/20 border border-border mt-2">
                             <h4 className="font-bold text-sm mb-4">SEO Defaults</h4>

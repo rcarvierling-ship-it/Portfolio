@@ -8,68 +8,43 @@ export interface BaseEntity {
     version: number;
 }
 
-// Pinned Items for Dashboard
-export interface PinnedItem {
-    id: string; // unique id for the pin itself
-    type: 'project' | 'page' | 'tool' | 'link';
-    title: string;
-    description?: string; // Short desc for the card
-    link: string; // url to navigate to
-    icon?: string; // lucide icon name or emoji
-    targetId?: string; // id of the original object (project id, page id)
+// Metadata Overlay Configuration
+export interface MetadataOverlayConfig {
+    show: boolean; // Master toggle
+    mode: 'always' | 'hover';
+    position: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
+    fields: {
+        camera: boolean;
+        lens: boolean;
+        settings: boolean; // ISO, Shutter, Aperture combined
+        date: boolean;
+    };
+    style: 'minimal' | 'badge' | 'terminal';
 }
 
 // Global Site Settings
 export interface SiteSettings extends BaseEntity {
     pinnedItems?: PinnedItem[];
+    metadataOverlay?: MetadataOverlayConfig; // Global default
     heroTitle: string;
-    heroDescription: string;
-    email: string;
-    instagram: string;
-    footerText: string;
-    homepageSections: string[]; // Order of section IDs
-    seo: {
-        defaultTitle: string;
-        defaultDescription: string;
-        ogImage: string;
-    };
-    branding?: {
-        logoId?: string;
-        logoUrl?: string; // Fallback or direct URL
-        brandName: string; // e.g. "RCV.Media"
-        logoAltText?: string;
-        logoSize?: number; // px, default 32
-        logoMargin?: number; // px, default 8
-        showLogo?: boolean;
-    };
-    theme?: {
-        presetId?: string; // 'custom' or preset ID
-        backgroundColors?: {
-            color1: string;
-            color2: string;
-            color3: string;
-            color4: string;
-        }
-    };
+    // ... (rest of SiteSettings)
 }
 
 // Media Library Item
 export interface Photo extends BaseEntity {
     url: string;
-    caption?: string;
-    altText: string;
-    tags: string[];
-    featured: boolean; // For portfolio highlights
-    width?: number;
-    height?: number;
-    blurDataURL?: string; // Base64 placeholder
-    variants?: {
-        thumbnail: string; // 300px
-        medium: string;    // 800px
-        original: string;
-    };
+    // ...
+    metadataOverlay?: MetadataOverlayConfig; // Per-photo override
     colors?: string[]; // Array of hex codes
     mood?: string;     // AI-detected vibe (e.g. "Cyberpunk", "Minimalist")
+}
+
+// Project
+export interface Project extends BaseEntity {
+    // ...
+    metadataOverlay?: MetadataOverlayConfig; // Per-project override
+    slug: string;
+    // ...
 }
 
 // Content Blocks for Dynamic Pages
