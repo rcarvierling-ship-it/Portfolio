@@ -1,4 +1,5 @@
 import { LivePreviewModal } from "@/components/dashboard/live-preview-modal"
+import { CommandPalette } from "@/components/ui/command-palette"
 
 // ... imports ...
 
@@ -128,6 +129,9 @@ function DashboardPage() {
 
             {/* Live Preview Modal */}
             <LivePreviewModal isOpen={showPreview} onClose={() => setShowPreview(false)} />
+
+            {/* Global Command Palette */}
+            <CommandPalette />
         </div>
     )
 }
