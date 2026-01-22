@@ -30,8 +30,8 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Edit Home & Manage Work - The Two Main Pillars */}
                     <HeroActionCard
-                        title="Edit Home"
-                        description="Manage hero section, feature blocks, and landing page content."
+                        title="Edit Website Layout"
+                        description="Manage global layout, pages, sections, and site structure."
                         icon={<Monitor className="w-8 h-8" />}
                         onClick={() => setActiveTab('pages')}
                         gradient="from-blue-500/20 via-blue-500/5 to-transparent"
