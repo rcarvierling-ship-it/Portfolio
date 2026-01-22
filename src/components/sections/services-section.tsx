@@ -38,12 +38,15 @@ export function ServicesSection({ services = defaultServices }: ServicesSectionP
     return (
         <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto cursor-default">
             <div className="mb-16">
-                <h2 className="text-sm font-mono uppercase tracking-widest text-muted-foreground mb-4"> Expertise</h2>
-                <div className="h-px w-full bg-border" />
+                <div className="flex items-center gap-2 mb-4">
+                    <span className="w-2 h-2 rounded-full border border-primary/50" />
+                    <h2 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">_Core_Competencies</h2>
+                </div>
+                <div className="h-px w-full bg-gradient-to-r from-border via-border/50 to-transparent" />
             </div>
 
             <div className="flex flex-col">
-                {services.filter(s => !['videography', 'web-dev', 'creative'].includes(s.id)).map((service) => {
+                {services.filter(s => !['videography', 'web-dev', 'creative'].includes(s.id)).map((service, idx) => {
                     const Icon = service.iconName ? iconMap[service.iconName] : Sparkles;
 
                     const CardContent = (
@@ -51,19 +54,24 @@ export function ServicesSection({ services = defaultServices }: ServicesSectionP
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="group relative border-b border-border py-12 md:py-16 transition-all duration-300 cursor-pointer"
+                            className="group relative border-b border-dashed border-border/50 py-12 md:py-16 transition-all duration-300 cursor-pointer"
                             onMouseEnter={() => setHoveredService(service.id)}
                             onMouseLeave={() => setHoveredService(null)}
                         >
+                            <div className="absolute top-6 left-0 text-[10px] font-mono text-muted-foreground/40 font-light">
+                                [{(idx + 1).toString().padStart(2, '0')}]
+                            </div>
+
                             <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-6 z-10 relative">
-                                <h3 className="text-3xl md:text-6xl font-bold transition-transform duration-300 group-hover:translate-x-4">
+                                <h3 className="text-3xl md:text-6xl font-bold tracking-tight transition-transform duration-300 group-hover:translate-x-4">
                                     {service.title}
                                 </h3>
                                 <div className="md:max-w-md">
-                                    <p className="text-xl md:text-2xl font-medium mb-2 text-foreground/80 group-hover:text-primary transition-colors">
+                                    <p className="text-xl md:text-2xl font-medium mb-2 text-foreground/80 group-hover:text-primary transition-colors font-mono tracking-tight">
+                                        {/* <span className="text-primary/50 mr-2 opacity-0 group-hover:opacity-100 transition-opacity">/</span> */}
                                         {service.subtitle}
                                     </p>
-                                    <p className="text-muted-foreground leading-relaxed">
+                                    <p className="text-muted-foreground leading-relaxed font-light">
                                         {service.description}
                                     </p>
                                 </div>

@@ -10,7 +10,8 @@ export function AnimatedBackground({ colors }: { colors?: { color1: string; colo
     const c4 = colors?.color4 || "rgba(244, 114, 182, 0.4)";
 
     return (
-        <div className="fixed inset-0 -z-50 h-full w-full bg-background">
+        <div className="fixed inset-0 -z-50 h-full w-full bg-background selection:bg-cyan-500/30">
+            {/* 1. Base Gradient Layer */}
             <div
                 className="absolute inset-0 h-full w-full opacity-40 dark:opacity-30 animate-gradient"
                 style={{
@@ -23,7 +24,7 @@ export function AnimatedBackground({ colors }: { colors?: { color1: string; colo
                 }}
             />
 
-            {/* Secondary accent layer for depth */}
+            {/* 2. Secondary accent layer for depth */}
             <div
                 className="absolute inset-0 h-full w-full opacity-30 dark:opacity-20 animate-gradient-reverse"
                 style={{
@@ -35,6 +36,12 @@ export function AnimatedBackground({ colors }: { colors?: { color1: string; colo
                     filter: "blur(80px)",
                 }}
             />
+
+            {/* 3. Noise Texture Layer (The "Veil") */}
+            <div className="absolute inset-0 z-0 h-full w-full bg-noise-subtle opacity-[0.07] mix-blend-overlay pointer-events-none" />
+
+            {/* 4. System Grid Layer (Scaffolding) */}
+            <div className="absolute inset-0 z-0 h-full w-full bg-tech-grid pointer-events-none [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]" />
         </div>
     );
 }

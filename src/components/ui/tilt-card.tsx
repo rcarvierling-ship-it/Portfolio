@@ -55,16 +55,22 @@ export function TiltCard({ project }: TiltCardProps) {
                 className="relative group cursor-pointer"
             >
                 <div
-                    className="relative h-[500px] w-full rounded-sm overflow-hidden bg-muted"
+                    className="relative h-[500px] w-full rounded-sm overflow-hidden bg-muted border border-white/5"
                     style={{ transform: "translateZ(0px)" }} // Base layer
                 >
                     {/* Placeholder Image - in real app use Next.js Image */}
-                    <div className="absolute inset-0 bg-neutral-800 flex items-center justify-center text-neutral-600">
-                        <span className="text-4xl font-light opacity-20">Image</span>
+                    <div className="absolute inset-0 bg-neutral-900 flex items-center justify-center text-neutral-600 bg-tech-grid-small">
+                        <span className="text-4xl font-light opacity-20 font-mono">_IMG</span>
                     </div>
 
                     {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500" />
+
+                    {/* Tech Corners */}
+                    <div className="absolute top-4 left-4 w-2 h-2 border-t border-l border-white/30" />
+                    <div className="absolute top-4 right-4 w-2 h-2 border-t border-r border-white/30" />
+                    <div className="absolute bottom-4 left-4 w-2 h-2 border-b border-l border-white/30" />
+                    <div className="absolute bottom-4 right-4 w-2 h-2 border-b border-r border-white/30" />
                 </div>
 
                 <div

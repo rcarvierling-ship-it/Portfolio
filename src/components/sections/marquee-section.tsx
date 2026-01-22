@@ -15,7 +15,11 @@ export function MarqueeSection({ keywords = defaultKeywords }: MarqueeSectionPro
     const displayKeywords = keywords.length > 0 ? [...keywords, ...keywords, ...keywords, ...keywords] : [...defaultKeywords, ...defaultKeywords, ...defaultKeywords, ...defaultKeywords];
 
     return (
-        <section className="py-24 overflow-hidden bg-background border-y border-border/40">
+        <section className="py-24 overflow-hidden bg-background/50 border-y border-dashed border-border/40 relative">
+            <div className="absolute top-0 left-0 px-4 py-1 bg-background border-r border-b border-border/40 text-[9px] font-mono text-muted-foreground uppercase tracking-widest z-10">
+                _Keywords
+            </div>
+
             <div className="relative flex whitespace-nowrap">
                 <motion.div
                     className="flex items-center gap-12 md:gap-24"
@@ -29,8 +33,8 @@ export function MarqueeSection({ keywords = defaultKeywords }: MarqueeSectionPro
                     {displayKeywords.map((word, i) => (
                         <span
                             key={i}
-                            className="text-6xl md:text-9xl font-black tracking-tighter text-transparent stroke-text opacity-20 hover:opacity-100 transition-opacity duration-300 select-none uppercase"
-                            style={{ WebkitTextStroke: "1px rgba(255, 255, 255, 0.5)" }}
+                            className="text-6xl md:text-9xl font-black tracking-tighter text-transparent stroke-text opacity-10 hover:opacity-80 transition-opacity duration-300 select-none uppercase font-mono"
+                            style={{ WebkitTextStroke: "1px rgba(150, 150, 150, 0.5)" }}
                         >
                             {word}
                         </span>

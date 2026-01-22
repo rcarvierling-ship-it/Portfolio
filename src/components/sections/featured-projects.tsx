@@ -12,9 +12,13 @@ export async function FeaturedProjects() {
         <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto w-full">
             <div className="flex flex-col gap-12">
                 <FadeIn className="flex flex-col gap-4">
-                    <h2 className="text-3xl md:text-5xl font-bold">Latest Stories</h2>
-                    <p className="text-muted-foreground text-lg max-w-xl">
-                        Recent additions to my portfolio.
+                    <div className="flex items-center gap-4">
+                        <span className="text-tech text-xs text-muted-foreground uppercase tracking-wider">_SELECTED_WORKS</span>
+                        <div className="h-[1px] flex-1 bg-gradient-to-r from-muted-foreground/30 to-transparent" />
+                    </div>
+                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Featured Projects</h2>
+                    <p className="text-muted-foreground text-lg max-w-xl font-light">
+                        Engineering systems and digital experiences.
                     </p>
                 </FadeIn>
 
@@ -29,3 +33,4 @@ export async function FeaturedProjects() {
         </section>
     )
 }
+

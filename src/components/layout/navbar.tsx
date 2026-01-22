@@ -53,9 +53,10 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
                     {navItems.map((item) => (
                         <Link key={item.path} href={item.path} className="relative group">
                             <span className={cn(
-                                "text-sm font-medium transition-colors hover:text-primary/70",
+                                "text-sm font-medium transition-colors hover:text-primary/70 font-mono tracking-tight uppercase",
                                 pathname === item.path ? "text-primary" : "text-muted-foreground"
                             )}>
+                                <span className="text-primary/40 mr-1 opacity-0 group-hover:opacity-100 transition-opacity">/</span>
                                 {item.name}
                             </span>
                             {pathname === item.path && (

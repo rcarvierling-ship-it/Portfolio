@@ -23,7 +23,10 @@ export function Footer() {
     }, []);
 
     return (
-        <footer className="w-full py-12 px-6 md:px-12 border-t bg-background">
+        <footer className="w-full py-12 px-6 md:px-12 border-t border-dashed border-border/40 bg-background/50 relative">
+            <div className="absolute top-0 left-12 px-2 -translate-y-1/2 bg-background border border-border/40 text-[9px] font-mono text-muted-foreground uppercase tracking-widest">
+                _End_of_Line
+            </div>
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
                 <div className="text-sm text-muted-foreground">
                     {content.footerText}
