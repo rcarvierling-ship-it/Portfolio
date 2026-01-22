@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Monitor, Briefcase, Image, BarChart2, Zap, Box, Activity, ArrowRight, LayoutDashboard } from "lucide-react"
+import { Monitor, Briefcase, Image, BarChart2, Zap, Box, Activity, ArrowRight, LayoutDashboard, Settings } from "lucide-react"
 import { HistoryCard } from "@/components/dashboard/sections/history-card"
 import { MetricsSnapshot } from "@/components/dashboard/sections/metrics-snapshot"
 import { cn } from "@/lib/utils"
@@ -78,6 +78,20 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                         label="_ANALYTICS"
                         compact
                     />
+
+                    {/* System Configuration - Full Width */}
+                    <HeroActionCard
+                        title="System Configuration"
+                        description="Manage global branding, themes, SEO defaults, and site preferences."
+                        icon={<Settings className="w-8 h-8" />}
+                        onClick={() => setActiveTab('settings')}
+                        gradient="from-orange-500/10 via-orange-500/5 to-transparent"
+                        accentColor="text-orange-500"
+                        borderColor="hover:border-orange-500/50"
+                        label="_GLOBAL_CONFIG"
+                        className="md:col-span-2"
+                        compact
+                    />
                 </div>
             </section>
 
@@ -142,7 +156,7 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
     )
 }
 
-function HeroActionCard({ title, description, icon, onClick, gradient, accentColor, borderColor, compact, label }: any) {
+function HeroActionCard({ title, description, icon, onClick, gradient, accentColor, borderColor, compact, label, className }: any) {
     return (
         <button
             onClick={onClick}
@@ -151,7 +165,8 @@ function HeroActionCard({ title, description, icon, onClick, gradient, accentCol
                 "bg-gradient-to-br bg-card",
                 gradient,
                 borderColor,
-                compact ? "h-40" : "h-64"
+                compact ? "h-40" : "h-64",
+                className
             )}
         >
             {label && (
