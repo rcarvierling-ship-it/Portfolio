@@ -6,6 +6,7 @@ import { ArrowLeft, ExternalLink, Github } from "lucide-react";
 import { Metadata } from 'next';
 import { getProjects as getProjectsCMS, getProject as getProjectCMS } from "@/lib/cms";
 import { auth } from "@/auth";
+import { ClickableGalleryImage } from "@/components/ui/clickable-gallery-image";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
@@ -134,11 +135,11 @@ export default async function ProjectPage({
                     {project.galleryImages.length > 0 ? (
                         project.galleryImages.map((img, idx) => (
                             <div key={img.id || idx} className={`flex flex-col gap-2 ${idx % 3 === 0 ? 'md:col-span-2' : ''}`}>
-                                <div
-                                    className={`relative w-full rounded-sm overflow-hidden bg-muted ${idx % 3 === 0 ? 'aspect-[21/9]' : 'aspect-[4/5]'}`}
-                                >
-                                    <Image src={img.url} alt={img.caption || `Gallery ${idx}`} fill className="object-cover" />
-                                </div>
+                                <ClickableGalleryImage
+                                    item={img}
+                                    projectConfig={{ camera: project.camera, lens: project.lens }}
+                                    aspectRatio={idx % 3 === 0 ? 'aspect-[21/9]' : 'aspect-[4/5]'}
+                                />
                                 {img.caption && (
                                     <p className="text-xs text-muted-foreground italic px-1">{img.caption}</p>
                                 )}
