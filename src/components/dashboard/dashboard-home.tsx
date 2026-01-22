@@ -323,27 +323,28 @@ function HeroActionCard({ title, description, icon, onClick, gradient, accentCol
                     </div>
                 </div>
             </button>
-            )
+        </div>
+    )
 }
 
-            function SecondaryToolRow({label, subtext, icon, onClick, destructive}: any) {
+function SecondaryToolRow({ label, subtext, icon, onClick, destructive }: any) {
     return (
-            <button
-                onClick={onClick}
-                className={cn(
-                    "w-full flex items-center justify-between p-3 rounded-md border border-transparent hover:bg-secondary/50 hover:border-border transition-all group",
-                    destructive ? "hover:bg-red-500/10 hover:border-red-500/20" : ""
-                )}
-            >
-                <div className="flex items-center gap-3">
-                    <div className={cn("text-muted-foreground group-hover:text-foreground transition-colors", destructive ? "text-red-500 group-hover:text-red-600" : "")}>
-                        {icon}
-                    </div>
-                    <div className="text-left">
-                        <div className={cn("text-sm font-medium", destructive ? "text-red-500" : "")}>{label}</div>
-                        <div className="text-[10px] text-muted-foreground">{subtext}</div>
-                    </div>
+        <button
+            onClick={onClick}
+            className={cn(
+                "w-full flex items-center justify-between p-3 rounded-md border border-transparent hover:bg-secondary/50 hover:border-border transition-all group",
+                destructive ? "hover:bg-red-500/10 hover:border-red-500/20" : ""
+            )}
+        >
+            <div className="flex items-center gap-3">
+                <div className={cn("text-muted-foreground group-hover:text-foreground transition-colors", destructive ? "text-red-500 group-hover:text-red-600" : "")}>
+                    {icon}
                 </div>
-            </button>
-            )
+                <div className="text-left">
+                    <div className={cn("text-sm font-medium", destructive ? "text-red-500" : "")}>{label}</div>
+                    <div className="text-[10px] text-muted-foreground">{subtext}</div>
+                </div>
+            </div>
+        </button>
+    )
 }
