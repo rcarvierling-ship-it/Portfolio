@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Monitor, Briefcase, Image, BarChart2, Zap, Box, Activity } from "lucide-react"
+import { Monitor, Briefcase, Image, BarChart2, Zap, Box, Activity, ArrowRight, LayoutDashboard } from "lucide-react"
 import { HistoryCard } from "@/components/dashboard/sections/history-card"
 import { MetricsSnapshot } from "@/components/dashboard/sections/metrics-snapshot"
 import { cn } from "@/lib/utils"
@@ -15,101 +15,113 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
     const router = useRouter();
 
     return (
-        <div className="flex flex-col gap-12 animate-in fade-in duration-500">
+        <div className="flex flex-col animate-in fade-in duration-500 pb-20">
 
-            {/* ZONE 2: PRIMARY ACTIONS */}
-            <section className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {/* Edit Home */}
-                    <ActionCard
+            {/* ZONE 2: PRIMARY ACTIONS - HERO SECTION */}
+            {/* Design Rule: These must be visually larger than everything else. */}
+            <section className="mb-16">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-primary/10 rounded-full text-primary">
+                        <LayoutDashboard size={20} />
+                    </div>
+                    <h2 className="text-2xl font-bold tracking-tight">Primary Actions</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Edit Home & Manage Work - The Two Main Pillars */}
+                    <HeroActionCard
                         title="Edit Home"
-                        description="Manage hero & sections"
-                        icon={<Monitor className="w-6 h-6" />}
+                        description="Manage hero section, feature blocks, and landing page content."
+                        icon={<Monitor className="w-8 h-8" />}
                         onClick={() => setActiveTab('pages')}
-                        gradient="from-blue-500/10 to-blue-500/5 hover:to-blue-500/20"
+                        gradient="from-blue-500/20 via-blue-500/5 to-transparent"
                         accentColor="text-blue-500"
+                        borderColor="hover:border-blue-500/50"
                     />
 
-                    {/* Manage Work */}
-                    <ActionCard
+                    <HeroActionCard
                         title="Manage Work"
-                        description="Add projects & client work"
-                        icon={<Briefcase className="w-6 h-6" />}
+                        description="Add new case studies, update project details, and organize portfolio."
+                        icon={<Briefcase className="w-8 h-8" />}
                         onClick={() => setActiveTab('projects')}
-                        gradient="from-purple-500/10 to-purple-500/5 hover:to-purple-500/20"
+                        gradient="from-purple-500/20 via-purple-500/5 to-transparent"
                         accentColor="text-purple-500"
+                        borderColor="hover:border-purple-500/50"
                     />
 
-                    {/* Media Library */}
-                    <ActionCard
+                    {/* Secondary Tier of Primary Actions */}
+                    <HeroActionCard
                         title="Media Library"
-                        description="Upload & manage assets"
-                        icon={<Image className="w-6 h-6" />}
+                        description="Upload images, manage assets, and organize files."
+                        icon={<Image className="w-8 h-8" />}
                         onClick={() => setActiveTab('photos')}
-                        gradient="from-pink-500/10 to-pink-500/5 hover:to-pink-500/20"
+                        gradient="from-pink-500/20 via-pink-500/5 to-transparent"
                         accentColor="text-pink-500"
+                        borderColor="hover:border-pink-500/50"
+                        compact
                     />
 
-                    {/* Analytics */}
-                    <ActionCard
+                    <HeroActionCard
                         title="View Analytics"
-                        description="Traffic & performance"
-                        icon={<BarChart2 className="w-6 h-6" />}
+                        description="Check traffic sources, visitor engagement, and performance stats."
+                        icon={<BarChart2 className="w-8 h-8" />}
                         onClick={() => setActiveTab('analytics-overview')}
-                        gradient="from-emerald-500/10 to-emerald-500/5 hover:to-emerald-500/20"
+                        gradient="from-emerald-500/20 via-emerald-500/5 to-transparent"
                         accentColor="text-emerald-500"
+                        borderColor="hover:border-emerald-500/50"
+                        compact
                     />
                 </div>
             </section>
 
 
-            {/* WRAPPER FOR ZONE 3 & 4 */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
-                {/* ZONE 3: SECONDARY / ADVANCED TOOLS (Col 1) */}
-                <section className="lg:col-span-1 space-y-6">
-                    <div>
-                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            Advanced Tools
+                {/* ZONE 3: SECONDARY / ADVANCED TOOLS */}
+                {/* Design Rule: Visually separated, clearly "secondary". */}
+                <section className="lg:col-span-4 space-y-6">
+                    <div className="border-t border-border pt-8">
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                            Advanced / Experimental
                         </h2>
-                        <div className="space-y-3">
-                            <ToolRow
+
+                        <div className="grid grid-cols-1 gap-2">
+                            <SecondaryToolRow
                                 label="Sandbox Environment"
-                                icon={<Box size={16} />}
-                                onClick={() => router.push('/dashboard/sandbox')} // Assuming this route exists
+                                subtext="Safe testing ground"
+                                icon={<Box size={14} />}
+                                onClick={() => router.push('/dashboard/sandbox')}
                             />
-                            <ToolRow
+                            <SecondaryToolRow
+                                label="Analytics Simulator"
+                                subtext="Generate mock traffic"
+                                icon={<Activity size={14} />}
+                                onClick={() => setActiveTab('analytics-sources')}
+                            />
+                            <SecondaryToolRow
                                 label="Chaos Mode"
-                                icon={<Zap size={16} />}
+                                subtext="Inject random failures"
+                                icon={<Zap size={14} />}
                                 onClick={() => alert("Chaos Mode functionality is currently experimental.")}
                                 destructive
                             />
-                            <ToolRow
-                                label="Analytics Simulator"
-                                icon={<Activity size={16} />}
-                                onClick={() => setActiveTab('analytics-sources')} // Mapping to sources for now
-                            />
                         </div>
-                    </div>
-
-                    <div className="p-4 rounded-lg border border-border bg-secondary/5 mt-8">
-                        <h4 className="font-medium text-sm mb-2 text-muted-foreground">System Status</h4>
-                        <div className="flex items-center gap-2 mb-2">
-                            <div className="w-2 h-2 rounded-full bg-green-500" />
-                            <span className="text-sm">All Systems Operational</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Database latency: 24ms</p>
                     </div>
                 </section>
 
 
-                {/* ZONE 4: CONTEXT & FEEDBACK (Col 2 & 3) */}
-                <section className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-                        <HistoryCard />
-                    </div>
-                    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-                        <MetricsSnapshot />
+                {/* ZONE 4: CONTEXT & FEEDBACK */}
+                {/* Design Rule: Passive info, status read-only feel. */}
+                <section className="lg:col-span-8 space-y-6">
+                    <div className="border-t border-border pt-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-secondary/5 border border-border/50 rounded-xl p-6">
+                                <HistoryCard />
+                            </div>
+                            <div className="bg-secondary/5 border border-border/50 rounded-xl p-6">
+                                <MetricsSnapshot />
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -118,48 +130,55 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
     )
 }
 
-function ActionCard({ title, description, icon, onClick, gradient, accentColor }: any) {
+function HeroActionCard({ title, description, icon, onClick, gradient, accentColor, borderColor, compact }: any) {
     return (
         <button
             onClick={onClick}
             className={cn(
-                "relative group overflow-hidden p-6 h-40 rounded-xl border border-border text-left transition-all duration-300 hover:shadow-lg hover:-translate-y-1",
-                "bg-gradient-to-br",
-                gradient
+                "relative group overflow-hidden rounded-2xl border border-border text-left transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
+                "bg-gradient-to-br bg-card",
+                gradient,
+                borderColor,
+                compact ? "h-40" : "h-64"
             )}
         >
-            <div className="relative z-10 flex flex-col justify-between h-full">
-                <div className={cn("mb-4 p-3 rounded-lg w-fit bg-background shadow-sm", accentColor)}>
-                    {icon}
+            <div className="relative z-10 flex flex-col justify-between h-full p-8">
+                <div className="flex justify-between items-start">
+                    <div className={cn("p-4 rounded-xl bg-background/80 backdrop-blur-sm shadow-sm transition-transform group-hover:scale-110 duration-500", accentColor)}>
+                        {icon}
+                    </div>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity -mr-2 -mt-2">
+                        <ArrowRight className="text-muted-foreground" />
+                    </div>
                 </div>
+
                 <div>
-                    <h3 className="font-bold text-lg leading-tight mb-1 group-hover:underline decoration-2 decoration-primary/50 underline-offset-4">{title}</h3>
-                    <p className="text-sm text-muted-foreground">{description}</p>
+                    <h3 className={cn("font-bold mb-2 group-hover:text-primary transition-colors", compact ? "text-xl" : "text-3xl")}>{title}</h3>
+                    <p className="text-muted-foreground font-medium leading-relaxed max-w-[90%]">{description}</p>
                 </div>
             </div>
-
-            {/* Hover Glow Effect */}
-            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
         </button>
     )
 }
 
-function ToolRow({ label, icon, onClick, destructive }: any) {
+function SecondaryToolRow({ label, subtext, icon, onClick, destructive }: any) {
     return (
         <button
             onClick={onClick}
             className={cn(
-                "w-full flex items-center justify-between p-3 rounded-lg border border-border bg-card transition-colors hover:bg-secondary/50",
-                destructive ? "hover:border-red-500/50 hover:bg-red-500/5" : ""
+                "w-full flex items-center justify-between p-3 rounded-md border border-transparent hover:bg-secondary/50 hover:border-border transition-all group",
+                destructive ? "hover:bg-red-500/10 hover:border-red-500/20" : ""
             )}
         >
             <div className="flex items-center gap-3">
-                <div className={cn("text-muted-foreground", destructive ? "text-red-500" : "")}>
+                <div className={cn("text-muted-foreground group-hover:text-foreground transition-colors", destructive ? "text-red-500 group-hover:text-red-600" : "")}>
                     {icon}
                 </div>
-                <span className={cn("text-sm font-medium", destructive ? "text-red-500" : "")}>{label}</span>
+                <div className="text-left">
+                    <div className={cn("text-sm font-medium", destructive ? "text-red-500" : "")}>{label}</div>
+                    <div className="text-[10px] text-muted-foreground">{subtext}</div>
+                </div>
             </div>
-            <span className="text-xs text-muted-foreground">→</span>
         </button>
     )
 }
