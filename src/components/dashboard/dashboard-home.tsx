@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Monitor, Briefcase, Image, BarChart2, Zap, Box, Activity, ArrowRight, LayoutDashboard, Settings, Pin, GripVertical, X } from "lucide-react"
+import { Monitor, Briefcase, Image, BarChart2, Zap, Box, Activity, ArrowRight, LayoutDashboard, Settings, Pin, GripVertical, X, Flame } from "lucide-react"
 import { HistoryCard } from "@/components/dashboard/sections/history-card"
 import { MetricsSnapshot } from "@/components/dashboard/sections/metrics-snapshot"
 import { cn } from "@/lib/utils"
@@ -213,6 +213,23 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                     />
 
                     <HeroActionCard
+                        title="Heatmap Analytics"
+                        description="View behavioral heatmaps and scroll depth analysis."
+                        icon={<Flame className="w-8 h-8" />}
+                        onClick={() => setActiveTab('analytics-heatmap')}
+                        gradient="from-red-500/10 via-red-500/5 to-transparent"
+                        accentColor="text-red-500"
+                        borderColor="hover:border-red-500/50"
+                        label="_HEATMAP"
+                        compact
+                        isPinned={isPinned('Heatmap Analytics')}
+                        onTogglePin={() => isPinned('Heatmap Analytics')
+                            ? handleUnpin(settings?.pinnedItems?.find(p => p.title === 'Heatmap Analytics')?.id || "")
+                            : handlePin({ type: 'tool', title: 'Heatmap Analytics', link: '?tab=analytics-heatmap', description: 'Heatmap' })
+                        }
+                    />
+
+                    <HeroActionCard
                         title="System Configuration"
                         description="Manage global branding, themes, SEO defaults, and site preferences."
                         icon={<Settings className="w-8 h-8" />}
@@ -221,6 +238,7 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                         accentColor="text-orange-500"
                         borderColor="hover:border-orange-500/50"
                         label="_GLOBAL_CONFIG"
+                        className="md:col-span-2"
                         compact
                         isPinned={isPinned('System Configuration')}
                         onTogglePin={() => isPinned('System Configuration')
