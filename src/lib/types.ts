@@ -8,8 +8,20 @@ export interface BaseEntity {
     version: number;
 }
 
+// Pinned Items for Dashboard
+export interface PinnedItem {
+    id: string; // unique id for the pin itself
+    type: 'project' | 'page' | 'tool' | 'link';
+    title: string;
+    description?: string; // Short desc for the card
+    link: string; // url to navigate to
+    icon?: string; // lucide icon name or emoji
+    targetId?: string; // id of the original object (project id, page id)
+}
+
 // Global Site Settings
 export interface SiteSettings extends BaseEntity {
+    pinnedItems?: PinnedItem[];
     heroTitle: string;
     heroDescription: string;
     email: string;
