@@ -194,6 +194,24 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                     />
 
                     {/* System Configuration - Full Width */}
+                    {/* System Operations & Maintenance */}
+                    <HeroActionCard
+                        title="System Map"
+                        description="Visualize site architecture, routes, and component relationships."
+                        icon={<Box className="w-8 h-8" />}
+                        onClick={() => setActiveTab('system-map')}
+                        gradient="from-indigo-500/10 via-indigo-500/5 to-transparent"
+                        accentColor="text-indigo-500"
+                        borderColor="hover:border-indigo-500/50"
+                        label="_ARCH_VIEW"
+                        compact
+                        isPinned={isPinned('System Map')}
+                        onTogglePin={() => isPinned('System Map')
+                            ? handleUnpin(settings?.pinnedItems?.find(p => p.title === 'System Map')?.id || "")
+                            : handlePin({ type: 'tool', title: 'System Map', link: '?tab=system-map', description: 'Architecture Map' })
+                        }
+                    />
+
                     <HeroActionCard
                         title="System Configuration"
                         description="Manage global branding, themes, SEO defaults, and site preferences."
@@ -203,7 +221,6 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                         accentColor="text-orange-500"
                         borderColor="hover:border-orange-500/50"
                         label="_GLOBAL_CONFIG"
-                        className="md:col-span-2"
                         compact
                         isPinned={isPinned('System Configuration')}
                         onTogglePin={() => isPinned('System Configuration')
