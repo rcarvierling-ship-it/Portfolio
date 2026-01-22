@@ -1,5 +1,8 @@
 import { LivePreviewModal } from "@/components/dashboard/live-preview-modal"
 import { CommandPalette } from "@/components/ui/command-palette"
+import { SecurityTab } from "@/components/dashboard/security-tab"
+import { GlobalSearch } from "@/components/dashboard/global-search"
+import { SystemMap } from "@/components/dashboard/system-map"
 
 // ... imports ...
 
@@ -123,6 +126,7 @@ function DashboardPage() {
                     {activeTab === "about" && <AboutTab />}
                     {activeTab === "settings" && <SettingsTab />}
                     {activeTab === "security" && <SecurityTab />}
+                    {activeTab === "system-map" && <SystemMap />}
                 </div>
 
             </main>
