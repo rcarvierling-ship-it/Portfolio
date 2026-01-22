@@ -37,6 +37,20 @@ export interface Photo extends BaseEntity {
     metadataOverlay?: MetadataOverlayConfig; // Per-photo override
     colors?: string[]; // Array of hex codes
     mood?: string;     // AI-detected vibe (e.g. "Cyberpunk", "Minimalist")
+
+    // EXIF / Gear Data for Analytics
+    exif?: {
+        camera?: string; // e.g. "Sony A7IV"
+        lens?: string;   // e.g. "24-70mm GM II"
+        aperture?: string; // e.g. "f/2.8"
+        shutter?: string; // e.g. "1/250s"
+        iso?: string; // e.g. "400"
+        focalLength?: string; // e.g. "35mm"
+    };
+    stats?: {
+        views?: number;
+        likes?: number; // Internal engagement metric
+    };
 }
 
 // Project
