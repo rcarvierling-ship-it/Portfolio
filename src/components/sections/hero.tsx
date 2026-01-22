@@ -25,7 +25,7 @@ export function Hero({ title, description, images }: HeroProps) {
     return (
         <section
             ref={ref}
-            className="relative flex flex-col items-center justify-center min-h-screen px-6 pt-20 overflow-hidden"
+            className="relative flex flex-col items-center justify-center min-h-[100dvh] px-6 py-24 overflow-x-hidden"
         >
             {/* Ambient Parallax Grid Background */}
             <motion.div
@@ -62,7 +62,7 @@ export function Hero({ title, description, images }: HeroProps) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8, duration: 0.8 }}
-                    className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl text-center px-4 font-light"
+                    className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl text-center px-4 font-light text-safe"
                 >
                     {description}
                 </motion.p>

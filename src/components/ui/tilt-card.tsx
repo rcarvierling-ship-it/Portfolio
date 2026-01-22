@@ -77,7 +77,7 @@ export function TiltCard({ project }: TiltCardProps) {
                     style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}
                     className="absolute bottom-0 left-0 p-8 w-full"
                 >
-                    <h3 className="text-3xl font-light text-white mb-2 tracking-wide">{project.title}</h3>
+                    <h3 className="text-3xl font-light text-white mb-2 tracking-wide line-clamp-2">{project.title}</h3>
                     <div className="flex items-center gap-4 text-sm font-medium text-white/70 uppercase tracking-widest">
                         <span>{project.location}</span>
                         <span className="w-1 h-1 rounded-full bg-white/50" />

@@ -195,3 +195,38 @@ h6 {
   font-family: var(--font-geist-mono);
   letter-spacing: -0.02em;
 }
+
+/* Layout Hardening Utilities */
+.safe-gap {
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .safe-gap {
+    gap: 2rem;
+  }
+}
+
+.safe-padding {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+.text-safe {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.no-overlap {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .no-overlap {
+    flex-direction: row;
+  }
+}

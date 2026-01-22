@@ -9,6 +9,7 @@ import { RefreshCw } from "lucide-react"
 import { MediaLibrary } from "@/components/dashboard/media-library"
 import { EditableWrapper } from "@/components/dashboard/editable-wrapper"
 import { TechFrame } from "@/components/ui/tech-frame"
+import { LogoManager } from "@/components/dashboard/logo-manager"
 import { AnimatePresence, motion } from "framer-motion"
 
 export function SettingsTab() {
@@ -67,35 +68,12 @@ export function SettingsTab() {
                                     </EditableWrapper>
                                 </div>
 
-                                {/* Logo Picker */}
-                                <div className="space-y-2">
-                                    <label className="text-xs font-semibold uppercase text-muted-foreground">Logo Icon</label>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-lg bg-background border border-border flex items-center justify-center overflow-hidden p-2">
-                                            <img
-                                                src={data.branding?.logoUrl || "/logo.png"}
-                                                alt={data.branding?.logoAltText || "Brand Logo"}
-                                                className="w-full h-full object-contain"
-                                            />
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <MagneticButton
-                                                onClick={() => setShowLogoPicker(true)}
-                                                className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground text-xs font-bold rounded-md"
-                                            >
-                                                Change Logo
-                                            </MagneticButton>
-                                            {data.branding?.logoUrl && (
-                                                <button
-                                                    onClick={() => setData({ ...data, branding: { ...data.branding!, logoUrl: undefined, logoId: undefined } })}
-                                                    className="text-xs text-red-500 hover:underline"
-                                                >
-                                                    Reset to Default
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
+                                {/* Logo Manager */}
+                                <LogoManager
+                                    settings={data}
+                                    onUpdate={setData}
+                                    onSelectLogoClick={() => setShowLogoPicker(true)}
+                                />
                             </div>
                         </div>
 

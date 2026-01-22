@@ -26,6 +26,9 @@ export interface SiteSettings extends BaseEntity {
         logoUrl?: string; // Fallback or direct URL
         brandName: string; // e.g. "RCV.Media"
         logoAltText?: string;
+        logoSize?: number; // px, default 32
+        logoMargin?: number; // px, default 8
+        showLogo?: boolean;
     };
     theme?: {
         presetId?: string; // 'custom' or preset ID

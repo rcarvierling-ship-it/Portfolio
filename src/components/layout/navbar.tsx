@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 // toggle theme is in separate component, but I can include it here or user can add it
 import { useTheme } from "next-themes"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
+import { DynamicLogo } from "@/components/ui/dynamic-logo"
 import { Sun, Moon } from "lucide-react"
 
 const navItems = [
@@ -36,17 +37,9 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
                 <div className="bg-background/80 backdrop-blur-md border-b border-white/5 md:border-transparent transition-all duration-300">
                     <div className="flex items-center justify-between px-6 py-4 md:px-12">
                         {/* Logo */}
-                        <div className="pointer-events-auto">
-                            <Link href="/" className="flex items-center gap-2 font-bold tracking-tighter text-primary group">
-                                <div className="relative w-8 h-8 opacity-90 group-hover:opacity-100 transition-opacity">
-                                    <img
-                                        src={logoUrl}
-                                        alt={logoAlt}
-                                        aria-hidden="true"
-                                        className="w-full h-full object-contain invert dark:invert-0"
-                                    />
-                                </div>
-                                <span className="text-sm font-mono uppercase tracking-widest hidden md:block">{brandName}</span>
+                        <div className="pointer-events-auto shrink-0 z-50">
+                            <Link href="/" className="block group">
+                                <DynamicLogo settings={settings} />
                             </Link>
                         </div>
 

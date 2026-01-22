@@ -32,7 +32,7 @@ export function PhotoCard({ photo }: PhotoCardProps) {
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-end p-4">
                     <div className="translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
                         {photo.caption && (
-                            <p className="text-white text-sm font-medium">{photo.caption}</p>
+                            <p className="text-white text-sm font-medium line-clamp-2">{photo.caption}</p>
                         )}
                         {photo.tags.length > 0 && (
                             <div className="flex gap-2 mt-2 flex-wrap">
