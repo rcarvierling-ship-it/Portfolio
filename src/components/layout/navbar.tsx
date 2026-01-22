@@ -27,6 +27,9 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
     const pathname = usePathname()
     const { theme, setTheme } = useTheme()
 
+    // 1. Fix Double Header: Hide if on dashboard
+    if (pathname.startsWith("/dashboard")) return null;
+
     const brandName = settings?.branding?.brandName || "RCV.Media";
     const logoUrl = settings?.branding?.logoUrl || "/logo.png";
     const logoAlt = settings?.branding?.logoAltText || "Logo";
@@ -34,24 +37,32 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
     return (
         <>
             <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-                <div className="bg-background/80 backdrop-blur-md border-b border-white/5 md:border-transparent transition-all duration-300">
-                    <div className="flex items-center justify-between px-6 py-4 md:px-12">
-                        {/* Logo */}
-                        <div className="pointer-events-auto shrink-0 z-50">
+                <div className="bg-background/80 backdrop-blur-md border-b border-white/5 md:border-transparent transition-all duration-300 pointer-events-auto">
+                    {/*
+                       2. Refactor Layout: 3-Col Flexbox
+                       - Left: Logo (shrink-0)
+                       - Center: Nav Links (flex-1, centered)
+                       - Right: Actions (shrink-0)
+                    */}
+                    <div className="flex items-center justify-between px-6 h-16 md:px-12 max-w-[1920px] mx-auto">
+
+                        {/* LEFT GROUP: Logo */}
+                        <div className="flex items-center shrink-0 z-50 mr-4">
                             <Link href="/" className="block group">
                                 <DynamicLogo settings={settings} />
                             </Link>
                         </div>
 
-                        {/* Desktop Nav */}
-                        <nav className="hidden md:flex gap-12 pointer-events-auto items-center">
+                        {/* CENTER GROUP: Nav Links */}
+                        {/* Hidden on mobile, Flex on desktop. Using flex-1 to occupy space but justify-center to center content. */}
+                        <nav className="hidden md:flex flex-1 items-center justify-center gap-8 lg:gap-12 px-4">
                             {navItems.map((item) => {
                                 const isActive = pathname === item.path || (pathname.startsWith(item.path) && item.path !== '/');
                                 return (
-                                    <Link key={item.path} href={item.path} className="relative group">
-                                        <div className="flex flex-col items-center">
+                                    <Link key={item.path} href={item.path} className="relative group shrink-0">
+                                        <div className="flex flex-col items-center min-w-[60px]">
                                             <span className={cn(
-                                                "text-[11px] font-mono tracking-[0.2em] uppercase transition-all duration-300",
+                                                "text-[11px] font-mono tracking-[0.2em] uppercase transition-all duration-300 leading-tight",
                                                 isActive ? "text-primary font-bold" : "text-muted-foreground group-hover:text-primary"
                                             )}>
                                                 {isActive ? `[ ${item.name} ]` : item.name}
@@ -68,11 +79,11 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
                             })}
                         </nav>
 
-                        {/* Right Actions */}
-                        <div className="pointer-events-auto flex items-center gap-4">
+                        {/* RIGHT GROUP: Actions */}
+                        <div className="flex items-center gap-4 shrink-0 justify-end ml-4">
                             <button
                                 onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
-                                className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-muted/50 transition-colors text-xs font-mono text-muted-foreground hover:text-foreground border border-transparent hover:border-border/50"
+                                className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-muted/50 transition-colors text-xs font-mono text-muted-foreground hover:text-foreground border border-transparent hover:border-border/50 whitespace-nowrap"
                                 aria-label="Search"
                             >
                                 <Search size={14} />
@@ -83,7 +94,7 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
 
                             <button
                                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                                className="p-2 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                                className="p-2 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground shrink-0"
                                 aria-label="Toggle theme"
                             >
                                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -91,7 +102,7 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
                             </button>
 
                             {/* Mobile Toggle */}
-                            <div className="md:hidden">
+                            <div className="md:hidden shrink-0">
                                 <MagneticButton
                                     className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
                                     onClick={() => setIsOpen(!isOpen)}
@@ -106,7 +117,8 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
                 </div>
 
                 {/* Sub-header / Breadcrumbs Area (Desktop) */}
-                <div className="hidden md:flex items-center px-6 md:px-12 py-2 pointer-events-auto">
+                {/* Ensure breadcrumbs also don't float weirdly. */}
+                <div className="hidden md:flex items-center px-6 md:px-12 py-2 pointer-events-auto bg-background/50 backdrop-blur-sm border-b border-white/5">
                     <Breadcrumbs />
                 </div>
             </header>
