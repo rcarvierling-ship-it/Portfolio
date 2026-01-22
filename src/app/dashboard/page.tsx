@@ -4,6 +4,7 @@ import { SecurityTab } from "@/components/dashboard/security-tab"
 import { GlobalSearch } from "@/components/dashboard/global-search"
 import { SystemMap } from "@/components/dashboard/system-map"
 import { GearAnalytics } from "@/components/dashboard/analytics/gear-analytics"
+import { HeatmapViewer } from "@/components/dashboard/analytics/heatmap-viewer"
 
 // ... imports ...
 
