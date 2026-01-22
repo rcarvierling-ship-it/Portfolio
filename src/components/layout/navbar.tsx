@@ -10,6 +10,7 @@ import { MagneticButton } from "@/components/ui/magnetic-button"
 import { cn } from "@/lib/utils"
 // toggle theme is in separate component, but I can include it here or user can add it
 import { useTheme } from "next-themes"
+import { Breadcrumbs } from "@/components/layout/breadcrumbs"
 import { Sun, Moon } from "lucide-react"
 
 const navItems = [
@@ -31,81 +32,89 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
 
     return (
         <>
-            <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 pointer-events-none">
-                {/* Logo */}
-                <div className="pointer-events-auto">
-                    <Link href="/" className="flex items-center gap-2 font-bold tracking-tighter text-primary">
-                        <div className="relative w-8 h-8">
-                            {/* If using remote URL, we might need a trusted domain or just use img tag if domain not in next.config */}
-                            {/* For safety with user uploads via blob/S3, standard img tag is often easier unless configured */}
-                            <img
-                                src={logoUrl}
-                                alt={logoAlt}
-                                className="w-full h-full object-contain"
-                            />
+            <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+                <div className="bg-background/80 backdrop-blur-md border-b border-white/5 md:border-transparent transition-all duration-300">
+                    <div className="flex items-center justify-between px-6 py-4 md:px-12">
+                        {/* Logo */}
+                        <div className="pointer-events-auto">
+                            <Link href="/" className="flex items-center gap-2 font-bold tracking-tighter text-primary group">
+                                <div className="relative w-8 h-8 opacity-90 group-hover:opacity-100 transition-opacity">
+                                    <img
+                                        src={logoUrl}
+                                        alt={logoAlt}
+                                        aria-hidden="true"
+                                        className="w-full h-full object-contain invert dark:invert-0"
+                                    />
+                                </div>
+                                <span className="text-sm font-mono uppercase tracking-widest hidden md:block">{brandName}</span>
+                            </Link>
                         </div>
-                        <span>{brandName}</span>
-                    </Link>
+
+                        {/* Desktop Nav */}
+                        <nav className="hidden md:flex gap-12 pointer-events-auto items-center">
+                            {navItems.map((item) => {
+                                const isActive = pathname === item.path || (pathname.startsWith(item.path) && item.path !== '/');
+                                return (
+                                    <Link key={item.path} href={item.path} className="relative group">
+                                        <div className="flex flex-col items-center">
+                                            <span className={cn(
+                                                "text-[11px] font-mono tracking-[0.2em] uppercase transition-all duration-300",
+                                                isActive ? "text-primary font-bold" : "text-muted-foreground group-hover:text-primary"
+                                            )}>
+                                                {isActive ? `[ ${item.name} ]` : item.name}
+                                            </span>
+                                            {isActive && (
+                                                <motion.div
+                                                    layoutId="indicator"
+                                                    className="absolute -bottom-2 w-1 h-1 bg-primary rounded-full"
+                                                />
+                                            )}
+                                        </div>
+                                    </Link>
+                                );
+                            })}
+                        </nav>
+
+                        {/* Right Actions */}
+                        <div className="pointer-events-auto flex items-center gap-4">
+                            <button
+                                onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+                                className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-muted/50 transition-colors text-xs font-mono text-muted-foreground hover:text-foreground border border-transparent hover:border-border/50"
+                                aria-label="Search"
+                            >
+                                <Search size={14} />
+                                <span className="opacity-50">CMD+K</span>
+                            </button>
+
+                            <div className="h-4 w-px bg-border/40 hidden md:block" />
+
+                            <button
+                                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                                className="p-2 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                                aria-label="Toggle theme"
+                            >
+                                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 top-2" />
+                            </button>
+
+                            {/* Mobile Toggle */}
+                            <div className="md:hidden">
+                                <MagneticButton
+                                    className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
+                                    onClick={() => setIsOpen(!isOpen)}
+                                    aria-label={isOpen ? "Close menu" : "Open menu"}
+                                    aria-expanded={isOpen}
+                                >
+                                    {isOpen ? <X size={18} /> : <Menu size={18} />}
+                                </MagneticButton>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Desktop Nav */}
-                <nav className="hidden md:flex gap-8 pointer-events-auto items-center">
-                    {navItems.map((item) => (
-                        <Link key={item.path} href={item.path} className="relative group">
-                            <span className={cn(
-                                "text-sm font-medium transition-colors hover:text-primary/70 font-mono tracking-tight uppercase",
-                                pathname === item.path ? "text-primary" : "text-muted-foreground"
-                            )}>
-                                <span className="text-primary/40 mr-1 opacity-0 group-hover:opacity-100 transition-opacity">/</span>
-                                {item.name}
-                            </span>
-                            {pathname === item.path && (
-                                <motion.div
-                                    layoutId="underline"
-                                    className="absolute left-0 top-full h-[1px] w-full bg-primary"
-                                />
-                            )}
-                        </Link>
-                    ))}
-                    <button
-                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                        className="p-2 ml-4 rounded-full hover:bg-muted transition-colors"
-                        aria-label="Toggle theme"
-                    >
-                        <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 top-2" />
-                        <span className="sr-only">Toggle theme</span>
-                    </button>
-                </nav>
-
-                {/* Search Trigger */}
-                <button
-                    onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
-                    className="hidden md:flex p-2 hover:bg-muted rounded-full transition-colors mr-2 text-muted-foreground hover:text-foreground"
-                    title="Search (⌘K)"
-                >
-                    <Search size={20} />
-                </button>
-
-                {/* Mobile Toggle */}
-                <div className="md:hidden pointer-events-auto flex items-center gap-4">
-                    <button
-                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                        className="p-2 rounded-full hover:bg-muted transition-colors"
-                        aria-label="Toggle theme"
-                    >
-                        <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                    </button>
-
-                    <MagneticButton
-                        className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center z-50"
-                        onClick={() => setIsOpen(!isOpen)}
-                        aria-label={isOpen ? "Close menu" : "Open menu"}
-                        aria-expanded={isOpen}
-                    >
-                        {isOpen ? <X size={20} /> : <Menu size={20} />}
-                    </MagneticButton>
+                {/* Sub-header / Breadcrumbs Area (Desktop) */}
+                <div className="hidden md:flex items-center px-6 md:px-12 py-2 pointer-events-auto">
+                    <Breadcrumbs />
                 </div>
             </header>
 

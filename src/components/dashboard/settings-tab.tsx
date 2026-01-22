@@ -7,6 +7,8 @@ import { GRADIENT_PRESETS } from "@/lib/gradient-presets"
 import { MagneticButton } from "@/components/ui/magnetic-button"
 import { RefreshCw } from "lucide-react"
 import { MediaLibrary } from "@/components/dashboard/media-library"
+import { EditableWrapper } from "@/components/dashboard/editable-wrapper"
+import { TechFrame } from "@/components/ui/tech-frame"
 import { AnimatePresence, motion } from "framer-motion"
 
 export function SettingsTab() {
@@ -54,13 +56,15 @@ export function SettingsTab() {
                             <div className="space-y-6">
                                 {/* Brand Name */}
                                 <div className="space-y-2">
-                                    <label className="text-xs font-semibold uppercase text-muted-foreground">Brand Name</label>
-                                    <input
-                                        value={data.branding?.brandName || "RCV.Media"}
-                                        onChange={e => setData({ ...data, branding: { ...data.branding!, brandName: e.target.value } })}
-                                        className="w-full p-2 rounded-md bg-background border border-border text-lg font-bold"
-                                        placeholder="RCV.Media"
-                                    />
+                                    <EditableWrapper label="BRAND_NAME" helperText="Displayed in navbar and meta titles.">
+                                        <label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">Brand Name</label>
+                                        <input
+                                            value={data.branding?.brandName || "RCV.Media"}
+                                            onChange={e => setData({ ...data, branding: { ...data.branding!, brandName: e.target.value } })}
+                                            className="w-full p-2 rounded-md bg-background border border-border text-lg font-bold focus:outline-none focus:ring-1 focus:ring-primary/50"
+                                            placeholder="RCV.Media"
+                                        />
+                                    </EditableWrapper>
                                 </div>
 
                                 {/* Logo Picker */}
@@ -222,30 +226,36 @@ export function SettingsTab() {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold uppercase text-muted-foreground">Hero Title</label>
-                            <input
-                                value={data.heroTitle}
-                                onChange={e => setData({ ...data, heroTitle: e.target.value })}
-                                className="w-full p-2 rounded-md bg-secondary/30 border border-border text-lg font-bold"
-                            />
+                            <EditableWrapper label="HERO_TITLE" helperText="Main headline on the homepage.">
+                                <label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">Hero Title</label>
+                                <input
+                                    value={data.heroTitle}
+                                    onChange={e => setData({ ...data, heroTitle: e.target.value })}
+                                    className="w-full p-2 rounded-md bg-secondary/30 border border-border text-lg font-bold focus:outline-none focus:ring-1 focus:ring-primary/50"
+                                />
+                            </EditableWrapper>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold uppercase text-muted-foreground">Hero Description</label>
-                            <textarea
-                                value={data.heroDescription}
-                                onChange={e => setData({ ...data, heroDescription: e.target.value })}
-                                className="w-full p-2 rounded-md bg-secondary/30 border border-border resize-none h-24 text-sm"
-                            />
+                            <EditableWrapper label="HERO_DESC" helperText="Subtext below the main headline.">
+                                <label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">Hero Description</label>
+                                <textarea
+                                    value={data.heroDescription}
+                                    onChange={e => setData({ ...data, heroDescription: e.target.value })}
+                                    className="w-full p-2 rounded-md bg-secondary/30 border border-border resize-none h-24 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                                />
+                            </EditableWrapper>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold uppercase text-muted-foreground">Footer Text</label>
-                            <input
-                                value={data.footerText}
-                                onChange={e => setData({ ...data, footerText: e.target.value })}
-                                className="w-full p-2 rounded-md bg-secondary/30 border border-border text-sm"
-                            />
+                            <EditableWrapper label="FOOTER_COPY" helperText="Copyright notice or footer message.">
+                                <label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">Footer Text</label>
+                                <input
+                                    value={data.footerText}
+                                    onChange={e => setData({ ...data, footerText: e.target.value })}
+                                    className="w-full p-2 rounded-md bg-secondary/30 border border-border text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                                />
+                            </EditableWrapper>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">

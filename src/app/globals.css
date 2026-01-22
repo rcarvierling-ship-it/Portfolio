@@ -23,6 +23,9 @@
   --input: #e4e4e7;
   --ring: #18181b;
   --radius: 0.5rem;
+  /* Improved Systems Typography */
+  --font-size-base: 1.05rem;
+  --line-height-relaxed: 1.6;
 }
 
 .dark {
@@ -74,12 +77,43 @@
   --font-mono: var(--font-geist-mono);
 }
 
+
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Clear Visual Hierarchy Utilities */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: -0.03em;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Section Spacing Standards */
+.section-spacing {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+}
+
+@media (min-width: 768px) {
+  .section-spacing {
+    padding-top: 8rem;
+    padding-bottom: 8rem;
+  }
 }
 
 /* Custom Utilities */

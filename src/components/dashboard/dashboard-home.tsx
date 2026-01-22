@@ -24,29 +24,34 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                     <div className="p-2 bg-primary/10 rounded-full text-primary">
                         <LayoutDashboard size={20} />
                     </div>
-                    <h2 className="text-2xl font-bold tracking-tight">Primary Actions</h2>
+                    <div className="flex flex-col">
+                        <h2 className="text-xl font-bold tracking-tight">System Operations</h2>
+                        <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">_Primary_Controls</span>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Edit Home & Manage Work - The Two Main Pillars */}
                     <HeroActionCard
-                        title="Edit Website Layout"
+                        title="Edit Architecture"
                         description="Manage global layout, pages, sections, and site structure."
                         icon={<Monitor className="w-8 h-8" />}
                         onClick={() => router.push('/dashboard/pages')}
-                        gradient="from-blue-500/20 via-blue-500/5 to-transparent"
+                        gradient="from-blue-500/10 via-blue-500/5 to-transparent"
                         accentColor="text-blue-500"
                         borderColor="hover:border-blue-500/50"
+                        label="_LAYOUT_ENGINE"
                     />
 
                     <HeroActionCard
-                        title="Manage Work"
+                        title="Manage Content"
                         description="Add new case studies, update project details, and organize portfolio."
                         icon={<Briefcase className="w-8 h-8" />}
                         onClick={() => setActiveTab('projects')}
-                        gradient="from-purple-500/20 via-purple-500/5 to-transparent"
+                        gradient="from-purple-500/10 via-purple-500/5 to-transparent"
                         accentColor="text-purple-500"
                         borderColor="hover:border-purple-500/50"
+                        label="_CMS_CORE"
                     />
 
                     {/* Secondary Tier of Primary Actions */}
@@ -55,20 +60,22 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                         description="Upload images, manage assets, and organize files."
                         icon={<Image className="w-8 h-8" />}
                         onClick={() => setActiveTab('photos')}
-                        gradient="from-pink-500/20 via-pink-500/5 to-transparent"
+                        gradient="from-pink-500/10 via-pink-500/5 to-transparent"
                         accentColor="text-pink-500"
                         borderColor="hover:border-pink-500/50"
+                        label="_ASSETS"
                         compact
                     />
 
                     <HeroActionCard
-                        title="View Analytics"
+                        title="Global Diagnostics"
                         description="Check traffic sources, visitor engagement, and performance stats."
                         icon={<BarChart2 className="w-8 h-8" />}
                         onClick={() => setActiveTab('analytics-overview')}
-                        gradient="from-emerald-500/20 via-emerald-500/5 to-transparent"
+                        gradient="from-emerald-500/10 via-emerald-500/5 to-transparent"
                         accentColor="text-emerald-500"
                         borderColor="hover:border-emerald-500/50"
+                        label="_ANALYTICS"
                         compact
                     />
                 </div>
@@ -80,10 +87,10 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                 {/* ZONE 3: SECONDARY / ADVANCED TOOLS */}
                 {/* Design Rule: Visually separated, clearly "secondary". */}
                 <section className="lg:col-span-4 space-y-6">
-                    <div className="border-t border-border pt-8">
-                        <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
-                            Advanced / Experimental
-                        </h2>
+                    <div className="border-t border-dashed border-border/60 pt-8 relative">
+                        <div className="absolute -top-3 left-0 bg-background px-2 text-[10px] uppercase font-mono text-muted-foreground">
+                            _Advanced_Tools
+                        </div>
 
                         <div className="grid grid-cols-1 gap-2">
                             <SecondaryToolRow
@@ -113,12 +120,17 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                 {/* ZONE 4: CONTEXT & FEEDBACK */}
                 {/* Design Rule: Passive info, status read-only feel. */}
                 <section className="lg:col-span-8 space-y-6">
-                    <div className="border-t border-border pt-8">
+                    <div className="border-t border-dashed border-border/60 pt-8 relative">
+                        <div className="absolute -top-3 left-0 bg-background px-2 text-[10px] uppercase font-mono text-muted-foreground">
+                            _System_Status
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="bg-secondary/5 border border-border/50 rounded-xl p-6">
+                            <div className="bg-secondary/5 border border-border/50 rounded-xl p-6 relative overflow-hidden group hover:border-border/80 transition-colors">
+                                <div className="absolute top-2 right-2 opacity-50 text-[9px] font-mono uppercase">Log</div>
                                 <HistoryCard />
                             </div>
-                            <div className="bg-secondary/5 border border-border/50 rounded-xl p-6">
+                            <div className="bg-secondary/5 border border-border/50 rounded-xl p-6 relative overflow-hidden group hover:border-border/80 transition-colors">
+                                <div className="absolute top-2 right-2 opacity-50 text-[9px] font-mono uppercase">Metrics</div>
                                 <MetricsSnapshot />
                             </div>
                         </div>
@@ -130,31 +142,34 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
     )
 }
 
-function HeroActionCard({ title, description, icon, onClick, gradient, accentColor, borderColor, compact }: any) {
+function HeroActionCard({ title, description, icon, onClick, gradient, accentColor, borderColor, compact, label }: any) {
     return (
         <button
             onClick={onClick}
             className={cn(
-                "relative group overflow-hidden rounded-2xl border border-border text-left transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
+                "relative group overflow-hidden rounded-lg border border-border/60 text-left transition-all duration-300 hover:shadow-2xl hover:-translate-y-1",
                 "bg-gradient-to-br bg-card",
                 gradient,
                 borderColor,
                 compact ? "h-40" : "h-64"
             )}
         >
+            {label && (
+                <div className="absolute top-4 right-4 text-[9px] font-mono text-muted-foreground/50 uppercase tracking-widest border border-border/40 px-2 py-0.5 rounded-full group-hover:border-border/80 transition-colors">
+                    {label}
+                </div>
+            )}
+
             <div className="relative z-10 flex flex-col justify-between h-full p-8">
                 <div className="flex justify-between items-start">
-                    <div className={cn("p-4 rounded-xl bg-background/80 backdrop-blur-sm shadow-sm transition-transform group-hover:scale-110 duration-500", accentColor)}>
+                    <div className={cn("p-3 rounded-lg bg-background/80 backdrop-blur-sm shadow-sm transition-transform group-hover:scale-110 duration-500 border border-border/50", accentColor)}>
                         {icon}
-                    </div>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity -mr-2 -mt-2">
-                        <ArrowRight className="text-muted-foreground" />
                     </div>
                 </div>
 
                 <div>
-                    <h3 className={cn("font-bold mb-2 group-hover:text-primary transition-colors", compact ? "text-xl" : "text-3xl")}>{title}</h3>
-                    <p className="text-muted-foreground font-medium leading-relaxed max-w-[90%]">{description}</p>
+                    <h3 className={cn("font-bold mb-2 group-hover:text-primary transition-colors tracking-tight", compact ? "text-xl" : "text-2xl")}>{title}</h3>
+                    <p className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[90%] opacity-80">{description}</p>
                 </div>
             </div>
         </button>
