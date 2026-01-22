@@ -33,7 +33,7 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                         title="Edit Website Layout"
                         description="Manage global layout, pages, sections, and site structure."
                         icon={<Monitor className="w-8 h-8" />}
-                        onClick={() => setActiveTab('pages')}
+                        onClick={() => router.push('/dashboard/pages')}
                         gradient="from-blue-500/20 via-blue-500/5 to-transparent"
                         accentColor="text-blue-500"
                         borderColor="hover:border-blue-500/50"

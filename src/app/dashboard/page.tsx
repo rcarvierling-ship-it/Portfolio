@@ -10,7 +10,6 @@ import { CheckCircle2, Cloud, Eye, ArrowUpRight } from "lucide-react"
 import { DashboardHome } from "@/components/dashboard/dashboard-home"
 import { ProjectsTab } from "@/components/dashboard/projects-tab"
 import { PhotosTab } from "@/components/dashboard/photos-tab"
-import { PagesTab } from "@/components/dashboard/pages-tab"
 import { SettingsTab } from "@/components/dashboard/settings-tab"
 import { AboutTab } from "@/components/dashboard/about-tab"
 import { AnalyticsOverview } from "@/components/dashboard/analytics/analytics-overview"
@@ -156,7 +155,6 @@ function DashboardPage() {
 
                     {activeTab === "projects" && <ProjectsTab />}
                     {activeTab === "photos" && <PhotosTab />}
-                    {activeTab === "pages" && <PagesTab />}
 
                     {activeTab === "analytics-overview" && <AnalyticsOverview />}
                     {activeTab === "analytics-projects" && <AnalyticsProjects />}
