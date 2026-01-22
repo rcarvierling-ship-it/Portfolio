@@ -1,70 +1,24 @@
-"use client"
+import { LivePreviewModal } from "@/components/dashboard/live-preview-modal"
 
-import { useState, useEffect, Suspense } from "react"
-import { cn } from "@/lib/utils"
-import { SessionProvider, useSession, signIn, signOut } from "next-auth/react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { CheckCircle2, Cloud, Eye, ArrowUpRight } from "lucide-react"
-
-// Tab Components
-import { DashboardHome } from "@/components/dashboard/dashboard-home"
-import { ProjectsTab } from "@/components/dashboard/projects-tab"
-import { PhotosTab } from "@/components/dashboard/photos-tab"
-import { SettingsTab } from "@/components/dashboard/settings-tab"
-import { AboutTab } from "@/components/dashboard/about-tab"
-import { AnalyticsOverview } from "@/components/dashboard/analytics/analytics-overview"
-import { AnalyticsProjects } from "@/components/dashboard/analytics/analytics-projects"
-import { AnalyticsSources } from "@/components/dashboard/analytics/analytics-sources"
-import { SecurityTab } from "@/components/dashboard/security-tab"
-import { GlobalSearch } from "@/components/dashboard/global-search"
-
-export default function DashboardWrapper() {
-    return (
-        <SessionProvider>
-            <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-primary animate-spin" /></div>}>
-                <DashboardPage />
-            </Suspense>
-        </SessionProvider>
-    )
-}
-
-type Tab = "overview" | "projects" | "photos" | "pages" | "about" | "settings" | "analytics-overview" | "analytics-projects" | "analytics-sources" | "security";
+// ... imports ...
 
 function DashboardPage() {
     const { data: session, status } = useSession();
     const searchParams = useSearchParams();
     const router = useRouter();
+    const [showPreview, setShowPreview] = useState(false); // Add state
 
     const activeTab = (searchParams.get("tab") as Tab) || "overview";
 
-    const setActiveTab = (tab: Tab) => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("tab", tab);
-        params.delete("editId");
-        router.push(`/dashboard?${params.toString()}`);
-    }
+    // ... setActiveTab function ...
 
-    useEffect(() => {
-        if (status === "unauthenticated") {
-            signIn();
-        }
-    }, [status]);
+    // ... useEffect ...
 
-    if (status === "loading") {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-8 h-8 rounded-full border-t-2 border-primary animate-spin" />
-                    <p className="text-muted-foreground">Verifying access...</p>
-                </div>
-            </div>
-        )
-    }
+    // ... loading check ...
 
-    if (!session) return null;
+    // ... session check ...
 
-    // ZONE 1: GLOBAL STATUS BAR CONFIG
-    const lastPublished = "Today, 10:42 AM"; // Placeholder - in real app would come from API
+    const lastPublished = "Today, 10:42 AM";
 
     return (
         <div className="min-h-screen bg-background text-foreground">
@@ -72,8 +26,9 @@ function DashboardPage() {
             {/* ZONE 1: COMMAND BAR (Fixed Top) */}
             <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b-2 border-primary/10 h-16 px-6 flex items-center justify-between shadow-sm">
 
-                {/* LEFT: SITE CONTEXT */}
+                {/* ... Left Side ... */}
                 <div className="flex items-center gap-8">
+                    {/* ... Content ... */}
                     <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setActiveTab('overview')}>
                         <div className="w-9 h-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-md group-hover:scale-105 transition-transform">A</div>
                         <div className="flex flex-col">
@@ -83,6 +38,7 @@ function DashboardPage() {
                     </div>
 
                     <div className="hidden md:flex items-center gap-6 border-l border-border pl-6 h-8">
+                        {/* ... Status indicators ... */}
                         <div className="flex flex-col">
                             <span className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Status</span>
                             <div className="flex items-center gap-1.5 text-xs font-medium text-green-500">
@@ -104,7 +60,7 @@ function DashboardPage() {
                 {/* RIGHT: COMMAND & ACTIONS */}
                 <div className="flex items-center gap-6">
 
-                    {/* Unsaved Changes Indicator - Visual Only for now */}
+                    {/* Unsaved Changes Indicator */}
                     <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground bg-secondary/30 px-3 py-1.5 rounded-full">
                         <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
                         <span>All changes saved</span>
@@ -113,7 +69,10 @@ function DashboardPage() {
                     <div className="h-6 w-px bg-border hidden md:block" />
 
                     <div className="flex items-center gap-3">
-                        <button className="hidden md:flex items-center gap-2 px-4 py-2 text-xs font-medium text-foreground hover:bg-secondary rounded-md transition-colors border border-transparent hover:border-border">
+                        <button
+                            onClick={() => setShowPreview(true)} // Wired up!
+                            className="hidden md:flex items-center gap-2 px-4 py-2 text-xs font-medium text-foreground hover:bg-secondary rounded-md transition-colors border border-transparent hover:border-border"
+                        >
                             <Eye size={14} />
                             <span>Preview Site</span>
                         </button>
@@ -166,6 +125,9 @@ function DashboardPage() {
                 </div>
 
             </main>
+
+            {/* Live Preview Modal */}
+            <LivePreviewModal isOpen={showPreview} onClose={() => setShowPreview(false)} />
         </div>
     )
 }
