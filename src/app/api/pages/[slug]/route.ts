@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getPage, savePage } from '@/lib/cms';
 import { auth } from "@/auth"
+import { revalidatePath } from 'next/cache';
 
 export async function GET(
     request: Request,
@@ -59,6 +60,23 @@ export async function POST(
         const success = await savePage(pageToSave, user);
 
         if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
+
+        // Revalidate the page route to clear cache
+        const slug = (await params).slug;
+        try {
+            // Revalidate the specific page route
+            if (slug === 'home') {
+                revalidatePath('/', 'page');
+            } else {
+                revalidatePath(`/${slug}`, 'page');
+            }
+            // Also revalidate the dashboard pages route
+            revalidatePath('/dashboard/pages', 'page');
+        } catch (revalidateError) {
+            console.error('Revalidation error:', revalidateError);
+            // Don't fail the request if revalidation fails
+        }
+
         return NextResponse.json({ success: true, data: pageToSave });
     } catch (error) {
         return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

@@ -6,7 +6,8 @@ import { AboutView } from "@/components/views/about-view"
 import { ContactView } from "@/components/views/contact-view"
 import { HomeData, ServiceItem, AboutData, ContactData } from "@/lib/types"
 import { MagneticButton } from "@/components/ui/magnetic-button"
-import { Home, Save, Smartphone, Monitor, Globe, Rocket, Eye, Settings as SettingsIcon, Layout, FileText, ChevronUp, ChevronDown, Trash, Plus } from "lucide-react"
+import { Home, Save, Smartphone, Monitor, Globe, Rocket, Eye, Settings as SettingsIcon, Layout, FileText, ChevronUp, ChevronDown, Trash, Plus, Loader2 } from "lucide-react"
+import { ToastContainer, ToastProps } from "@/components/ui/toast"
 
 interface VisualEditorProps {
     slug: string;
@@ -59,7 +60,18 @@ export function VisualEditor({ slug }: VisualEditorProps) {
     const [activeTab, setActiveTab] = useState<'content' | 'settings'>('content');
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [availablePages, setAvailablePages] = useState<{ title: string, slug: string }[]>([]);
+    const [isPublishing, setIsPublishing] = useState(false);
+    const [toasts, setToasts] = useState<ToastProps[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const addToast = (toast: Omit<ToastProps, 'id' | 'onClose'>) => {
+        const id = Date.now().toString();
+        setToasts(prev => [...prev, { ...toast, id, onClose: removeToast }]);
+    };
+
+    const removeToast = (id: string) => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+    };
 
     const scrollToSection = (sectionId: string) => {
         if (!scrollContainerRef.current) return;
@@ -139,29 +151,57 @@ export function VisualEditor({ slug }: VisualEditorProps) {
     const handlePublish = async () => {
         if (!confirm("Are you sure you want to publish these changes to the live site?")) return;
 
-        // Update BOTH draft and published to match current editor state
-        const newFullContent = {
-            published: draftData,
-            draft: draftData
-        };
+        setIsPublishing(true);
 
-        const res = await fetch(`/api/pages/${slug}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                slug,
-                title: slug.charAt(0).toUpperCase() + slug.slice(1),
-                status: 'published',
-                version: (fullContent?.version || 1) + 1,
-                content: newFullContent
-            })
-        });
+        try {
+            // Update BOTH draft and published to match current editor state
+            const newFullContent = {
+                published: draftData,
+                draft: draftData
+            };
 
-        if (res.ok) {
-            setFullContent(newFullContent);
-            setHasUnsavedChanges(false);
-            alert("Published Successfully!");
-        } else alert("Failed to publish.");
+            const res = await fetch(`/api/pages/${slug}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    slug,
+                    title: slug.charAt(0).toUpperCase() + slug.slice(1),
+                    status: 'published',
+                    version: (fullContent?.version || 1) + 1,
+                    content: newFullContent
+                })
+            });
+
+            if (!res.ok) {
+                throw new Error(`Failed to publish: ${res.status} ${res.statusText}`);
+            }
+
+            const data = await res.json();
+
+            if (data.success) {
+                setFullContent(newFullContent);
+                setHasUnsavedChanges(false);
+
+                addToast({
+                    type: 'success',
+                    title: 'Published Successfully!',
+                    description: `Your changes to the ${slug} page are now live.`,
+                    duration: 4000
+                });
+            } else {
+                throw new Error(data.error || 'Unknown error occurred');
+            }
+        } catch (error) {
+            console.error('Publish error:', error);
+            addToast({
+                type: 'error',
+                title: 'Publish Failed',
+                description: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.',
+                duration: 5000
+            });
+        } finally {
+            setIsPublishing(false);
+        }
     }
 
     if (loading || !draftData) return <div className="p-10 text-center text-muted-foreground">Loading editor...</div>
@@ -528,8 +568,20 @@ export function VisualEditor({ slug }: VisualEditorProps) {
                             >
                                 <Save size={14} /> Draft
                             </button>
-                            <MagneticButton onClick={handlePublish} className="bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-primary/20">
-                                <Rocket size={14} /> Publish
+                            <MagneticButton
+                                onClick={handlePublish}
+                                disabled={isPublishing}
+                                className="bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isPublishing ? (
+                                    <>
+                                        <Loader2 size={14} className="animate-spin" /> Publishing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Rocket size={14} /> Publish
+                                    </>
+                                )}
                             </MagneticButton>
                         </div>
                     </div>
@@ -617,6 +669,9 @@ export function VisualEditor({ slug }: VisualEditorProps) {
                     </div>
                 </div>
             </div>
+
+            {/* Toast Notifications */}
+            <ToastContainer toasts={toasts} onClose={removeToast} />
         </div>
     )
 }
