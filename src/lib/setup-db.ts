@@ -90,7 +90,18 @@ export async function createTables() {
         `;
         console.log("- Settings table created");
 
-        console.log("- Settings table created");
+        // Contact form inbox
+        await sql`
+            CREATE TABLE IF NOT EXISTS contact_messages (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                message TEXT NOT NULL,
+                created_at TIMESTAMP NOT NULL,
+                read BOOLEAN DEFAULT false
+            );
+        `;
+        console.log("- Contact messages table created");
 
         // --- Migrations / Updates ---
         // Add embedding column if it doesn't exist (Phase 2)
@@ -115,6 +126,23 @@ export async function createTables() {
             console.log("Added colors and mood columns to photos");
         } catch (e) {
             console.log("Colors/Mood columns might already exist or error:", e);
+        }
+
+        // Contact inbox (for existing DBs that ran createTables before this was added)
+        try {
+            await sql`
+                CREATE TABLE IF NOT EXISTS contact_messages (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    message TEXT NOT NULL,
+                    created_at TIMESTAMP NOT NULL,
+                    read BOOLEAN DEFAULT false
+                );
+            `;
+            console.log("Contact messages table ensured");
+        } catch (e) {
+            console.log("Contact messages table might already exist or error:", e);
         }
 
         console.log("All tables created/updated successfully.");

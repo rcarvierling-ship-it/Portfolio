@@ -214,6 +214,16 @@ export interface TimelineItem {
     description: string;
 }
 
+// Contact form submissions (inbox)
+export interface ContactMessage {
+    id: string;
+    name: string;
+    email: string;
+    message: string;
+    created_at: string; // ISO
+    read?: boolean;
+}
+
 // Audit Log
 export interface HistoryEntry {
     id: string;

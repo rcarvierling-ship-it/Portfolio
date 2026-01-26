@@ -15,6 +15,7 @@ import { AboutTab } from "@/components/dashboard/about-tab"
 import { SettingsTab } from "@/components/dashboard/settings-tab"
 import { SecurityTab } from "@/components/dashboard/security-tab"
 import { SystemMap } from "@/components/dashboard/system-map"
+import { ContactInboxTab } from "@/components/dashboard/contact-inbox-tab"
 
 import { AnalyticsOverview } from "@/components/dashboard/analytics/analytics-overview"
 import { AnalyticsProjects } from "@/components/dashboard/analytics/analytics-projects"
@@ -22,7 +23,7 @@ import { AnalyticsSources } from "@/components/dashboard/analytics/analytics-sou
 import { GearAnalytics } from "@/components/dashboard/analytics/gear-analytics"
 import { HeatmapViewer } from "@/components/dashboard/analytics/heatmap-viewer"
 
-type Tab = "overview" | "projects" | "photos" | "pages" | "about" | "settings" | "analytics-overview" | "analytics-projects" | "analytics-sources" | "analytics-gear" | "analytics-heatmap" | "security" | "system-map";
+type Tab = "overview" | "projects" | "photos" | "pages" | "about" | "settings" | "contact-inbox" | "analytics-overview" | "analytics-projects" | "analytics-sources" | "analytics-gear" | "analytics-heatmap" | "security" | "system-map";
 
 export default function DashboardPage() {
     const { data: session, status } = useSession();
@@ -150,6 +151,7 @@ export default function DashboardPage() {
 
                     {activeTab === "about" && <AboutTab />}
                     {activeTab === "settings" && <SettingsTab />}
+                    {activeTab === "contact-inbox" && <ContactInboxTab />}
                     {activeTab === "security" && <SecurityTab />}
                     {activeTab === "system-map" && <SystemMap />}
                 </div>

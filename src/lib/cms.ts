@@ -1,7 +1,7 @@
 
 import { sql } from '@vercel/postgres';
 import {
-    Project, SiteSettings, Photo, Page, HistoryEntry, AnalyticsEvent, GalleryItem
+    Project, SiteSettings, Photo, Page, HistoryEntry, AnalyticsEvent, GalleryItem, ContactMessage
 } from '@/lib/types';
 
 
@@ -317,6 +317,35 @@ export const saveSettings = async (settings: SiteSettings, user: string): Promis
     } catch (e) {
         console.error("Save Settings Error:", e);
         return false;
+    }
+};
+
+// --- CONTACT MESSAGES (Inbox) ---
+export const createContactMessage = async (msg: { name: string; email: string; message: string }): Promise<boolean> => {
+    try {
+        const id = Date.now().toString();
+        const created_at = new Date().toISOString();
+        await sql`
+            INSERT INTO contact_messages (id, name, email, message, created_at, read)
+            VALUES (${id}, ${msg.name}, ${msg.email}, ${msg.message}, ${created_at}, false)
+        `;
+        return true;
+    } catch (e) {
+        console.error("Create Contact Message Error:", e);
+        return false;
+    }
+};
+
+export const getContactMessages = async (): Promise<ContactMessage[]> => {
+    try {
+        const { rows } = await sql<ContactMessage>`SELECT id, name, email, message, created_at, read FROM contact_messages ORDER BY created_at DESC LIMIT 500`;
+        return rows.map((r: any) => ({ ...r, created_at: r.created_at, read: r.read ?? false }));
+    } catch (e: any) {
+        if (e.message?.includes('missing_connection_string') || e.message?.includes('does not exist')) {
+            return [];
+        }
+        console.error("Get Contact Messages Error:", e);
+        return [];
     }
 };
 

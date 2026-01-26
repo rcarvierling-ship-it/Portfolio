@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Monitor, Briefcase, Image, BarChart2, Zap, Box, Activity, ArrowRight, LayoutDashboard, Settings, Pin, GripVertical, X, Flame } from "lucide-react"
+import { Monitor, Briefcase, Image, BarChart2, Zap, Box, Activity, ArrowRight, LayoutDashboard, Settings, Pin, GripVertical, X, Flame, Mail } from "lucide-react"
 import { HistoryCard } from "@/components/dashboard/sections/history-card"
 import { MetricsSnapshot } from "@/components/dashboard/sections/metrics-snapshot"
 import { cn } from "@/lib/utils"
@@ -173,6 +173,23 @@ export function DashboardHome({ setActiveTab }: DashboardHomeProps) {
                         onTogglePin={() => isPinned('Media Library')
                             ? handleUnpin(settings?.pinnedItems?.find(p => p.title === 'Media Library')?.id || "")
                             : handlePin({ type: 'tool', title: 'Media Library', link: '?tab=photos', description: 'Asset Manager' })
+                        }
+                    />
+
+                    <HeroActionCard
+                        title="Contact Inbox"
+                        description="View and reply to messages from the contact form."
+                        icon={<Mail className="w-8 h-8" />}
+                        onClick={() => setActiveTab('contact-inbox')}
+                        gradient="from-cyan-500/10 via-cyan-500/5 to-transparent"
+                        accentColor="text-cyan-500"
+                        borderColor="hover:border-cyan-500/50"
+                        label="_INBOX"
+                        compact
+                        isPinned={isPinned('Contact Inbox')}
+                        onTogglePin={() => isPinned('Contact Inbox')
+                            ? handleUnpin(settings?.pinnedItems?.find(p => p.title === 'Contact Inbox')?.id || "")
+                            : handlePin({ type: 'tool', title: 'Contact Inbox', link: '?tab=contact-inbox', description: 'Contact messages' })
                         }
                     />
 

@@ -4,6 +4,7 @@ import { ContactData } from "@/lib/types"
 import { TextReveal } from "@/components/animations/text-reveal"
 import { Mail, Instagram } from "lucide-react"
 import { AnimatedIcon } from "@/components/ui/animated-icon"
+import { ContactForm } from "@/components/ui/contact-form"
 
 interface ContactViewProps {
     data: ContactData
@@ -46,6 +47,11 @@ export function ContactView({ data }: ContactViewProps) {
                             <a href={`https://www.instagram.com/${instagram.replace('@', '')}/`} target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-primary transition-colors">{instagram}</a>
                         </div>
                     </div>
+                </div>
+
+                <div className="mt-12 pt-12 border-t border-border">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">Send a message</h3>
+                    <ContactForm />
                 </div>
             </div>
         </div>
