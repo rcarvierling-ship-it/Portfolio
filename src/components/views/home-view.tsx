@@ -25,9 +25,7 @@ export function HomeView({ data, featuredProjectsNode, recentPhotosNode }: HomeV
             />
             {featuredProjectsNode}
             <ServicesSection services={data?.services} />
-            <ServicesSection services={data?.services} />
             <MarqueeSection keywords={data?.marquee?.keywords} />
-            {recentPhotosNode}
             {recentPhotosNode}
         </div>
     );
