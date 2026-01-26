@@ -24,7 +24,8 @@ export function Toast({ id, type, title, description, duration = 4000, onClose }
                 const newProgress = prev - (100 / (duration / 50))
                 if (newProgress <= 0) {
                     clearInterval(interval)
-                    onClose(id)
+                    // Defer the onClose call to avoid updating parent during render
+                    setTimeout(() =>  onClose(id), 0)
                     return 0
                 }
                 return newProgress

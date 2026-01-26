@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
 import { HomeView } from "@/components/views/home-view"
 import { AboutView } from "@/components/views/about-view"
 import { ContactView } from "@/components/views/contact-view"
 import { HomeData, ServiceItem, AboutData, ContactData } from "@/lib/types"
 import { MagneticButton } from "@/components/ui/magnetic-button"
-import { Home, Save, Smartphone, Monitor, Globe, Rocket, Eye, Settings as SettingsIcon, Layout, FileText, ChevronUp, ChevronDown, Trash, Plus, Loader2 } from "lucide-react"
+import { Home, Save, Smartphone, Monitor, Globe, Rocket, Eye, Settings as SettingsIcon, Layout, FileText, ChevronUp, ChevronDown, Trash, Plus, Loader2, CheckCircle2 } from "lucide-react"
 import { ToastContainer, ToastProps } from "@/components/ui/toast"
 
 interface VisualEditorProps {
@@ -61,8 +63,10 @@ export function VisualEditor({ slug }: VisualEditorProps) {
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [availablePages, setAvailablePages] = useState<{ title: string, slug: string }[]>([]);
     const [isPublishing, setIsPublishing] = useState(false);
+    const [showPublishSuccess, setShowPublishSuccess] = useState(false);
     const [toasts, setToasts] = useState<ToastProps[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
 
     const addToast = (toast: Omit<ToastProps, 'id' | 'onClose'>) => {
         const id = Date.now().toString();
@@ -181,6 +185,8 @@ export function VisualEditor({ slug }: VisualEditorProps) {
             if (data.success) {
                 setFullContent(newFullContent);
                 setHasUnsavedChanges(false);
+                setShowPublishSuccess(true);
+                setTimeout(() => setShowPublishSuccess(false), 2400);
 
                 addToast({
                     type: 'success',
@@ -586,6 +592,19 @@ export function VisualEditor({ slug }: VisualEditorProps) {
                         </div>
                     </div>
 
+                    {/* Page switcher: Home, About, Contact */}
+                    <div className="flex gap-1 p-1 bg-secondary/30 rounded-lg mb-4">
+                        {(['home', 'about', 'contact'] as const).map((s) => (
+                            <button
+                                key={s}
+                                onClick={() => router.push(s === 'home' ? '/dashboard/pages' : `/dashboard/pages/${s}`)}
+                                className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-colors ${slug === s ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'}`}
+                            >
+                                {s.charAt(0).toUpperCase() + s.slice(1)}
+                            </button>
+                        ))}
+                    </div>
+
                     {/* Tabs */}
                     <div className="flex bg-secondary/50 p-1 rounded-lg">
                         <button
@@ -669,6 +688,54 @@ export function VisualEditor({ slug }: VisualEditorProps) {
                     </div>
                 </div>
             </div>
+
+            {/* Publish Success Overlay */}
+            <AnimatePresence>
+                {showPublishSuccess && (
+                    <motion.div
+                        key="publish-success"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed inset-0 z-[10000] flex items-center justify-center pointer-events-none"
+                    >
+                        <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
+                        <motion.div
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                            className="relative z-10 flex flex-col items-center gap-4 rounded-2xl border border-green-500/50 bg-gradient-to-br from-green-500/20 to-emerald-600/20 px-10 py-8 shadow-2xl shadow-green-500/20"
+                        >
+                            <motion.div
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.05 }}
+                                className="text-green-400"
+                            >
+                                <CheckCircle2 size={56} strokeWidth={2} />
+                            </motion.div>
+                            <motion.p
+                                initial={{ y: 8, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.15 }}
+                                className="text-xl font-bold text-white"
+                            >
+                                Published
+                            </motion.p>
+                            <motion.p
+                                initial={{ y: 4, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.25 }}
+                                className="text-sm text-green-200/90"
+                            >
+                                Your changes are now live.
+                            </motion.p>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Toast Notifications */}
             <ToastContainer toasts={toasts} onClose={removeToast} />

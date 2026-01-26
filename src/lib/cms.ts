@@ -281,6 +281,7 @@ export const savePage = async (page: Page, user: string): Promise<boolean> => {
                 content = EXCLUDED.content,
                 blocks = EXCLUDED.blocks,
                 status = EXCLUDED.status,
+                version = EXCLUDED.version,
                 updated_at = EXCLUDED.updated_at
         `;
         await logHistory(page.version === 1 ? 'create' : 'update', 'page', page.id, user);

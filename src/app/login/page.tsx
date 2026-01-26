@@ -6,11 +6,13 @@ export const metadata: Metadata = {
     description: "Admin access only.",
 }
 
-export default function LoginPage({
+export default async function LoginPage({
     searchParams,
 }: {
-    searchParams?: { [key: string]: string | string[] | undefined }
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+    const params = await searchParams;
+
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-6">
             <div className="w-full max-w-sm space-y-6">
@@ -39,8 +41,8 @@ export default function LoginPage({
                     />
 
                     {/* Preserve callbackUrl if present */}
-                    {searchParams?.callbackUrl && (
-                        <input type="hidden" name="redirectTo" value={searchParams.callbackUrl} />
+                    {params?.callbackUrl && (
+                        <input type="hidden" name="redirectTo" value={params.callbackUrl as string} />
                     )}
 
                     <button
@@ -50,9 +52,9 @@ export default function LoginPage({
                         Unlock Dashboard
                     </button>
 
-                    {searchParams?.error && (
+                    {params?.error && (
                         <div className="text-red-500 text-xs text-center font-medium bg-red-500/10 p-2 rounded">
-                            {searchParams.error === "CredentialsSignin"
+                            {params.error === "CredentialsSignin"
                                 ? "Invalid password. Access denied."
                                 : "Authentication failed. Please try again."}
                         </div>

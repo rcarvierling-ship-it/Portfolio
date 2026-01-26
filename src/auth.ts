@@ -10,7 +10,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
             async authorize(credentials) {
                 const correctPassword = process.env.ADMIN_PASSWORD;
-                if (credentials.password === correctPassword) {
+                const correctPin = process.env.NEXT_PUBLIC_ADMIN_PIN;
+
+                // Accept either the password or the PIN
+                if (credentials.password === correctPassword || credentials.password === correctPin) {
                     // Return a user object that mimics what the API routes expect
                     // We reuse ADMIN_EMAIL so existing checks pass perfectly
                     return {

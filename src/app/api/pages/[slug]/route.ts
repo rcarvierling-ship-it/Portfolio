@@ -46,23 +46,33 @@ export async function POST(
 
     try {
         const body = await request.json();
+        const slug = (await params).slug;
         const user = session.user?.email || "Admin";
+
+        console.log('[API] Publishing page:', slug, 'with data:', JSON.stringify(body).substring(0, 200));
 
         // body.content should be the FULL object { draft: ..., published: ... }
         // The editor decides when to update 'published' (by copying draft to it).
 
         const pageToSave = {
             ...body,
-            id: body.id || (await params).slug,
+            id: body.id || slug,
+            slug: slug,
             createdAt: body.createdAt || new Date().toISOString()
         };
 
+        console.log('[API] Saving page with ID:', pageToSave.id);
+
         const success = await savePage(pageToSave, user);
 
-        if (!success) return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
+        if (!success) {
+            console.error('[API] savePage returned false');
+            return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });
+        }
+
+        console.log('[API] Page saved successfully');
 
         // Revalidate the page route to clear cache
-        const slug = (await params).slug;
         try {
             // Revalidate the specific page route
             if (slug === 'home') {
@@ -79,6 +89,10 @@ export async function POST(
 
         return NextResponse.json({ success: true, data: pageToSave });
     } catch (error) {
-        return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+        console.error('[API] Error in POST /api/pages/[slug]:', error);
+        return NextResponse.json({
+            error: 'Invalid request',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 400 });
     }
 }

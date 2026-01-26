@@ -6,14 +6,16 @@ export const dynamic = 'force-dynamic';
 
 export default async function AboutPage() {
     const page = await getPage('about');
-    const content = page?.content || {};
+    const rawContent = page?.content || {};
+    // Support both { published, draft } structure and legacy flat content
+    const content = (rawContent.published || rawContent) as Record<string, unknown> | undefined;
 
     const aboutData: AboutData = {
-        headline: content.headline || "Photographer & Filmmaker",
-        bio: content.bio || ["Visual storyteller based in New York."],
-        portrait: content.portrait || "",
-        gear: content.gear || [],
-        timeline: content.timeline || []
+        headline: (content?.headline as string) || "Photographer & Filmmaker",
+        bio: (content?.bio as string[]) || ["Visual storyteller based in New York."],
+        portrait: (content?.portrait as string) || "",
+        gear: (content?.gear as AboutData['gear']) || [],
+        timeline: (content?.timeline as AboutData['timeline']) || []
     };
 
     return <AboutView data={aboutData} />;
