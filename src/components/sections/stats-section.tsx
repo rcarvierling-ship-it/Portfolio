@@ -62,7 +62,7 @@ interface StatsSectionProps {
     line2?: string;
 }
 
-export function StatsSection({ line1 = "50+ Projects • 10+ Years Exp • 15+ Creative Tools •", line2 = "Photography • Videography • Web Development •" }: StatsSectionProps) {
+export function StatsSection({ line1 = "", line2 = "Photography • Videography •" }: StatsSectionProps) {
     return (
         <section className="py-12 md:py-20 border-y border-border/50 bg-secondary/10 overflow-hidden relative">
             <ParallaxText baseVelocity={-2}>{line1}</ParallaxText>

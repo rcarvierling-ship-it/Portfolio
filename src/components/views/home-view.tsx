@@ -13,8 +13,8 @@ interface HomeViewProps {
 }
 
 export function HomeView({ data, featuredProjectsNode, recentPhotosNode }: HomeViewProps) {
-    const heroTitle = data?.hero?.title || "Capturing light, emotion, and the moments in between.";
-    const heroDescription = data?.hero?.description || "Reese Vierling (RCV.Media) — Senior Frontend Engineer & Creative Developer specializing in interactive web applications and 3D experiences.";
+    const heroTitle = data?.hero?.title || "Rcv.Media";
+    const heroDescription = data?.hero?.description || "Reese Vierling (RCV.Media)";
 
     return (
         <div className="flex flex-col gap-0">
